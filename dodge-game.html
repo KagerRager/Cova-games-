@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1VFNJ21V0');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dodge Game — Build It Yourself</title>
@@ -577,6 +585,7 @@ function startGame() {
   boxes = [];
   score = 0;
   player.x = 160;
+  gtag('event','game_start',{game:'Dodge Game'});
   document.getElementById('playBtn').textContent = 'Playing...';
 
   spawnInterval = setInterval(() => {
@@ -602,6 +611,7 @@ function endGame() {
   clearInterval(spawnInterval);
   clearInterval(scoreInterval);
   cancelAnimationFrame(animId);
+  gtag('event','game_over',{game:'Dodge Game',score:score});
   if (score > hiScore) {
     hiScore = score;
     document.getElementById('hiVal').textContent = hiScore;

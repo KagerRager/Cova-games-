@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1VFNJ21V0');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOVA STRIKE</title>
@@ -590,19 +598,19 @@ function update(){
   tick++;
 
   if(state==='menu'){
-    if(keys[' ']){ state='playing'; resetGame(); keys[' ']=false; return; }
+    if(keys[' ']){ state='playing'; resetGame(); gtag('event','game_start',{game:'Nova Strike'}); keys[' ']=false; return; }
     if(keys['c']||keys['C']){ state='customize'; keys['c']=keys['C']=false; return; }
     return;
   }
   if(state==='customize'){
     if(keys['ArrowRight']||keys['d']){ chosenSkin=(chosenSkin+1)%SKINS.length; keys['ArrowRight']=keys['d']=false; }
     if(keys['ArrowLeft']||keys['a']){ chosenSkin=(chosenSkin+SKINS.length-1)%SKINS.length; keys['ArrowLeft']=keys['a']=false; }
-    if(keys[' ']){ state='playing'; resetGame(); keys[' ']=false; return; }
+    if(keys[' ']){ state='playing'; resetGame(); gtag('event','game_start',{game:'Nova Strike'}); keys[' ']=false; return; }
     if(keys['Escape']){ state='menu'; keys['Escape']=false; return; }
     return;
   }
   if(state==='gameover'){
-    if(keys[' ']){ state='playing'; resetGame(); keys[' ']=false; return; }
+    if(keys[' ']){ state='playing'; resetGame(); gtag('event','game_start',{game:'Nova Strike'}); keys[' ']=false; return; }
     if(keys['c']||keys['C']){ state='customize'; keys['c']=keys['C']=false; return; }
     return;
   }
@@ -860,6 +868,7 @@ function hitPlayer(){
     hiScore=Math.max(score,hiScore);
     localStorage.setItem('ns2_hi',hiScore);
     state='gameover';
+    gtag('event','game_over',{game:'Nova Strike',score:score,wave:wave});
   }
 }
 
