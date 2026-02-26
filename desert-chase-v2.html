@@ -39,80 +39,135 @@ let H = Math.min(window.innerHeight, 700);
 canvas.width = W;
 canvas.height = H;
 
-// ── SETTINGS ─────────────────────────────────────────────
-const playerColor = '#cc2200';
-const copColor    = '#1a1aff';
-const maxSpeed    = 5;
-const copBaseSpeed = 1.8;
-const spawnRate   = 90;      // frames between cop spawns
-const WIN_SCORE   = 30;      // survive this many seconds to win
-// ─────────────────────────────────────────────────────────
+// ── LEVELS CONFIG ─────────────────────────────────────────
+const LEVELS = [
+  { name: 'ROOKIE',    goal: 20, spawnRate: 120, copSpeedMult: 0.8, maxCops: 4,  copLifetime: 1200, description: 'Survive 20s' },
+  { name: 'WANTED',    goal: 35, spawnRate: 90,  copSpeedMult: 1.0, maxCops: 6,  copLifetime: 1000, description: 'Survive 35s' },
+  { name: 'FUGITIVE',  goal: 50, spawnRate: 70,  copSpeedMult: 1.2, maxCops: 8,  copLifetime: 900,  description: 'Survive 50s' },
+  { name: 'OUTLAW',    goal: 75, spawnRate: 50,  copSpeedMult: 1.5, maxCops: 10, copLifetime: 750,  description: 'Survive 75s' },
+];
+
+// ── CUSTOMIZATION DEFAULTS ────────────────────────────────
+const CUSTOM = {
+  playerColor: '#cc2200',
+  trailColor:  '#c4a257',
+  copColor:    '#1a1aff',
+  carShape:    'classic', // 'classic' | 'muscle' | 'sports'
+};
+
+// ── STATE ──
+let state = 'home'; // 'home' | 'customize' | 'playing' | 'dead' | 'win'
+let currentLevel = 0;
+let score = 0, highScores = [0,0,0,0], frame = 0;
+let dustParticles = [], explosions = [], cops = [], powerups = [];
+let copTimer = 0, powerupTimer = 0;
+let activeEffects = { shield: 0, speed: 0, freeze: 0, ghost: 0 };
+let shieldHit = false;
+let homePulse = 0;
+let levelBtnHover = -1;
+let customHover = '';
 
 // ── MOUSE ──
-let mouse = { x: W/2, y: H/2 };
+let mouse = { x: W/2, y: H/2, down: false };
 canvas.addEventListener('mousemove', e => {
   const r = canvas.getBoundingClientRect();
   mouse.x = e.clientX - r.left;
   mouse.y = e.clientY - r.top;
+  trackHover();
 });
+canvas.addEventListener('mousedown', () => { mouse.down = true; });
+canvas.addEventListener('mouseup',   () => { mouse.down = false; });
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   const r = canvas.getBoundingClientRect();
   mouse.x = e.touches[0].clientX - r.left;
   mouse.y = e.touches[0].clientY - r.top;
 }, { passive: false });
+canvas.addEventListener('touchstart', e => {
+  const r = canvas.getBoundingClientRect();
+  mouse.x = e.touches[0].clientX - r.left;
+  mouse.y = e.touches[0].clientY - r.top;
+}, { passive: false });
 
-// ── SCENERY ──
-const ROCKS = Array.from({length:35}, () => ({
-  x: Math.random()*W, y: Math.random()*H,
-  r: 3+Math.random()*9, shade: Math.random()
-}));
-const CACTI = Array.from({length:15}, () => ({
-  x: Math.random()*W, y: Math.random()*H,
-  h: 14+Math.random()*20
-}));
-const TRACKS = Array.from({length:6}, () => ({
-  x: Math.random()*W, y: Math.random()*H,
-  angle: Math.random()*Math.PI*2, len: 40+Math.random()*90
-}));
+function trackHover() {
+  if (state === 'home') {
+    levelBtnHover = -1;
+    LEVELS.forEach((_, i) => {
+      const bx = W/2 - 130, by = 220 + i*68, bw = 260, bh = 54;
+      if (mouse.x >= bx && mouse.x <= bx+bw && mouse.y >= by && mouse.y <= by+bh) levelBtnHover = i;
+    });
+  }
+  if (state === 'customize') {
+    customHover = '';
+    const colors = getColorButtons();
+    colors.forEach(b => {
+      if (mouse.x >= b.x && mouse.x <= b.x+b.w && mouse.y >= b.y && mouse.y <= b.y+b.h) customHover = b.id;
+    });
+    const shapes = getShapeButtons();
+    shapes.forEach(b => {
+      if (mouse.x >= b.x && mouse.x <= b.x+b.w && mouse.y >= b.y && mouse.y <= b.y+b.h) customHover = b.id;
+    });
+  }
+}
 
-// ── ESCAPE ZONE ──
-// The player must reach this glowing zone to win
-const ZONE = {
-  x: W - 80,
-  y: 40,
-  w: 60,
-  h: 60,
-  pulse: 0
-};
-
-// ── STATE ──
-let state = 'playing'; // 'playing' | 'dead' | 'win'
-let score = 0, highScore = 0, frame = 0;
-let dustParticles = [], explosions = [], cops = [];
-let copTimer = 0;
-
+// ── PLAYER ──
 const player = {
   x: W/2, y: H/2,
+  vx: 0, vy: 0,
   angle: 0,
-  w: 18, h: 30
+  w: 18, h: 30,
+  targetX: W/2, targetY: H/2
 };
+
+// ── SCENERY (regenerated per game) ──
+let ROCKS = [], CACTI = [], TRACKS = [];
+function genScenery() {
+  ROCKS  = Array.from({length:35}, () => ({ x:Math.random()*W, y:Math.random()*H, r:3+Math.random()*9, shade:Math.random() }));
+  CACTI  = Array.from({length:15}, () => ({ x:Math.random()*W, y:Math.random()*H, h:14+Math.random()*20 }));
+  TRACKS = Array.from({length:6},  () => ({ x:Math.random()*W, y:Math.random()*H, angle:Math.random()*Math.PI*2, len:40+Math.random()*90 }));
+}
+genScenery();
+
+// ── POWERUP DEFINITIONS ──
+const POWERUP_TYPES = [
+  { type:'shield', color:'#00cfff', glow:'#00cfff', label:'SHIELD',  desc:'Block one hit',     duration:600  },
+  { type:'speed',  color:'#ffdd00', glow:'#ffaa00', label:'BOOST',   desc:'Speed boost',        duration:300  },
+  { type:'freeze', color:'#aaffff', glow:'#00ffee', label:'FREEZE',  desc:'Slow all cops',      duration:360  },
+  { type:'ghost',  color:'#dd88ff', glow:'#aa44ff', label:'GHOST',   desc:'Cops ignore you',    duration:240  },
+];
+
+// ── SPAWN POWERUP ──
+function spawnPowerup() {
+  const t = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+  const margin = 60;
+  powerups.push({
+    ...t,
+    x: margin + Math.random() * (W - margin*2),
+    y: margin + Math.random() * (H - margin*2),
+    pulse: Math.random() * Math.PI * 2,
+    life: 600 // disappears after 10s if not picked up
+  });
+}
 
 // ── SPAWN COP ──
 function spawnCop() {
+  const lvl = LEVELS[currentLevel];
+  if (cops.length >= lvl.maxCops) return;
   const side = Math.floor(Math.random()*4);
   let x, y;
-  if (side===0) { x=Math.random()*W; y=-40; }
+  if      (side===0) { x=Math.random()*W; y=-40; }
   else if (side===1) { x=W+40; y=Math.random()*H; }
   else if (side===2) { x=Math.random()*W; y=H+40; }
-  else { x=-40; y=Math.random()*H; }
+  else               { x=-40; y=Math.random()*H; }
   cops.push({
     x, y,
-    vx: 0, vy: 0,          // velocity (for proper collision)
-    angle: 0,
-    w: 16, h: 28,
-    speed: copBaseSpeed + Math.min(score*0.008, 2),
-    lt: 0
+    vx:0, vy:0,
+    angle:0,
+    w:16, h:28,
+    speed: (1.8 + Math.min(score*0.006, 1.5)) * lvl.copSpeedMult,
+    lt:0,
+    age:0,
+    lifetime: lvl.copLifetime
   });
 }
 
@@ -123,9 +178,9 @@ function spawnDust(x, y, color) {
     const s = 0.5+Math.random()*2;
     dustParticles.push({
       x, y,
-      vx: Math.cos(a)*s, vy: Math.sin(a)*s,
-      life: 1, decay: 0.035+Math.random()*0.025,
-      r: 2+Math.random()*4, color: color||'#c4a257'
+      vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+      life:1, decay:0.035+Math.random()*0.025,
+      r:2+Math.random()*4, color:color||CUSTOM.trailColor
     });
   }
 }
@@ -136,112 +191,119 @@ function spawnExplosion(x, y) {
     const s = 1+Math.random()*7;
     explosions.push({
       x, y,
-      vx: Math.cos(a)*s, vy: Math.sin(a)*s,
-      life: 1, decay: 0.012+Math.random()*0.018,
-      r: 4+Math.random()*12,
-      color: ['#ff6600','#ff3300','#ffcc00','#ff9900','#ffffff'][Math.floor(Math.random()*5)]
+      vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+      life:1, decay:0.012+Math.random()*0.018,
+      r:4+Math.random()*12,
+      color:['#ff6600','#ff3300','#ffcc00','#ff9900','#ffffff'][Math.floor(Math.random()*5)]
     });
   }
 }
 
 // ── COLLISION HELPERS ──
-// AABB overlap check (axis-aligned boxes)
-function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
-  return ax - aw/2 < bx + bw/2 &&
-         ax + aw/2 > bx - bw/2 &&
-         ay - ah/2 < by + bh/2 &&
-         ay + ah/2 > by - bh/2;
+function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh) {
+  return ax-aw/2<bx+bw/2 && ax+aw/2>bx-bw/2 && ay-ah/2<by+bh/2 && ay+ah/2>by-bh/2;
 }
 
-// Push two cops apart so they don't phase through each other
-function separateCops(a, b) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const dist = Math.sqrt(dx*dx + dy*dy) || 0.001;
-
-  // Minimum separation distance (half widths + half widths)
-  const minDist = (a.w + b.w) / 2;
-  if (dist >= minDist) return; // already separated
-
-  // Overlap amount
-  const overlap = (minDist - dist) / 2;
-  const nx = dx / dist; // normal vector
-  const ny = dy / dist;
-
-  // Push them apart equally
-  a.x -= nx * overlap;
-  a.y -= ny * overlap;
-  b.x += nx * overlap;
-  b.y += ny * overlap;
-
-  // Exchange velocity components along collision normal (elastic bounce)
-  const dvx = b.vx - a.vx;
-  const dvy = b.vy - a.vy;
-  const dot = dvx * nx + dvy * ny;
-  if (dot < 0) { // only if approaching each other
-    a.vx += dot * nx;
-    a.vy += dot * ny;
-    b.vx -= dot * nx;
-    b.vy -= dot * ny;
-  }
+function separateCops(a,b) {
+  const dx=b.x-a.x, dy=b.y-a.y;
+  const dist=Math.sqrt(dx*dx+dy*dy)||0.001;
+  const minDist=(a.w+b.w)/2;
+  if (dist>=minDist) return;
+  const overlap=(minDist-dist)/2;
+  const nx=dx/dist, ny=dy/dist;
+  a.x-=nx*overlap; a.y-=ny*overlap;
+  b.x+=nx*overlap; b.y+=ny*overlap;
+  const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
+  const dot=dvx*nx+dvy*ny;
+  if (dot<0) { a.vx+=dot*nx; a.vy+=dot*ny; b.vx-=dot*nx; b.vy-=dot*ny; }
 }
 
-// ── DRAW HELPERS ──
-function drawCar(x, y, angle, w, h, color, isCop) {
+// ── DRAW CAR ──
+function drawCar(x,y,angle,w,h,color,isCop,shape) {
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(x,y);
   ctx.rotate(angle);
+  const s = shape || CUSTOM.carShape;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fillRect(-w/2+3, -h/2+3, w, h);
+  // Shadow
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  ctx.fillRect(-w/2+3,-h/2+3,w,h);
 
-  ctx.fillStyle = color;
-  ctx.fillRect(-w/2, -h/2, w, h);
+  // Body
+  ctx.fillStyle=color;
+  if (s==='sports') {
+    ctx.beginPath();
+    ctx.moveTo(-w/2, h/2);
+    ctx.lineTo(-w/2+2, -h/2);
+    ctx.lineTo(w/2-2, -h/2);
+    ctx.lineTo(w/2, h/2);
+    ctx.closePath();
+    ctx.fill();
+  } else if (s==='muscle') {
+    ctx.fillRect(-w/2,-h/2,w,h);
+    ctx.fillStyle=color;
+    ctx.fillRect(-w/2-2,-h/4,4,h/2);
+    ctx.fillRect(w/2-2,-h/4,4,h/2);
+  } else {
+    ctx.fillRect(-w/2,-h/2,w,h);
+  }
 
-  ctx.fillStyle = 'rgba(150,220,255,0.7)';
-  ctx.fillRect(-w/2+3, -h/2+4, w-6, h*0.28);
-  ctx.fillRect(-w/2+3, h/2-4-h*0.2, w-6, h*0.2);
+  // Windows
+  ctx.fillStyle='rgba(150,220,255,0.7)';
+  ctx.fillRect(-w/2+3,-h/2+4,w-6,h*0.28);
+  ctx.fillRect(-w/2+3,h/2-4-h*0.2,w-6,h*0.2);
 
-  ctx.fillStyle = '#111';
-  ctx.fillRect(-w/2-3, -h/2+4, 4, 8);
-  ctx.fillRect(w/2-1,  -h/2+4, 4, 8);
-  ctx.fillRect(-w/2-3, h/2-12, 4, 8);
-  ctx.fillRect(w/2-1,  h/2-12, 4, 8);
+  // Wheels
+  ctx.fillStyle='#111';
+  ctx.fillRect(-w/2-3,-h/2+4,4,8);
+  ctx.fillRect(w/2-1, -h/2+4,4,8);
+  ctx.fillRect(-w/2-3,h/2-12,4,8);
+  ctx.fillRect(w/2-1, h/2-12,4,8);
 
+  // Cop stripe
   if (isCop) {
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(-w/2, -3, w, 6);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(-w/2, -1, w, 2);
+    ctx.fillStyle='#fff';
+    ctx.fillRect(-w/2,-3,w,6);
+    ctx.fillStyle='#000';
+    ctx.fillRect(-w/2,-1,w,2);
   }
   ctx.restore();
 }
 
-function drawLights(x, y, angle, lt) {
+function drawLights(x,y,angle,lt) {
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(x,y);
   ctx.rotate(angle);
-  const f = Math.floor(lt/7)%2;
-  ctx.shadowBlur = 16;
-  ctx.fillStyle = f===0 ? '#ff2222' : '#0044ff';
-  ctx.shadowColor = ctx.fillStyle;
-  ctx.fillRect(-6, -14, 6, 5);
-  ctx.fillStyle = f===0 ? '#0044ff' : '#ff2222';
-  ctx.shadowColor = ctx.fillStyle;
-  ctx.fillRect(1, -14, 6, 5);
-  ctx.shadowBlur = 0;
+  const f=Math.floor(lt/7)%2;
+  ctx.shadowBlur=16;
+  ctx.fillStyle=f===0?'#ff2222':'#0044ff'; ctx.shadowColor=ctx.fillStyle;
+  ctx.fillRect(-6,-14,6,5);
+  ctx.fillStyle=f===0?'#0044ff':'#ff2222'; ctx.shadowColor=ctx.fillStyle;
+  ctx.fillRect(1,-14,6,5);
+  ctx.shadowBlur=0;
+  ctx.restore();
+}
+
+function drawShield(x,y,r) {
+  ctx.save();
+  ctx.translate(x,y);
+  const pulse = (frame*0.05)%(Math.PI*2);
+  ctx.strokeStyle=`rgba(0,207,255,${0.6+0.4*Math.sin(pulse)})`;
+  ctx.lineWidth=3;
+  ctx.shadowBlur=18; ctx.shadowColor='#00cfff';
+  ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
+  ctx.shadowBlur=0;
   ctx.restore();
 }
 
 function drawDesert() {
-  const g = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
-  g.addColorStop(0, '#e8c97a');
-  g.addColorStop(0.6, '#d4a84b');
-  g.addColorStop(1, '#b8882a');
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
+  g.addColorStop(0,'#e8c97a');
+  g.addColorStop(0.6,'#d4a84b');
+  g.addColorStop(1,'#b8882a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
 
-  TRACKS.forEach(t => {
+  TRACKS.forEach(t=>{
     ctx.save();
     ctx.translate(t.x,t.y); ctx.rotate(t.angle);
     ctx.strokeStyle='rgba(100,60,0,0.2)';
@@ -251,246 +313,521 @@ function drawDesert() {
     ctx.restore();
   });
 
-  ROCKS.forEach(rock => {
+  ROCKS.forEach(rock=>{
     ctx.fillStyle=`rgba(${120+rock.shade*40},${90+rock.shade*20},50,0.7)`;
     ctx.beginPath();
     ctx.ellipse(rock.x,rock.y,rock.r*1.4,rock.r,0,0,Math.PI*2);
     ctx.fill();
   });
 
-  CACTI.forEach(c => {
+  CACTI.forEach(c=>{
     ctx.fillStyle='#4a7c3f';
-    ctx.fillRect(c.x-3, c.y-c.h, 6, c.h);
-    ctx.fillRect(c.x-10, c.y-c.h*0.6, 8, 4);
-    ctx.fillRect(c.x-10, c.y-c.h*0.8, 4, c.h*0.2);
-    ctx.fillRect(c.x+2, c.y-c.h*0.5, 8, 4);
-    ctx.fillRect(c.x+6, c.y-c.h*0.7, 4, c.h*0.2);
+    ctx.fillRect(c.x-3,c.y-c.h,6,c.h);
+    ctx.fillRect(c.x-10,c.y-c.h*0.6,8,4);
+    ctx.fillRect(c.x-10,c.y-c.h*0.8,4,c.h*0.2);
+    ctx.fillRect(c.x+2,c.y-c.h*0.5,8,4);
+    ctx.fillRect(c.x+6,c.y-c.h*0.7,4,c.h*0.2);
   });
-}
-
-// ── ESCAPE ZONE ──
-function drawEscapeZone() {
-  ZONE.pulse = (ZONE.pulse + 0.05) % (Math.PI*2);
-  const glow = 0.5 + 0.5*Math.sin(ZONE.pulse);
-
-  // Outer glow ring
-  ctx.strokeStyle = `rgba(0,255,120,${0.3 + glow*0.5})`;
-  ctx.lineWidth = 3 + glow*4;
-  ctx.shadowBlur = 20;
-  ctx.shadowColor = '#00ff88';
-  ctx.strokeRect(ZONE.x, ZONE.y, ZONE.w, ZONE.h);
-  ctx.shadowBlur = 0;
-
-  // Fill
-  ctx.fillStyle = `rgba(0,255,120,${0.08 + glow*0.1})`;
-  ctx.fillRect(ZONE.x, ZONE.y, ZONE.w, ZONE.h);
-
-  // Label
-  ctx.fillStyle = `rgba(0,255,120,${0.7 + glow*0.3})`;
-  ctx.font = 'bold 10px Courier New';
-  ctx.textAlign = 'center';
-  ctx.fillText('ESCAPE', ZONE.x + ZONE.w/2, ZONE.y + ZONE.h/2 - 6);
-  ctx.fillText('ZONE', ZONE.x + ZONE.w/2, ZONE.y + ZONE.h/2 + 8);
-
-  // Arrow pointing to zone if player is far
-  const pdx = ZONE.x + ZONE.w/2 - player.x;
-  const pdy = ZONE.y + ZONE.h/2 - player.y;
-  const pdist = Math.sqrt(pdx*pdx + pdy*pdy);
-  if (pdist > 120) {
-    const ang = Math.atan2(pdy, pdx);
-    const ax = player.x + Math.cos(ang)*40;
-    const ay = player.y + Math.sin(ang)*40;
-    ctx.fillStyle = `rgba(0,255,120,${0.5+glow*0.4})`;
-    ctx.save();
-    ctx.translate(ax, ay);
-    ctx.rotate(ang);
-    ctx.beginPath();
-    ctx.moveTo(10,0); ctx.lineTo(-6,-6); ctx.lineTo(-6,6); ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-  ctx.textAlign = 'left';
 }
 
 // ── HUD ──
 function drawHUD() {
+  const lvl = LEVELS[currentLevel];
   // Score
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  ctx.fillRect(8,8,160,34);
-  ctx.fillStyle = '#ffdd44';
-  ctx.font = 'bold 14px Courier New';
-  ctx.fillText(`SCORE: ${score}`, 18, 30);
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(8,8,160,34);
+  ctx.fillStyle='#ffdd44'; ctx.font='bold 14px Courier New';
+  ctx.fillText(`SCORE: ${score}`,18,30);
 
   // Cops
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  ctx.fillRect(W-150,8,142,34);
-  ctx.fillStyle = '#ff4444';
-  ctx.textAlign = 'right';
-  ctx.fillText(`COPS: ${cops.length}`, W-16, 30);
-  ctx.textAlign = 'left';
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(W-150,8,142,34);
+  ctx.fillStyle='#ff4444'; ctx.textAlign='right';
+  ctx.fillText(`COPS: ${cops.length}/${lvl.maxCops}`,W-16,30);
+  ctx.textAlign='left';
 
-  // Win progress bar
-  const pct = Math.min(score / WIN_SCORE, 1);
-  const bw = W - 20;
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(10, H-28, bw, 16);
-  ctx.fillStyle = `rgba(0,${Math.floor(200*pct+55)},${Math.floor(120*pct)},0.85)`;
-  ctx.fillRect(10, H-28, bw*pct, 16);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(10, H-28, bw, 16);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 10px Courier New';
-  ctx.textAlign = 'center';
-  ctx.fillText(`SURVIVE ${WIN_SCORE - score > 0 ? WIN_SCORE - score : 0}s MORE TO ESCAPE`, W/2, H-16);
-  ctx.textAlign = 'left';
+  // Survive bar
+  const pct=Math.min(score/lvl.goal,1);
+  const bw=W-20;
+  ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(10,H-28,bw,16);
+  ctx.fillStyle=`rgba(0,${Math.floor(200*pct+55)},${Math.floor(120*pct)},0.85)`;
+  ctx.fillRect(10,H-28,bw*pct,16);
+  ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1;
+  ctx.strokeRect(10,H-28,bw,16);
+  ctx.fillStyle='#fff'; ctx.font='bold 10px Courier New'; ctx.textAlign='center';
+  const rem=Math.max(0,lvl.goal-score);
+  ctx.fillText(`${lvl.name} — SURVIVE ${rem}s MORE`,W/2,H-16);
+  ctx.textAlign='left';
+
+  // Active powerup icons
+  let px=8, py=50;
+  if (activeEffects.shield>0) { drawEffectIcon(px,py,'#00cfff','SHIELD',activeEffects.shield,600); px+=68; }
+  if (activeEffects.speed>0)  { drawEffectIcon(px,py,'#ffdd00','BOOST', activeEffects.speed,300);  px+=68; }
+  if (activeEffects.freeze>0) { drawEffectIcon(px,py,'#aaffff','FREEZE',activeEffects.freeze,360); px+=68; }
+  if (activeEffects.ghost>0)  { drawEffectIcon(px,py,'#dd88ff','GHOST', activeEffects.ghost,240);  px+=68; }
+}
+
+function drawEffectIcon(x,y,color,label,remaining,max) {
+  ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(x,y,60,30);
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.strokeRect(x,y,60,30);
+  ctx.fillStyle=color; ctx.font='bold 9px Courier New'; ctx.textAlign='center';
+  ctx.fillText(label,x+30,y+12);
+  const pct=remaining/max;
+  ctx.fillStyle=color+'55'; ctx.fillRect(x+2,y+17,56*pct,9);
+  ctx.textAlign='left';
+}
+
+// ── POWERUP DRAW ──
+function drawPowerups() {
+  powerups.forEach(p=>{
+    p.pulse=(p.pulse+0.07)%(Math.PI*2);
+    const glow=0.6+0.4*Math.sin(p.pulse);
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.shadowBlur=18*glow; ctx.shadowColor=p.glow;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();
+    ctx.arc(0,0,12,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#000';
+    ctx.font='bold 8px Courier New';
+    ctx.textAlign='center';
+    ctx.fillText(p.label,0,3);
+    ctx.restore();
+    // Fade out warning when almost gone
+    if (p.life<120) {
+      ctx.save();
+      ctx.globalAlpha=(p.life/120)*0.5+0.1;
+      ctx.strokeStyle=p.color;
+      ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(p.x,p.y,15+Math.sin(p.pulse*4)*3,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+  });
 }
 
 // ── SCREENS ──
+function drawHomeScreen() {
+  homePulse=(homePulse+0.02)%(Math.PI*2);
+
+  // BG
+  drawDesert();
+  ctx.fillStyle='rgba(10,5,0,0.7)'; ctx.fillRect(0,0,W,H);
+
+  // Title
+  ctx.shadowBlur=30; ctx.shadowColor='#ff6600';
+  ctx.fillStyle='#ff6600'; ctx.font='bold 52px Courier New';
+  ctx.textAlign='center';
+  ctx.fillText('DESERT CHASE',W/2,100);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#ffaa44'; ctx.font='16px Courier New';
+  ctx.fillText('Outrun the law. Survive.',W/2,132);
+
+  // Level buttons
+  LEVELS.forEach((lvl,i)=>{
+    const bx=W/2-130, by=220+i*68, bw=260, bh=54;
+    const hover=(levelBtnHover===i);
+    const hs=highScores[i];
+
+    ctx.fillStyle=hover?'rgba(255,100,0,0.25)':'rgba(0,0,0,0.45)';
+    ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=hover?'#ff6600':'#aa4400';
+    ctx.lineWidth=hover?3:2;
+    ctx.strokeRect(bx,by,bw,bh);
+
+    ctx.fillStyle=hover?'#ff9944':'#ffcc44';
+    ctx.font='bold 18px Courier New'; ctx.textAlign='center';
+    ctx.fillText(`LEVEL ${i+1}: ${lvl.name}`,W/2,by+22);
+    ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
+    ctx.fillText(lvl.description,W/2,by+38);
+    if (hs>0) {
+      ctx.fillStyle='#ffdd44'; ctx.font='10px Courier New'; ctx.textAlign='right';
+      ctx.fillText(`Best: ${hs}s`,bx+bw-8,by+bh-6);
+    }
+  });
+
+  // Customize button
+  const cx=W/2-80, cy=H-60, cw=160, ch=38;
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(cx,cy,cw,ch);
+  ctx.strokeStyle='#558855'; ctx.lineWidth=2; ctx.strokeRect(cx,cy,cw,ch);
+  ctx.fillStyle='#88cc88'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+  ctx.fillText('CUSTOMIZE',W/2,cy+24);
+
+  ctx.textAlign='left';
+}
+
+// ── CUSTOMIZE SCREEN ──
+function getColorButtons() {
+  const playerColors=['#cc2200','#00aa44','#0044cc','#aa00cc','#ff8800','#ffffff'];
+  const trailColors =['#c4a257','#ff6600','#00cc88','#8844ff','#ffffff','#ff2222'];
+  const copColors   =['#1a1aff','#ff2222','#222222','#00aa44','#888888','#ff8800'];
+  let btns=[];
+  const startY=120;
+  // Player color
+  playerColors.forEach((c,i)=>{ btns.push({id:'pc'+i, x:W/2-130+i*44, y:startY,    w:36, h:36, color:c, group:'player',  value:c}); });
+  trailColors.forEach((c,i)=> { btns.push({id:'tc'+i, x:W/2-130+i*44, y:startY+55, w:36, h:36, color:c, group:'trail',   value:c}); });
+  copColors.forEach((c,i)=>   { btns.push({id:'cc'+i, x:W/2-130+i*44, y:startY+110,w:36, h:36, color:c, group:'cop',     value:c}); });
+  return btns;
+}
+
+function getShapeButtons() {
+  const shapes=['classic','muscle','sports'];
+  return shapes.map((s,i)=>({ id:'sh'+i, x:W/2-130+i*90, y:310, w:80, h:48, shape:s, value:s }));
+}
+
+function drawCustomizeScreen() {
+  drawDesert();
+  ctx.fillStyle='rgba(10,5,0,0.8)'; ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle='#ffcc44'; ctx.font='bold 28px Courier New'; ctx.textAlign='center';
+  ctx.fillText('CUSTOMIZE',W/2,55);
+
+  // Labels
+  ctx.font='13px Courier New'; ctx.fillStyle='#aaa'; ctx.textAlign='left';
+  ctx.fillText('YOUR CAR COLOR', W/2-130, 112);
+  ctx.fillText('DUST / TRAIL',   W/2-130, 167);
+  ctx.fillText('COP CAR COLOR',  W/2-130, 222);
+
+  const colorBtns=getColorButtons();
+  colorBtns.forEach(b=>{
+    const hover=(customHover===b.id);
+    let selected=false;
+    if (b.group==='player'  && CUSTOM.playerColor===b.value) selected=true;
+    if (b.group==='trail'   && CUSTOM.trailColor===b.value)  selected=true;
+    if (b.group==='cop'     && CUSTOM.copColor===b.value)    selected=true;
+
+    ctx.fillStyle=b.color;
+    ctx.fillRect(b.x,b.y,b.w,b.h);
+    if (selected) {
+      ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+      ctx.strokeRect(b.x-2,b.y-2,b.w+4,b.h+4);
+    } else if (hover) {
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
+      ctx.strokeRect(b.x,b.y,b.w,b.h);
+    }
+  });
+
+  // Car shape
+  ctx.fillStyle='#aaa'; ctx.font='13px Courier New'; ctx.textAlign='left';
+  ctx.fillText('CAR SHAPE', W/2-130, 305);
+
+  const shapeBtns=getShapeButtons();
+  shapeBtns.forEach(b=>{
+    const hover=(customHover===b.id);
+    const selected=(CUSTOM.carShape===b.value);
+    ctx.fillStyle=selected?'rgba(255,100,0,0.25)':hover?'rgba(255,100,0,0.12)':'rgba(0,0,0,0.4)';
+    ctx.fillRect(b.x,b.y,b.w,b.h);
+    ctx.strokeStyle=selected?'#ff6600':hover?'rgba(255,100,0,0.5)':'#555';
+    ctx.lineWidth=selected?3:1;
+    ctx.strokeRect(b.x,b.y,b.w,b.h);
+
+    // Mini car preview
+    ctx.save();
+    ctx.translate(b.x+b.w/2, b.y+18);
+    drawCarMini(CUSTOM.playerColor, b.value);
+    ctx.restore();
+
+    ctx.fillStyle=selected?'#ff9944':'#aaa';
+    ctx.font='10px Courier New'; ctx.textAlign='center';
+    ctx.fillText(b.value.toUpperCase(), b.x+b.w/2, b.y+b.h-4);
+  });
+
+  // Back button
+  const bx=W/2-70, by=H-60, bw=140, bh=38;
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(bx,by,bw,bh);
+  ctx.strokeStyle='#666'; ctx.lineWidth=2; ctx.strokeRect(bx,by,bw,bh);
+  ctx.fillStyle='#aaa'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+  ctx.fillText('◀ BACK',W/2,by+24);
+
+  ctx.textAlign='left';
+}
+
+function drawCarMini(color, shape) {
+  const w=12, h=20;
+  ctx.rotate(-Math.PI/2);
+  ctx.fillStyle=color;
+  if (shape==='sports') {
+    ctx.beginPath();
+    ctx.moveTo(-w/2,h/2); ctx.lineTo(-w/2+1,-h/2); ctx.lineTo(w/2-1,-h/2); ctx.lineTo(w/2,h/2);
+    ctx.closePath(); ctx.fill();
+  } else {
+    ctx.fillRect(-w/2,-h/2,w,h);
+  }
+  ctx.fillStyle='rgba(150,220,255,0.7)';
+  ctx.fillRect(-w/2+2,-h/2+3,w-4,h*0.25);
+}
+
+// ── GAME OVER / WIN ──
 function drawGameOver() {
-  ctx.fillStyle = 'rgba(0,0,0,0.65)';
-  ctx.fillRect(0,0,W,H);
-  const pw=300,ph=240,px=W/2-pw/2,py=H/2-ph/2;
+  ctx.fillStyle='rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
+  const pw=300,ph=260,px=W/2-pw/2,py=H/2-ph/2;
   ctx.fillStyle='#1a0800'; ctx.strokeStyle='#ff4400'; ctx.lineWidth=3;
   ctx.fillRect(px,py,pw,ph); ctx.strokeRect(px,py,pw,ph);
-  ctx.fillStyle='#ff4400'; ctx.font='bold 40px Courier New';
-  ctx.textAlign='center';
+  ctx.fillStyle='#ff4400'; ctx.font='bold 40px Courier New'; ctx.textAlign='center';
   ctx.fillText('BUSTED!',W/2,py+62);
   ctx.font='34px serif'; ctx.fillText('🚔💥',W/2,py+108);
   ctx.fillStyle='#ffcc44'; ctx.font='bold 18px Courier New';
-  ctx.fillText('Score: '+score,W/2,py+148);
+  ctx.fillText('Survived: '+score+'s',W/2,py+148);
   ctx.fillStyle='#888'; ctx.font='14px Courier New';
-  ctx.fillText('Best: '+highScore,W/2,py+174);
+  ctx.fillText('Best: '+highScores[currentLevel]+'s',W/2,py+174);
   ctx.fillStyle='#fff'; ctx.font='13px Courier New';
-  ctx.fillText('Click to try again',W/2,py+212);
+  ctx.fillText('Click — play again',W/2,py+210);
+  ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
+  ctx.fillText('Right-click — back to menu',W/2,py+232);
   ctx.textAlign='left';
 }
 
 function drawWinScreen() {
-  ctx.fillStyle = 'rgba(0,20,0,0.75)';
-  ctx.fillRect(0,0,W,H);
-  const pw=320,ph=260,px=W/2-pw/2,py=H/2-ph/2;
+  ctx.fillStyle='rgba(0,20,0,0.75)'; ctx.fillRect(0,0,W,H);
+  const pw=320,ph=280,px=W/2-pw/2,py=H/2-ph/2;
   ctx.fillStyle='#001a00'; ctx.strokeStyle='#00ff88'; ctx.lineWidth=3;
   ctx.fillRect(px,py,pw,ph); ctx.strokeRect(px,py,pw,ph);
-
   ctx.shadowBlur=20; ctx.shadowColor='#00ff88';
-  ctx.fillStyle='#00ff88'; ctx.font='bold 38px Courier New';
-  ctx.textAlign='center';
-  ctx.fillText('YOU ESCAPED!',W/2,py+58);
+  ctx.fillStyle='#00ff88'; ctx.font='bold 34px Courier New'; ctx.textAlign='center';
+  ctx.fillText('YOU SURVIVED!',W/2,py+52);
   ctx.shadowBlur=0;
-
-  ctx.font='34px serif'; ctx.fillText('🏆🚗💨',W/2,py+108);
+  ctx.font='34px serif'; ctx.fillText('🏆🚗💨',W/2,py+100);
   ctx.fillStyle='#ffdd44'; ctx.font='bold 17px Courier New';
-  ctx.fillText('Score: '+score,W/2,py+148);
+  ctx.fillText('Survived: '+score+'s',W/2,py+140);
   ctx.fillStyle='#888'; ctx.font='13px Courier New';
-  ctx.fillText('Best: '+highScore,W/2,py+174);
-  ctx.fillStyle='#aaffcc'; ctx.font='12px Courier New';
-  ctx.fillText('You outran '+cops.length+' cop cars!',W/2,py+200);
-  ctx.fillStyle='#fff'; ctx.font='13px Courier New';
-  ctx.fillText('Click to play again',W/2,py+232);
+  ctx.fillText('Best: '+highScores[currentLevel]+'s',W/2,py+166);
+  const nextLvl = currentLevel+1;
+  if (nextLvl < LEVELS.length) {
+    ctx.fillStyle='#aaffcc'; ctx.font='12px Courier New';
+    ctx.fillText('Next: Level '+(nextLvl+1)+' — '+LEVELS[nextLvl].name,W/2,py+196);
+    ctx.fillStyle='#fff'; ctx.font='13px Courier New';
+    ctx.fillText('Click — next level',W/2,py+222);
+    ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
+    ctx.fillText('Right-click — back to menu',W/2,py+246);
+  } else {
+    ctx.fillStyle='#ffdd44'; ctx.font='14px Courier New';
+    ctx.fillText('ALL LEVELS COMPLETE!',W/2,py+196);
+    ctx.fillStyle='#fff'; ctx.font='13px Courier New';
+    ctx.fillText('Click — back to menu',W/2,py+232);
+  }
   ctx.textAlign='left';
 }
 
-// ── RESTART ──
-function restart() {
-  player.x=W/2; player.y=H/2; player.angle=0;
-  cops=[]; dustParticles=[]; explosions=[];
-  score=0; frame=0; copTimer=0;
-  state='playing';
-  gtag('event','game_start',{game:'Desert Chase'});
+// ── INPUT HANDLERS ──
+canvas.addEventListener('click', e => {
+  e.preventDefault();
+  handleClick(mouse.x, mouse.y, false);
+});
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (state==='dead'||state==='win') { state='home'; }
+});
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const tx=e.changedTouches[0].clientX-r.left;
+  const ty=e.changedTouches[0].clientY-r.top;
+  handleClick(tx,ty,false);
+});
+
+function handleClick(cx,cy,right) {
+  if (state==='home') {
+    // Level buttons
+    LEVELS.forEach((_,i)=>{
+      const bx=W/2-130, by=220+i*68, bw=260, bh=54;
+      if (cx>=bx&&cx<=bx+bw&&cy>=by&&cy<=by+bh) {
+        currentLevel=i;
+        startGame();
+      }
+    });
+    // Customize
+    const ccx=W/2-80, ccy=H-60, ccw=160, cch=38;
+    if (cx>=ccx&&cx<=ccx+ccw&&cy>=ccy&&cy<=ccy+cch) { state='customize'; }
+  }
+  else if (state==='customize') {
+    const colorBtns=getColorButtons();
+    colorBtns.forEach(b=>{
+      if (cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h) {
+        if (b.group==='player') CUSTOM.playerColor=b.value;
+        if (b.group==='trail')  CUSTOM.trailColor =b.value;
+        if (b.group==='cop')    CUSTOM.copColor   =b.value;
+      }
+    });
+    const shapeBtns=getShapeButtons();
+    shapeBtns.forEach(b=>{
+      if (cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h) CUSTOM.carShape=b.value;
+    });
+    const bx=W/2-70, by=H-60, bw=140, bh=38;
+    if (cx>=bx&&cx<=bx+bw&&cy>=by&&cy<=by+bh) state='home';
+  }
+  else if (state==='dead') {
+    restart(currentLevel);
+  }
+  else if (state==='win') {
+    const next=currentLevel+1;
+    if (next<LEVELS.length) { currentLevel=next; startGame(); }
+    else { state='home'; }
+  }
 }
 
-canvas.addEventListener('click', ()=>{ if(state!=='playing') restart(); });
-canvas.addEventListener('touchend', ()=>{ if(state!=='playing') restart(); });
+// ── START / RESTART ──
+function startGame() {
+  player.x=W/2; player.y=H/2;
+  player.vx=0; player.vy=0;
+  player.angle=0;
+  player.targetX=W/2; player.targetY=H/2;
+  cops=[]; dustParticles=[]; explosions=[]; powerups=[];
+  score=0; frame=0; copTimer=0; powerupTimer=0;
+  activeEffects={shield:0,speed:0,freeze:0,ghost:0};
+  shieldHit=false;
+  genScenery();
+  state='playing';
+  gtag('event','game_start',{game:'Desert Chase',level:currentLevel});
+}
+
+function restart(lvl) { currentLevel=lvl||0; startGame(); }
 
 // ── MAIN LOOP ──
 function loop() {
   requestAnimationFrame(loop);
   frame++;
 
-  if (state === 'playing') {
+  if (state==='home')      { drawHomeScreen(); return; }
+  if (state==='customize') { drawCustomizeScreen(); return; }
 
-    // Player follows mouse
-    const dx = mouse.x - player.x;
-    const dy = mouse.y - player.y;
-    const dist = Math.sqrt(dx*dx+dy*dy);
-    if (dist > 4) {
-      player.angle = Math.atan2(dy,dx) + Math.PI/2;
-      const spd = Math.min(dist*0.12, maxSpeed);
-      player.x += Math.cos(Math.atan2(dy,dx))*spd;
-      player.y += Math.sin(Math.atan2(dy,dx))*spd;
-      if (frame%4===0) spawnDust(player.x, player.y+10);
+  const lvl=LEVELS[currentLevel];
+
+  if (state==='playing') {
+
+    // ── PLAYER MOVEMENT (improved — smooth velocity-based) ──
+    const dx=mouse.x-player.x;
+    const dy=mouse.y-player.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const maxSpd = activeEffects.speed>0 ? 8.5 : 5.5;
+    const accel=0.18, friction=0.88;
+
+    if (dist>6) {
+      const ang=Math.atan2(dy,dx);
+      player.angle=ang+Math.PI/2;
+      const spd=Math.min(dist*0.10, maxSpd);
+      player.vx+=(Math.cos(ang)*spd-player.vx)*accel;
+      player.vy+=(Math.sin(ang)*spd-player.vy)*accel;
+    } else {
+      player.vx*=friction;
+      player.vy*=friction;
     }
-    player.x = Math.max(player.w, Math.min(W-player.w, player.x));
-    player.y = Math.max(player.h, Math.min(H-player.h, player.y));
+    player.x+=player.vx;
+    player.y+=player.vy;
+    player.x=Math.max(player.w,Math.min(W-player.w,player.x));
+    player.y=Math.max(player.h,Math.min(H-player.h,player.y));
+    const spd2=Math.sqrt(player.vx*player.vx+player.vy*player.vy);
+    if (frame%4===0 && spd2>1) spawnDust(player.x,player.y+10);
 
-    // Spawn cops (no limit!)
+    // ── SPAWN COPS ──
     copTimer++;
-    if (copTimer >= spawnRate) {
+    if (copTimer>=lvl.spawnRate) {
       spawnCop();
-      copTimer = 0;
+      copTimer=0;
     }
 
-    // Move cops
-    cops.forEach(cop => {
-      const ca = Math.atan2(player.y-cop.y, player.x-cop.x);
-      cop.angle = ca + Math.PI/2;
+    // ── SPAWN POWERUPS ──
+    powerupTimer++;
+    if (powerupTimer>=400) {
+      if (powerups.length<3) spawnPowerup();
+      powerupTimer=0;
+    }
 
-      // Apply steering toward player
-      const targetVx = Math.cos(ca)*cop.speed;
-      const targetVy = Math.sin(ca)*cop.speed;
-      cop.vx += (targetVx - cop.vx) * 0.15; // smooth steering
-      cop.vy += (targetVy - cop.vy) * 0.15;
-      cop.x += cop.vx;
-      cop.y += cop.vy;
+    // ── MOVE COPS ──
+    const freezeMult=activeEffects.freeze>0?0.3:1;
+    cops.forEach(cop=>{
+      cop.age++;
+      if (activeEffects.ghost>0) {
+        // cops wander randomly
+        cop.vx+=(Math.random()-0.5)*0.5;
+        cop.vy+=(Math.random()-0.5)*0.5;
+        cop.vx*=0.95; cop.vy*=0.95;
+      } else {
+        const ca=Math.atan2(player.y-cop.y,player.x-cop.x);
+        cop.angle=ca+Math.PI/2;
+        const tvx=Math.cos(ca)*cop.speed*freezeMult;
+        const tvy=Math.sin(ca)*cop.speed*freezeMult;
+        cop.vx+=(tvx-cop.vx)*0.15;
+        cop.vy+=(tvy-cop.vy)*0.15;
+      }
+      cop.x+=cop.vx; cop.y+=cop.vy;
       cop.lt++;
-      if (frame%7===0) spawnDust(cop.x, cop.y+10);
+      if (frame%7===0) spawnDust(cop.x,cop.y+10,'#b09040');
     });
 
-    // ── COP-COP COLLISION (separate all pairs) ──
-    for (let i = 0; i < cops.length; i++) {
-      for (let j = i+1; j < cops.length; j++) {
-        separateCops(cops[i], cops[j]);
+    // ── COP LIFETIME — unspawn old cops ──
+    cops=cops.filter(c=>c.age<c.lifetime);
+
+    // ── COP-COP SEPARATION ──
+    for (let i=0;i<cops.length;i++)
+      for (let j=i+1;j<cops.length;j++)
+        separateCops(cops[i],cops[j]);
+
+    // ── POWERUP LIFETIME ──
+    powerups.forEach(p=>p.life--);
+    powerups=powerups.filter(p=>p.life>0);
+
+    // ── POWERUP PICKUP ──
+    powerups=powerups.filter(p=>{
+      const pdx=p.x-player.x, pdy=p.y-player.y;
+      if (Math.sqrt(pdx*pdx+pdy*pdy)<22) {
+        activeEffects[p.type]=p.duration;
+        spawnDust(p.x,p.y,p.glow);
+        return false;
       }
-    }
+      return true;
+    });
+
+    // ── TICK EFFECTS ──
+    if (activeEffects.shield>0) activeEffects.shield--;
+    if (activeEffects.speed>0)  activeEffects.speed--;
+    if (activeEffects.freeze>0) activeEffects.freeze--;
+    if (activeEffects.ghost>0)  activeEffects.ghost--;
 
     // ── COP-PLAYER COLLISION ──
-    for (const cop of cops) {
-      if (rectsOverlap(cop.x,cop.y,cop.w,cop.h, player.x,player.y,player.w,player.h)) {
-        spawnExplosion(player.x, player.y);
-        spawnExplosion(cop.x, cop.y);
-        if (score>highScore) highScore=score;
-        state='dead';
-        gtag('event','game_over',{game:'Desert Chase',score:score});
-        break;
+    if (activeEffects.ghost===0) {
+      for (const cop of cops) {
+        if (rectsOverlap(cop.x,cop.y,cop.w,cop.h,player.x,player.y,player.w,player.h)) {
+          if (activeEffects.shield>0) {
+            // Shield absorbs hit
+            activeEffects.shield=0;
+            shieldHit=true;
+            setTimeout(()=>shieldHit=false,300);
+            // Bounce cop away
+            const ba=Math.atan2(cop.y-player.y,cop.x-player.x);
+            cop.vx=Math.cos(ba)*4; cop.vy=Math.sin(ba)*4;
+            spawnDust(player.x,player.y,'#00cfff');
+            break;
+          } else {
+            spawnExplosion(player.x,player.y);
+            spawnExplosion(cop.x,cop.y);
+            if (score>highScores[currentLevel]) highScores[currentLevel]=score;
+            state='dead';
+            gtag('event','game_over',{game:'Desert Chase',level:currentLevel,score:score});
+            break;
+          }
+        }
       }
     }
 
-    // ── WIN CONDITION: reach escape zone OR survive long enough ──
-    if (state === 'playing') {
-      const inZone = player.x > ZONE.x && player.x < ZONE.x+ZONE.w &&
-                     player.y > ZONE.y && player.y < ZONE.y+ZONE.h;
-      const survived = score >= WIN_SCORE;
-      if (inZone || survived) {
-        if (score>highScore) highScore=score;
-        state='win';
-        gtag('event','game_win',{game:'Desert Chase',score:score});
-      }
+    // ── WIN CONDITION: survive long enough ──
+    if (state==='playing' && score>=lvl.goal) {
+      if (score>highScores[currentLevel]) highScores[currentLevel]=score;
+      state='win';
+      gtag('event','game_win',{game:'Desert Chase',level:currentLevel,score:score});
     }
 
     // Score (1 per second)
     if (frame%60===0) score++;
   }
 
-  // Update particles
-  dustParticles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=0.92; p.vy*=0.92; p.life-=p.decay; });
-  dustParticles = dustParticles.filter(p=>p.life>0);
-  explosions.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=0.94; p.vy*=0.94; p.life-=p.decay; });
-  explosions = explosions.filter(p=>p.life>0);
+  // ── UPDATE PARTICLES ──
+  dustParticles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vx*=0.92;p.vy*=0.92;p.life-=p.decay;});
+  dustParticles=dustParticles.filter(p=>p.life>0);
+  explosions.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vx*=0.94;p.vy*=0.94;p.life-=p.decay;});
+  explosions=explosions.filter(p=>p.life>0);
 
   // ── DRAW ──
   drawDesert();
-  drawEscapeZone();
+  drawPowerups();
 
   // Dust
   dustParticles.forEach(p=>{
@@ -500,13 +837,35 @@ function loop() {
   });
   ctx.globalAlpha=1;
 
-  // Cars
-  if (state==='playing' || state==='win') {
+  // Ghost tint overlay
+  if (activeEffects.ghost>0) {
+    ctx.fillStyle='rgba(180,100,255,0.07)'; ctx.fillRect(0,0,W,H);
+  }
+  // Freeze tint overlay
+  if (activeEffects.freeze>0) {
+    ctx.fillStyle='rgba(0,200,255,0.06)'; ctx.fillRect(0,0,W,H);
+  }
+
+  // Cops
+  if (state==='playing'||state==='win') {
     cops.forEach(cop=>{
-      drawCar(cop.x,cop.y,cop.angle,cop.w,cop.h,copColor,true);
+      // Fade out dying cops
+      const fadeRatio=Math.min(1,(cop.lifetime-cop.age)/120);
+      ctx.globalAlpha=Math.max(0.2,fadeRatio);
+      drawCar(cop.x,cop.y,cop.angle,cop.w,cop.h,CUSTOM.copColor,true,'classic');
       drawLights(cop.x,cop.y,cop.angle,cop.lt);
+      ctx.globalAlpha=1;
     });
-    drawCar(player.x,player.y,player.angle,player.w,player.h,playerColor,false);
+
+    // Player (ghost = translucent)
+    if (activeEffects.ghost>0) ctx.globalAlpha=0.45;
+    drawCar(player.x,player.y,player.angle,player.w,player.h,CUSTOM.playerColor,false,CUSTOM.carShape);
+    ctx.globalAlpha=1;
+
+    // Shield ring
+    if (activeEffects.shield>0) {
+      drawShield(player.x,player.y,shieldHit?30:22);
+    }
   }
 
   // Explosions
@@ -519,21 +878,17 @@ function loop() {
   ctx.globalAlpha=1; ctx.shadowBlur=0;
 
   if (state==='playing') drawHUD();
-  if (state==='dead') drawGameOver();
-  if (state==='win') { drawHUD(); drawWinScreen(); }
+  if (state==='dead')    { drawHUD(); drawGameOver(); }
+  if (state==='win')     { drawHUD(); drawWinScreen(); }
 
   // Intro tip
   if (state==='playing' && frame<200) {
     ctx.globalAlpha=Math.min(1,(200-frame)/60);
-    ctx.fillStyle='rgba(0,0,0,0.55)';
-    ctx.fillRect(W/2-160, H/2+60, 320, 46);
-    ctx.fillStyle='#fff';
-    ctx.font='13px Courier New';
-    ctx.textAlign='center';
-    ctx.fillText('Move your mouse to drive!', W/2, H/2+80);
-    ctx.fillStyle='#aaffcc';
-    ctx.font='11px Courier New';
-    ctx.fillText('Reach the ESCAPE ZONE ↗ or survive '+WIN_SCORE+'s', W/2, H/2+98);
+    ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(W/2-160,H/2+60,320,46);
+    ctx.fillStyle='#fff'; ctx.font='13px Courier New'; ctx.textAlign='center';
+    ctx.fillText('Move your mouse to drive!',W/2,H/2+80);
+    ctx.fillStyle='#aaffcc'; ctx.font='11px Courier New';
+    ctx.fillText('Grab glowing orbs for power-ups!',W/2,H/2+98);
     ctx.textAlign='left';
     ctx.globalAlpha=1;
   }
