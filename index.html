@@ -301,8 +301,23 @@
   }
 
   .game-thumb-desert { background: linear-gradient(135deg, #d4a84b, #8b5e1a); }
-  .game-thumb-dodge { background: linear-gradient(135deg, #0d0d14, #1a1a2e); }
-  .game-thumb-soon { background: linear-gradient(135deg, #1a0f2e, #2e1f4e); }
+  .game-thumb-dodge  { background: linear-gradient(135deg, #0d0d14, #1a1a2e); }
+  .game-thumb-nova   { background: linear-gradient(135deg, #020010, #001a2e); }
+
+  /* Animated stars in Nova thumb */
+  .game-thumb-nova::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(0,229,255,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(155,93,229,0.2) 0%, transparent 50%);
+    animation: novaGlow 3s ease-in-out infinite alternate;
+  }
+  @keyframes novaGlow {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+  }
 
   .game-tag {
     position: absolute;
@@ -317,7 +332,7 @@
   }
 
   .tag-play { background: var(--green); color: #0a1a10; }
-  .tag-soon { background: var(--border); color: var(--muted); }
+  .tag-new  { background: var(--cyan);  color: #001a22; }
 
   .game-info { padding: 1.25rem; }
 
@@ -361,10 +376,11 @@
     cursor: none;
   }
   .game-play-btn:hover { transform: scale(1.03); opacity: 0.9; }
-  .game-play-btn.disabled {
-    background: var(--border);
-    color: var(--muted);
-    cursor: not-allowed;
+
+  .game-play-btn.nova-btn {
+    background: linear-gradient(90deg, #00e5ff, #9b5de5);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(0,229,255,0.25);
   }
 
   /* ── ABOUT ── */
@@ -484,7 +500,7 @@
   }
   .ticker {
     display: inline-block;
-    animation: ticker 18s linear infinite;
+    animation: ticker 22s linear infinite;
     font-family: 'Boogaloo', cursive;
     font-size: 1rem;
     letter-spacing: 0.05em;
@@ -538,7 +554,7 @@
   <!-- TICKER -->
   <div class="ticker-wrap">
     <div class="ticker">
-      🎮 COVA GAMES &nbsp;•&nbsp; PLAY FOR FREE &nbsp;•&nbsp; NEW GAMES COMING SOON &nbsp;•&nbsp; 🚗 DESERT CHASE &nbsp;•&nbsp; 💥 DODGE GAME &nbsp;•&nbsp; MADE WITH ❤️ &nbsp;•&nbsp; 🎮 COVA GAMES &nbsp;•&nbsp; PLAY FOR FREE &nbsp;•&nbsp; NEW GAMES COMING SOON &nbsp;•&nbsp; 🚗 DESERT CHASE &nbsp;•&nbsp; 💥 DODGE GAME &nbsp;•&nbsp; MADE WITH ❤️ &nbsp;•&nbsp;
+      🎮 COVA GAMES &nbsp;•&nbsp; PLAY FOR FREE &nbsp;•&nbsp; NEW GAMES COMING SOON &nbsp;•&nbsp; 🚗 DESERT CHASE &nbsp;•&nbsp; 💥 DODGE GAME &nbsp;•&nbsp; 🚀 NOVA STRIKE &nbsp;•&nbsp; MADE WITH ❤️ &nbsp;•&nbsp; 🎮 COVA GAMES &nbsp;•&nbsp; PLAY FOR FREE &nbsp;•&nbsp; NEW GAMES COMING SOON &nbsp;•&nbsp; 🚗 DESERT CHASE &nbsp;•&nbsp; 💥 DODGE GAME &nbsp;•&nbsp; 🚀 NOVA STRIKE &nbsp;•&nbsp; MADE WITH ❤️ &nbsp;•&nbsp;
     </div>
   </div>
 
@@ -586,20 +602,22 @@
         </div>
       </div>
 
-      <!-- Coming Soon -->
+      <!-- Nova Strike — NEW -->
       <div class="game-card reveal" style="transition-delay:0.2s">
-        <div class="game-thumb game-thumb-soon">
-          ❓
-          <span class="game-tag tag-soon">Coming Soon</span>
+        <div class="game-thumb game-thumb-nova">
+          🚀
+          <span class="game-tag tag-new">✨ New!</span>
         </div>
         <div class="game-info">
-          <div class="game-name">??? Mystery Game</div>
-          <div class="game-desc">Something new is cooking at Cova Games HQ. Check back soon — it's going to be wild.</div>
+          <div class="game-name">Nova Strike</div>
+          <div class="game-desc">Pick your ship, then blast through waves of swooping alien enemies. Survive long enough and unlock powerups.</div>
           <div class="game-tags">
-            <span class="game-pill">Unknown</span>
-            <span class="game-pill">🔒 Locked</span>
+            <span class="game-pill">Shooter</span>
+            <span class="game-pill">Keyboard</span>
+            <span class="game-pill">Waves</span>
+            <span class="game-pill">Customization</span>
           </div>
-          <span class="game-play-btn disabled">🔒 Not Yet...</span>
+          <a href="nova-strike.html" class="game-play-btn nova-btn">🚀 Play Nova Strike</a>
         </div>
       </div>
 
@@ -620,7 +638,7 @@
 
       <div class="stat-row">
         <div class="stat-box">
-          <div class="stat-val">2</div>
+          <div class="stat-val">3</div>
           <div class="stat-label">Games Live</div>
         </div>
         <div class="stat-box">
