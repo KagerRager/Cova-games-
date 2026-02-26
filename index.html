@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COVA GAMES</title>
+<!-- Google Analytics — replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -580,7 +588,7 @@
             <span class="game-pill">Mouse Control</span>
             <span class="game-pill">Survival</span>
           </div>
-          <a href="desert-chase-v2.html" class="game-play-btn">🚨 Play Desert Chase</a>
+          <a href="desert-chase-v2.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Desert Chase'})">🚨 Play Desert Chase</a>
         </div>
       </div>
 
@@ -598,7 +606,7 @@
             <span class="game-pill">Keyboard</span>
             <span class="game-pill">High Score</span>
           </div>
-          <a href="dodge-game.html" class="game-play-btn">📦 Play Dodge!</a>
+          <a href="dodge-game.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Dodge Game'})">📦 Play Dodge!</a>
         </div>
       </div>
 
@@ -617,7 +625,7 @@
             <span class="game-pill">Waves</span>
             <span class="game-pill">Customization</span>
           </div>
-          <a href="nova-strike.html" class="game-play-btn nova-btn">🚀 Play Nova Strike</a>
+          <a href="nova-strike.html" class="game-play-btn nova-btn" onclick="gtag('event','game_open',{game:'Nova Strike'})">🚀 Play Nova Strike</a>
         </div>
       </div>
 

@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Desert Chase</title>
+<!-- Google Analytics — replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -387,6 +395,7 @@ function restart() {
   cops=[]; dustParticles=[]; explosions=[];
   score=0; frame=0; copTimer=0;
   state='playing';
+  gtag('event','game_start',{game:'Desert Chase'});
 }
 
 canvas.addEventListener('click', ()=>{ if(state!=='playing') restart(); });
@@ -450,6 +459,7 @@ function loop() {
         spawnExplosion(cop.x, cop.y);
         if (score>highScore) highScore=score;
         state='dead';
+        gtag('event','game_over',{game:'Desert Chase',score:score});
         break;
       }
     }
@@ -462,6 +472,7 @@ function loop() {
       if (inZone || survived) {
         if (score>highScore) highScore=score;
         state='win';
+        gtag('event','game_win',{game:'Desert Chase',score:score});
       }
     }
 
