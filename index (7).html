@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1VFNJ21V0');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178"
+     crossorigin="anonymous"></script>
+
+<!-- ═══ SEO META ═══ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameCave – Best Free Unblocked Games 2026 | Play Online Browser Games</title>
+<meta name="description" content="Play the best free unblocked games in 2026 at GameCave. Enjoy Desert Chase, Dodge, Nova Strike and more free online browser games — no download required.">
+<meta name="keywords" content="free online browser games, best unblocked games 2026, gamecave, desert chase game, dodge game, nova strike, play games online free">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://covagames.github.io/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="GameCave – Best Free Unblocked Games 2026">
+<meta property="og:description" content="Play free unblocked browser games at GameCave. No downloads, no sign-ups — just fun.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://covagames.github.io/">
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:    #e8a020;
+    --gold2:   #ffcc55;
+    --ember:   #ff6a00;
+    --stone:   #2a2118;
+    --stone2:  #1a1510;
+    --stone3:  #0d0a07;
+    --card:    #211a12;
+    --border:  #4a3820;
+    --moss:    #4a6741;
+    --crystal: #3db8a0;
+    --text:    #f0e6d0;
+    --muted:   #9a8870;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--stone3);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CAVE BACKGROUND ── */
+  .cave-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(232,160,32,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 30%, rgba(255,106,0,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(61,184,160,0.04) 0%, transparent 40%),
+      linear-gradient(180deg, #0d0a07 0%, #151008 40%, #0d0a07 100%);
+  }
+
+  /* Ember particles */
+  .embers { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .ember-p {
+    position: absolute; bottom: -10px;
+    width: var(--w); height: var(--w);
+    background: var(--ember); border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgba(255,106,0,0.6);
+    animation: floatUp var(--dur) ease-in var(--delay) infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { opacity:0; transform:translateY(0) translateX(0) scale(1); }
+    20%  { opacity:0.8; }
+    80%  { opacity:0.3; }
+    100% { opacity:0; transform:translateY(-100vh) translateX(var(--drift)) scale(0.3); }
+  }
+
+  /* Stalactites */
+  .stalactites {
+    position: fixed; top:0; left:0; right:0; height:80px;
+    pointer-events:none; z-index:3;
+    display:flex; align-items:flex-start; justify-content:space-around;
+  }
+  .stalactite {
+    width:var(--w); height:var(--h);
+    background:linear-gradient(180deg,#1a1208 0%,#2a1e10 60%,#3a2a18 100%);
+    clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);
+    opacity:0.85;
+    border-bottom:2px solid rgba(232,160,32,0.12);
+  }
+
+  /* Stalagmites */
+  .stalagmites {
+    position:fixed; bottom:0; left:0; right:0; height:60px;
+    pointer-events:none; z-index:3;
+    display:flex; align-items:flex-end; justify-content:space-around;
+  }
+  .stalagmite {
+    width:var(--w); height:var(--h);
+    background:linear-gradient(0deg,#1a1208 0%,#2a1e10 60%,#3a2a18 100%);
+    clip-path:polygon(0% 0%,100% 0%,80% 100%,20% 100%);
+    opacity:0.85;
+  }
+
+  /* Rock texture */
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:1; opacity:0.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  /* Cursor */
+  .cursor {
+    width:22px; height:22px; border:2px solid var(--gold); border-radius:50%;
+    position:fixed; pointer-events:none; z-index:9999;
+    transition:transform 0.1s; transform:translate(-50%,-50%);
+    box-shadow:0 0 10px 3px rgba(232,160,32,0.4);
+    background:radial-gradient(circle,rgba(255,180,50,0.3),transparent);
+  }
+  .cursor-dot {
+    width:5px; height:5px; background:var(--gold2); border-radius:50%;
+    position:fixed; pointer-events:none; z-index:9999;
+    transform:translate(-50%,-50%);
+    box-shadow:0 0 6px 2px rgba(255,204,85,0.8);
+  }
+
+  .page { position:relative; z-index:2; }
+
+  /* ── NAV ── */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between;
+    background:rgba(13,10,7,0.92); backdrop-filter:blur(12px);
+    border-bottom:2px solid var(--border);
+    box-shadow:0 2px 20px rgba(232,160,32,0.08);
+  }
+  .nav-logo {
+    font-family:'Cinzel',serif; font-size:1.6rem; font-weight:900;
+    color:var(--gold); text-shadow:0 0 20px rgba(232,160,32,0.5),2px 2px 0 #3a1800;
+    letter-spacing:0.08em; text-decoration:none;
+  }
+  .nav-logo span { color:var(--gold2); }
+  .nav-links { display:flex; gap:1.5rem; list-style:none; }
+  .nav-links a {
+    color:var(--muted); text-decoration:none; font-size:0.82rem; font-weight:700;
+    letter-spacing:0.1em; text-transform:uppercase; transition:color 0.15s; cursor:none;
+  }
+  .nav-links a:hover { color:var(--gold2); text-shadow:0 0 8px rgba(255,204,85,0.4); }
+
+  /* ── AD BANNER ── */
+  .ad-banner {
+    background:rgba(26,20,12,0.9); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    text-align:center; padding:1rem; font-size:0.65rem; font-weight:700;
+    letter-spacing:0.2em; color:var(--muted); text-transform:uppercase;
+    min-height:90px; display:flex; align-items:center; justify-content:center;
+  }
+  .ad-banner span { border:1px dashed var(--border); padding:0.5rem 2rem; border-radius:4px; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center; padding:7rem 1.5rem 4rem; position:relative;
+  }
+  .hero::before, .hero::after {
+    content:'🔥'; position:absolute; font-size:2.5rem; top:120px;
+    animation:torchFlicker 2s ease-in-out infinite alternate;
+    filter:drop-shadow(0 0 15px rgba(255,106,0,0.8));
+  }
+  .hero::before { left:5vw; }
+  .hero::after  { right:5vw; }
+  @keyframes torchFlicker {
+    0%   { transform:scale(1) rotate(-3deg); filter:drop-shadow(0 0 12px rgba(255,106,0,0.7)); }
+    100% { transform:scale(1.1) rotate(3deg); filter:drop-shadow(0 0 22px rgba(255,180,50,0.9)); }
+  }
+
+  .hero-badge {
+    display:inline-block; background:linear-gradient(135deg,#4a3820,#2a1e10);
+    border:1px solid var(--gold); color:var(--gold2);
+    font-size:0.65rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase;
+    padding:5px 18px; border-radius:4px; margin-bottom:1.5rem;
+    animation:fadeUp 0.5s ease both; box-shadow:0 0 12px rgba(232,160,32,0.15);
+  }
+
+  .hero-title {
+    font-family:'Cinzel',serif; font-weight:900;
+    font-size:clamp(3.5rem,12vw,9rem); line-height:1;
+    margin-bottom:0.5rem; animation:fadeUp 0.5s 0.1s ease both;
+    color:var(--gold);
+    text-shadow:0 0 30px rgba(232,160,32,0.5),0 0 60px rgba(255,106,0,0.2),3px 3px 0 #3a2000,6px 6px 0 #1a1000;
+    letter-spacing:0.05em;
+  }
+  .hero-title .cave {
+    color:var(--gold2); display:block; font-size:0.55em; letter-spacing:0.35em;
+    text-shadow:0 0 20px rgba(255,204,85,0.4);
+  }
+
+  .hero-sub {
+    font-size:clamp(0.85rem,2vw,1.05rem); color:var(--muted); max-width:480px;
+    margin:1.2rem auto 2.5rem; line-height:1.8; animation:fadeUp 0.5s 0.2s ease both;
+  }
+  .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.5s 0.3s ease both; }
+
+  .btn {
+    display:inline-block; font-family:'Nunito',sans-serif; font-weight:800;
+    font-size:0.9rem; letter-spacing:0.06em; padding:0.75rem 2rem;
+    border-radius:4px; text-decoration:none; border:none; cursor:none;
+    transition:transform 0.15s,box-shadow 0.15s; text-transform:uppercase;
+  }
+  .btn:hover { transform:translateY(-3px) scale(1.04); }
+  .btn-primary {
+    background:linear-gradient(135deg,var(--gold),var(--ember)); color:#1a0e00;
+    box-shadow:0 5px 0 #5a3000,0 8px 20px rgba(232,160,32,0.3);
+  }
+  .btn-primary:hover { box-shadow:0 7px 0 #5a3000,0 12px 30px rgba(232,160,32,0.5); }
+  .btn-secondary {
+    background:transparent; color:var(--text);
+    border:2px solid var(--border); box-shadow:0 5px 0 #1a1005;
+  }
+  .btn-secondary:hover { border-color:var(--gold); box-shadow:0 5px 0 #5a3000; color:var(--gold2); }
+
+  .scroll-hint {
+    margin-top:3rem; font-size:1.5rem; color:var(--gold);
+    animation:bounce 1.5s ease-in-out infinite,fadeUp 0.5s 0.5s ease both;
+    opacity:0; filter:drop-shadow(0 0 6px rgba(232,160,32,0.5));
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(10px);} }
+
+  /* ── SECTION COMMON ── */
+  section { padding:5rem 1.5rem; position:relative; }
+
+  .section-label {
+    font-size:0.65rem; font-weight:800; letter-spacing:0.25em;
+    text-transform:uppercase; color:var(--crystal); text-align:center; margin-bottom:0.5rem;
+  }
+  .section-title {
+    font-family:'Cinzel',serif; font-size:clamp(1.8rem,4vw,3rem);
+    text-align:center; margin-bottom:0.5rem; line-height:1.2;
+    color:var(--gold); text-shadow:0 0 20px rgba(232,160,32,0.3);
+  }
+  .section-sub { text-align:center; color:var(--muted); font-size:0.9rem; margin-bottom:3rem; line-height:1.6; }
+
+  .stone-divider {
+    width:100%; height:4px;
+    background:linear-gradient(90deg,transparent,var(--border),var(--gold),var(--border),transparent);
+    opacity:0.5;
+  }
+
+  /* ── GAMES GRID ── */
+  .games-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; max-width:1000px; margin:0 auto; }
+
+  .game-card {
+    background:var(--card); border:2px solid var(--border); border-radius:8px;
+    overflow:hidden; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; position:relative;
+  }
+  .game-card::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(232,160,32,0.03) 0%,transparent 50%);
+    pointer-events:none; z-index:1;
+  }
+  .game-card:hover { transform:translateY(-6px); border-color:var(--gold); box-shadow:0 20px 50px rgba(232,160,32,0.15); }
+
+  .game-thumb {
+    width:100%; height:160px; position:relative; overflow:hidden; display:block;
+  }
+  .game-thumb canvas {
+    width:100%; height:100%; display:block;
+  }
+  .game-thumb::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(to bottom,transparent 40%,var(--card) 100%);
+    pointer-events:none;
+  }
+  .game-thumb-desert  { background:#2a1800; }
+  .game-thumb-dodge   { background:#0a0a14; }
+  .game-thumb-nova    { background:#001a12; }
+  .game-thumb-runner  { background:#1a1005; }
+  .game-thumb-flood   { background:#0a1218; }
+  .game-thumb-juice   { background:#1a0a00; }
+  .game-thumb-gravity { background:#060310; }
+  .game-thumb-miner   { background:#080516; }
+
+  .game-tag {
+    position:absolute; top:12px; right:12px; font-size:0.58rem; font-weight:800;
+    letter-spacing:0.12em; text-transform:uppercase; padding:3px 10px; border-radius:3px; z-index:2;
+  }
+  .tag-play { background:var(--moss); color:#d0ead0; }
+  .tag-new  { background:var(--crystal); color:#001a15; }
+
+  .game-info { padding:1.25rem; }
+  .game-name { font-family:'Cinzel',serif; font-size:1.3rem; font-weight:700; margin-bottom:0.4rem; color:var(--gold2); text-shadow:0 0 10px rgba(232,160,32,0.25); }
+  .game-desc { font-size:0.78rem; color:var(--muted); line-height:1.6; margin-bottom:1rem; }
+  .game-tags { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .game-pill { font-size:0.6rem; font-weight:700; letter-spacing:0.08em; padding:2px 10px; border-radius:3px; background:rgba(232,160,32,0.07); color:var(--muted); border:1px solid var(--border); }
+
+  .game-review {
+    font-size:0.72rem; color:#b8a888; font-style:italic; line-height:1.6;
+    padding:0.55rem 0.8rem; background:rgba(0,0,0,0.25);
+    border-left:3px solid var(--border); border-radius:0 4px 4px 0; margin-bottom:1rem;
+  }
+
+  .game-play-btn {
+    display:block; text-align:center; padding:0.65rem;
+    background:linear-gradient(135deg,var(--gold),var(--ember));
+    color:#1a0e00; font-weight:800; font-size:0.82rem; border-radius:4px;
+    text-decoration:none; transition:transform 0.15s,box-shadow 0.15s;
+    cursor:none; letter-spacing:0.04em; text-transform:uppercase;
+  }
+  .game-play-btn:hover { transform:scale(1.03); box-shadow:0 0 20px rgba(232,160,32,0.4); }
+  .game-play-btn.crystal-btn { background:linear-gradient(135deg,var(--crystal),#1a6a58); color:#d0f0ea; box-shadow:0 4px 18px rgba(61,184,160,0.2); }
+
+  /* ── ABOUT ── */
+  .about-wrap {
+    max-width:700px; margin:0 auto; background:var(--card);
+    border:2px solid var(--border); border-radius:8px; padding:2.5rem;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .about-wrap::before { content:''; position:absolute; top:-40px; right:-40px; width:180px; height:180px; background:radial-gradient(circle,rgba(232,160,32,0.08),transparent 70%); border-radius:50%; }
+  .about-wrap::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:150px; height:150px; background:radial-gradient(circle,rgba(61,184,160,0.06),transparent 70%); border-radius:50%; }
+  .about-emoji { font-size:3.5rem; margin-bottom:1rem; display:block; filter:drop-shadow(0 0 12px rgba(255,106,0,0.5)); }
+  .about-wrap h3 { font-family:'Cinzel',serif; font-size:1.6rem; color:var(--gold); margin-bottom:0.75rem; text-shadow:0 0 15px rgba(232,160,32,0.3); }
+  .about-wrap p { color:var(--muted); font-size:0.88rem; line-height:1.8; margin-bottom:1rem; position:relative; z-index:1; }
+  .about-wrap p strong { color:var(--text); }
+  .stat-row { display:flex; gap:1rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap; position:relative; z-index:1; }
+  .stat-box { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1.5rem; text-align:center; }
+  .stat-val { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); line-height:1; text-shadow:0 0 12px rgba(232,160,32,0.4); }
+  .stat-label { font-size:0.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+
+  /* ── TICKER ── */
+  .ticker-wrap {
+    background:linear-gradient(90deg,#1a0e00,#2a1800,#1a0e00);
+    border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    color:var(--gold2); overflow:hidden; padding:0.5rem 0; white-space:nowrap;
+    box-shadow:inset 0 0 20px rgba(0,0,0,0.5);
+  }
+  .ticker { display:inline-block; animation:ticker 28s linear infinite; font-family:'Cinzel',serif; font-size:0.85rem; letter-spacing:0.1em; }
+  @keyframes ticker { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+  /* ── FOOTER ── */
+  footer { border-top:2px solid var(--border); padding:2.5rem 1.5rem; text-align:center; color:var(--muted); font-size:0.78rem; background:rgba(0,0,0,0.4); }
+  footer .footer-logo { font-family:'Cinzel',serif; font-size:1.8rem; font-weight:900; color:var(--gold); text-shadow:0 0 16px rgba(232,160,32,0.4); display:block; margin-bottom:0.75rem; letter-spacing:0.1em; }
+  .footer-links { display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:0.75rem; list-style:none; }
+  .footer-links a { color:var(--muted); text-decoration:none; font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; transition:color 0.15s; cursor:none; }
+  .footer-links a:hover { color:var(--gold2); }
+  footer p { margin-bottom:0.3rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease,transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media (max-width:600px) {
+    .nav-links { display:none; }
+    .hero-btns { flex-direction:column; align-items:center; }
+    .hero::before, .hero::after { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cave-bg"></div>
+<div class="embers" id="embers"></div>
+<div class="stalactites" id="stalactites"></div>
+<div class="stalagmites" id="stalagmites"></div>
+
+<div class="page">
+
+  <nav>
+    <a class="nav-logo" href="index.html">🪨 GAME<span>CAVE</span></a>
+    <ul class="nav-links">
+      <li><a href="#games">Home</a></li>
+      <li><a href="#action">Action</a></li>
+      <li><a href="#puzzle">Puzzle</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">🔥 Free Unblocked Games 2026</div>
+    <h1 class="hero-title">
+      GAME<span class="cave">CAVE</span>
+    </h1>
+    <p class="hero-sub">Deep in the cave, the games never stop. Play free unblocked browser games — no downloads, no sign-ups, no daylight required.</p>
+    <div class="hero-btns">
+      <a href="#games" class="btn btn-primary">🕹️ Enter the Cave</a>
+      <a href="#about" class="btn btn-secondary">About Us</a>
+    </div>
+    <div class="scroll-hint">⬇</div>
+  </section>
+
+  <div class="stone-divider"></div>
+
+  <div class="ad-banner" aria-label="Advertisement">
+    <span>Advertisement</span>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker">
+      🪨 GAMECAVE &nbsp;⚔&nbsp; 8 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; 🍹 JUICE TAP &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; ⛏ CRYSTAL MINER &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp; 🪨 GAMECAVE &nbsp;⚔&nbsp; 8 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; 🍹 JUICE TAP &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; ⛏ CRYSTAL MINER &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp;
+    </div>
+  </div>
+
+  <div class="stone-divider"></div>
+
+  <section id="games">
+    <div class="section-label">⛏ Unearthed Games</div>
+    <h2 class="section-title">Choose Your Adventure 🕹️</h2>
+    <p class="section-sub">All games run right in your browser. No downloads, no sign-ups. 100% free.</p>
+
+    <div class="games-grid">
+
+      <div class="game-card reveal" id="action">
+        <div class="game-thumb game-thumb-desert">
+          <canvas id="prev-desert" width="320" height="160" aria-label="Desert Chase preview"></canvas>
+          <span class="game-tag tag-play">▶ Play Now</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Desert Chase</h3>
+          <div class="game-desc">Dodge police cruisers across a scorching highway. Move your mouse to survive.</div>
+          <div class="game-tags"><span class="game-pill">Action</span><span class="game-pill">Mouse</span><span class="game-pill">Survival</span></div>
+          <div class="game-review">"Deceptively simple and insanely addictive. The acceleration keeps you coming back."</div>
+          <a href="desert-chase-v2.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Desert Chase'})">🚨 Play Desert Chase</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.1s">
+        <div class="game-thumb game-thumb-dodge">
+          <canvas id="prev-dodge" width="320" height="160" aria-label="Dodge preview"></canvas>
+          <span class="game-tag tag-play">▶ Play Now</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Dodge!</h3>
+          <div class="game-desc">Boxes rain from above. Move left and right to stay alive as long as you can.</div>
+          <div class="game-tags"><span class="game-pill">Arcade</span><span class="game-pill">Keyboard</span><span class="game-pill">High Score</span></div>
+          <div class="game-review">"A masterclass in minimalist design. Every session is a heart-pounding test of focus."</div>
+          <a href="dodge-game.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Dodge Game'})">📦 Play Dodge!</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.2s" id="puzzle">
+        <div class="game-thumb game-thumb-nova">
+          <canvas id="prev-nova" width="320" height="160" aria-label="Nova Strike preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Nova Strike</h3>
+          <div class="game-desc">Pick your ship and blast through alien waves. Survive long enough to unlock powerups.</div>
+          <div class="game-tags"><span class="game-pill">Shooter</span><span class="game-pill">Waves</span><span class="game-pill">Powerups</span></div>
+          <div class="game-review">"The best game on GameCave. Ship customization and escalating waves make it hard to put down."</div>
+          <a href="nova-strike.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Nova Strike'})">🚀 Play Nova Strike</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.3s">
+        <div class="game-thumb game-thumb-runner">
+          <canvas id="prev-runner" width="320" height="160" aria-label="Cave Runner preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Cave Runner</h3>
+          <div class="game-desc">Sprint through a dark cave, leap rocks and duck stalactites. Double jump to survive.</div>
+          <div class="game-tags"><span class="game-pill">Runner</span><span class="game-pill">Endless</span><span class="game-pill">Double Jump</span></div>
+          <div class="game-review">"The double-jump mechanic makes this way more skill-based than it looks."</div>
+          <a href="cave-runner.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Cave Runner'})">🏃 Play Cave Runner</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.4s">
+        <div class="game-thumb game-thumb-flood">
+          <canvas id="prev-flood" width="320" height="160" aria-label="Color Flood preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Color Flood</h3>
+          <div class="game-desc">Flood the whole grid with one color before your moves run out. Easy to learn, brutal to master.</div>
+          <div class="game-tags"><span class="game-pill">Puzzle</span><span class="game-pill">Strategy</span><span class="game-pill">3 Difficulties</span></div>
+          <div class="game-review">"The kind of puzzle game where you keep saying 'just one more' for an hour."</div>
+          <a href="color-flood.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Color Flood'})">🎨 Play Color Flood</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.5s">
+        <div class="game-thumb game-thumb-juice">
+          <canvas id="prev-juice" width="320" height="160" aria-label="Juice Tap preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Juice Tap</h3>
+          <div class="game-desc">Tap falling fruit before it hits the ground. Build combos, tap bombs for slow-mo.</div>
+          <div class="game-tags"><span class="game-pill">Reflex</span><span class="game-pill">Combo</span><span class="game-pill">Tap</span></div>
+          <div class="game-review">"The combo system turns it from casual to seriously competitive."</div>
+          <a href="juice-tap.html" class="game-play-btn" style="background:linear-gradient(135deg,#e67e22,#c0392b);color:#fff;" onclick="gtag('event','game_open',{game:'Juice Tap'})">🍋 Play Juice Tap</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.6s">
+        <div class="game-thumb game-thumb-gravity">
+          <canvas id="prev-gravity" width="320" height="160" aria-label="Gravity Flip preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Gravity Flip</h3>
+          <div class="game-desc">One tap flips gravity. Thread the gap or get smashed. Collect crystals for bonus points.</div>
+          <div class="game-tags"><span class="game-pill">One Button</span><span class="game-pill">Endless</span><span class="game-pill">Reflex</span></div>
+          <div class="game-review">"Feels impossible at first — then suddenly it clicks. Can't stop replaying."</div>
+          <a href="gravity-flip.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Gravity Flip'})">⬆⬇ Play Gravity Flip</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.7s">
+        <div class="game-thumb game-thumb-miner">
+          <canvas id="prev-miner" width="320" height="160" aria-label="Crystal Miner preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Crystal Miner</h3>
+          <div class="game-desc">Mine every gem before the cave seals them. Tough gems need multiple hits — don't run out of time.</div>
+          <div class="game-tags"><span class="game-pill">Puzzle</span><span class="game-pill">Waves</span><span class="game-pill">Speed</span></div>
+          <div class="game-review">"Wave after wave of frantic clicking. The timer pressure is absolutely brutal."</div>
+          <a href="crystal-miner.html" class="game-play-btn" style="background:linear-gradient(135deg,#7b5ea7,#3db8a0);color:#fff;" onclick="gtag('event','game_open',{game:'Crystal Miner'})">⛏ Play Crystal Miner</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="stone-divider"></div>
+
+  <section id="about">
+    <div class="section-label">⛏ The Studio</div>
+    <h2 class="section-title">About GameCave 🪨</h2>
+    <p class="section-sub">Carved from rock. Built with code.</p>
+
+    <div class="about-wrap reveal">
+      <span class="about-emoji">🔥</span>
+      <h3>Built by a Gamer, for Gamers</h3>
+      <p>GameCave is an <strong>indie game studio</strong> making fun browser games from scratch. Every game you play here was coded by hand — no game engines, no templates, just pure creativity and code.</p>
+      <p>We're just getting started. More games are being unearthed and dropping soon. Follow along as the cave grows.</p>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-val">8</div><div class="stat-label">Games Live</div></div>
+        <div class="stat-box"><div class="stat-val">∞</div><div class="stat-label">More Coming</div></div>
+        <div class="stat-box"><div class="stat-val">$0</div><div class="stat-label">Cost to Play</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ad-banner" aria-label="Advertisement">
+    <span>Advertisement</span>
+  </div>
+
+  <footer>
+    <span class="footer-logo">🪨 GAMECAVE</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <p>Made with 🔥 and a lot of JavaScript.</p>
+    <p style="margin-top:0.5rem;font-size:0.7rem;">© 2026 GameCave · All rights reserved</p>
+  </footer>
+
+</div>
+
+<script>
+  // ── CURSOR ──
+  const cursor=document.getElementById('cursor'), dot=document.getElementById('cursorDot');
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  function animateCursor(){cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;cursor.style.left=cx+'px';cursor.style.top=cy+'px';dot.style.left=mx+'px';dot.style.top=my+'px';requestAnimationFrame(animateCursor);}
+  animateCursor();
+  document.querySelectorAll('a,button,.btn,.game-play-btn').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.transform='translate(-50%,-50%) scale(2)';});
+    el.addEventListener('mouseleave',()=>{cursor.style.transform='translate(-50%,-50%) scale(1)';});
+  });
+
+  // ── EMBERS ──
+  const embersEl=document.getElementById('embers');
+  for(let i=0;i<40;i++){const e=document.createElement('div');e.className='ember-p';const sz=Math.random()*4+2;e.style.cssText=`--w:${sz}px;left:${Math.random()*100}%;--dur:${4+Math.random()*6}s;--delay:${Math.random()*6}s;--drift:${(Math.random()-0.5)*80}px;`;embersEl.appendChild(e);}
+
+  // ── STALACTITES / STALAGMITES ──
+  const stalaEl=document.getElementById('stalactites');
+  for(let i=0;i<22;i++){const s=document.createElement('div');s.className='stalactite';s.style.cssText=`--w:${30+Math.random()*50}px;--h:${25+Math.random()*55}px;`;stalaEl.appendChild(s);}
+  const stalagEl=document.getElementById('stalagmites');
+  for(let i=0;i<28;i++){const s=document.createElement('div');s.className='stalagmite';s.style.cssText=`--w:${20+Math.random()*40}px;--h:${15+Math.random()*45}px;`;stalagEl.appendChild(s);}
+
+  // ── SCROLL REVEAL ──
+  const reveals=document.querySelectorAll('.reveal');
+  const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
+  reveals.forEach(r=>observer.observe(r));
+
+  // ── CANVAS GAME PREVIEWS ──
+  function rnd(a,b){return a+Math.random()*(b-a);}
+
+  function drawDesert(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    // sky gradient
+    const sky=c.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#3a1a00');sky.addColorStop(1,'#8a4a00');c.fillStyle=sky;c.fillRect(0,0,W,H);
+    // sun
+    const sun=c.createRadialGradient(W*.75,H*.25,0,W*.75,H*.25,40);sun.addColorStop(0,'#ffe070');sun.addColorStop(1,'transparent');c.fillStyle=sun;c.fillRect(0,0,W,H);
+    // sand
+    const sand=c.createLinearGradient(0,H*.55,0,H);sand.addColorStop(0,'#c87a20');sand.addColorStop(1,'#8a4800');c.fillStyle=sand;c.fillRect(0,H*.55,W,H*.45);
+    // road
+    c.fillStyle='#2a2018';c.fillRect(W*.3,H*.5,W*.4,H*.5);
+    c.strokeStyle='#e8a020';c.lineWidth=2;c.setLineDash([12,10]);
+    c.beginPath();c.moveTo(W*.5,H*.5);c.lineTo(W*.5,H);c.stroke();c.setLineDash([]);
+    // player car
+    c.fillStyle='#e8a020';c.beginPath();c.roundRect(W*.44,H*.62,W*.12,H*.12,4);c.fill();
+    c.fillStyle='#ffcc55';c.fillRect(W*.46,H*.63,W*.08,H*.05);
+    c.fillStyle='#333';[W*.45,W*.51].forEach(x=>{c.beginPath();c.arc(x,H*.74,W*.015,0,Math.PI*2);c.fill();});
+    // cop cars
+    [[W*.12,H*.55],[W*.7,H*.55]].forEach(([px,py])=>{
+      c.fillStyle='#2255cc';c.beginPath();c.roundRect(px,py,W*.1,H*.1,3);c.fill();
+      c.fillStyle='#ff2222';c.fillRect(px+W*.01,py,W*.04,H*.02);
+      c.fillStyle='#2299ff';c.fillRect(px+W*.05,py,W*.04,H*.02);
+      c.fillStyle='#222';[px+W*.01,px+W*.07].forEach(x=>{c.beginPath();c.arc(x,py+H*.1,W*.013,0,Math.PI*2);c.fill();});
+    });
+    // heat shimmer lines
+    c.strokeStyle='rgba(255,200,50,0.12)';c.lineWidth=1;
+    for(let i=0;i<5;i++){c.beginPath();c.moveTo(0,H*.52+i*H*.025);c.lineTo(W,H*.52+i*H*.025);c.stroke();}
+  }
+
+  function drawDodge(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    c.fillStyle='#0d0d14';c.fillRect(0,0,W,H);
+    // grid
+    c.strokeStyle='rgba(255,255,255,0.04)';c.lineWidth=1;
+    for(let x=0;x<W;x+=40){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke();}
+    // falling boxes
+    const cols=['#ff4fa3','#00e5ff','#ffe566','#4eff91','#b388ff'];
+    [[W*.1,H*.05],[W*.35,H*.2],[W*.6,H*.08],[W*.8,H*.28],[W*.2,H*.42],[W*.5,H*.38],[W*.7,H*.52]].forEach(([bx,by],i)=>{
+      c.fillStyle=cols[i%cols.length];c.fillRect(bx,by,36,36);
+      c.strokeStyle='rgba(0,0,0,0.3)';c.lineWidth=2;c.strokeRect(bx,by,36,36);
+    });
+    // player
+    c.fillStyle='#00e5ff';c.fillRect(W*.42,H*.78,40,40);
+    c.fillStyle='rgba(0,229,255,0.25)';c.fillRect(W*.42-4,H*.78-4,48,48);
+    // score text
+    c.font='bold 13px monospace';c.fillStyle='#ffe566';c.textAlign='left';c.fillText('SCORE  42',10,H-10);
+  }
+
+  function drawNova(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    c.fillStyle='#001a12';c.fillRect(0,0,W,H);
+    // stars
+    for(let i=0;i<60;i++){c.fillStyle=`rgba(255,255,255,${0.3+Math.random()*0.7})`;c.beginPath();c.arc(Math.random()*W,Math.random()*H,Math.random()*1.5,0,Math.PI*2);c.fill();}
+    // nebula
+    const neb=c.createRadialGradient(W*.3,H*.4,0,W*.3,H*.4,80);neb.addColorStop(0,'rgba(61,184,160,0.2)');neb.addColorStop(1,'transparent');c.fillStyle=neb;c.fillRect(0,0,W,H);
+    // player ship
+    c.fillStyle='#3db8a0';
+    c.beginPath();c.moveTo(W*.5,H*.65);c.lineTo(W*.44,H*.82);c.lineTo(W*.5,H*.77);c.lineTo(W*.56,H*.82);c.closePath();c.fill();
+    // engine glow
+    const eg=c.createRadialGradient(W*.5,H*.82,0,W*.5,H*.82,18);eg.addColorStop(0,'rgba(100,200,255,0.8)');eg.addColorStop(1,'transparent');c.fillStyle=eg;c.fillRect(W*.35,H*.72,W*.3,H*.2);
+    // bullets
+    c.fillStyle='#ffcc55';[[W*.5,H*.5],[W*.5,H*.35]].forEach(([bx,by])=>{c.fillRect(bx-2,by,4,14);});
+    // enemies
+    [[W*.2,H*.15],[W*.45,H*.1],[W*.7,H*.15],[W*.3,H*.3],[W*.65,H*.28]].forEach(([ex,ey])=>{
+      c.fillStyle='#ff4466';c.beginPath();c.moveTo(ex,ey+16);c.lineTo(ex-12,ey);c.lineTo(ex+12,ey);c.closePath();c.fill();
+    });
+  }
+
+  function drawRunner(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    // cave bg
+    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0a0704');bg.addColorStop(1,'#1a1208');c.fillStyle=bg;c.fillRect(0,0,W,H);
+    // torch glow
+    const tg=c.createRadialGradient(30,H-30,0,30,H-30,80);tg.addColorStop(0,'rgba(255,150,20,0.25)');tg.addColorStop(1,'transparent');c.fillStyle=tg;c.fillRect(0,0,W,H);
+    // stalactites
+    c.fillStyle='#2a1e10';
+    [[20,35],[80,25],[140,45],[200,20],[260,38],[310,30]].forEach(([x,h])=>{c.beginPath();c.moveTo(x-14,0);c.lineTo(x+14,0);c.lineTo(x,h);c.closePath();c.fill();});
+    // ground
+    c.fillStyle='#3a2810';c.fillRect(0,H*.75,W,H*.25);
+    c.fillStyle='rgba(232,160,32,0.2)';c.fillRect(0,H*.75,W,2);
+    // rocks
+    [[W*.45,H*.62],[W*.65,H*.6],[W*.75,H*.58]].forEach(([rx,ry])=>{
+      c.fillStyle='#4a3020';c.beginPath();c.moveTo(rx,ry+22);c.lineTo(rx-12,ry+8);c.lineTo(rx,ry);c.lineTo(rx+12,ry+8);c.closePath();c.fill();
+    });
+    // player
+    c.fillStyle='#c87832';c.fillRect(W*.22,H*.55,22,24);
+    c.fillStyle='#e8b870';c.beginPath();c.arc(W*.22+11,H*.52,10,0,Math.PI*2);c.fill();
+    c.fillStyle='#5a3820';c.fillRect(W*.22+1,H*.44,20,10);
+    c.fillStyle='#e8a020';c.fillRect(W*.22+3,H*.42,16,6);
+  }
+
+  function drawFlood(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    c.fillStyle='#0a1218';c.fillRect(0,0,W,H);
+    const cols=['#e8a020','#3db8a0','#c0392b','#4a6741','#7b5ea7','#2980b9'];
+    const grid=[0,1,2,1,4,2,1,0,3,4,1,2,0,3,1,4,2,0,1,3,4,1,2,0,3];
+    const flooded=new Set([0,1,5,6,7,11,12]);
+    const sz=Math.floor(Math.min(W,H*1.1)/6)-3;
+    const ox=(W-sz*5-4*4)/2, oy=(H-sz*5-4*4)/2;
+    for(let i=0;i<25;i++){
+      const col=i%5, row=Math.floor(i/5);
+      const x=ox+col*(sz+4), y=oy+row*(sz+4);
+      c.fillStyle=flooded.has(i)?'#e8a020':cols[grid[i]];
+      c.beginPath();c.roundRect(x,y,sz,sz,4);c.fill();
+      if(flooded.has(i)){c.strokeStyle='rgba(255,255,255,0.3)';c.lineWidth=2;c.stroke();}
+    }
+    c.font='bold 11px sans-serif';c.fillStyle='#9a8870';c.textAlign='center';c.fillText('MOVES LEFT: 18',W/2,H-8);
+  }
+
+  function drawJuice(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#12000a');bg.addColorStop(1,'#1a0510');c.fillStyle=bg;c.fillRect(0,0,W,H);
+    // ground glow
+    const gg=c.createLinearGradient(0,H-40,0,H);gg.addColorStop(0,'transparent');gg.addColorStop(1,'rgba(200,30,80,0.2)');c.fillStyle=gg;c.fillRect(0,H-40,W,40);
+    c.strokeStyle='rgba(220,60,100,0.3)';c.lineWidth=2;c.beginPath();c.moveTo(0,H-3);c.lineTo(W,H-3);c.stroke();
+    // fruits falling
+    const fruits=[['🍋',W*.15,H*.25,24],['🍓',W*.5,H*.12,22],['🍊',W*.78,H*.4,24],['🍇',W*.35,H*.55,26],['🫐',W*.65,H*.3,20]];
+    fruits.forEach(([e,x,y,r])=>{
+      const gl=c.createRadialGradient(x,y,0,x,y,r*1.6);gl.addColorStop(0,'rgba(255,255,255,0.15)');gl.addColorStop(1,'transparent');c.fillStyle=gl;c.beginPath();c.arc(x,y,r*1.6,0,Math.PI*2);c.fill();
+      c.font=`${r*1.7}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(e,x,y);
+    });
+    // combo
+    c.font='bold 14px Cinzel,serif';c.fillStyle='#e8a020';c.textAlign='center';c.fillText('3× COMBO 🔥',W/2,H*.82);
+  }
+
+  function drawGravity(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#04020c');bg.addColorStop(1,'#080418');c.fillStyle=bg;c.fillRect(0,0,W,H);
+    // walls
+    const wallPairs=[[W*.15,40,30],[W*.38,55,25],[W*.62,35,40],[W*.85,50,30]];
+    wallPairs.forEach(([wx,topH,botH])=>{
+      const tg=c.createLinearGradient(wx,0,wx+22,0);tg.addColorStop(0,'#1a1030');tg.addColorStop(1,'#2a1848');
+      c.fillStyle=tg;c.fillRect(wx,0,22,topH);c.fillRect(wx,H-botH,22,botH);
+      c.fillStyle='#2e1e5a';
+      c.beginPath();c.moveTo(wx,topH);c.lineTo(wx+22,topH);c.lineTo(wx+11,topH+14);c.closePath();c.fill();
+      c.beginPath();c.moveTo(wx,H-botH);c.lineTo(wx+22,H-botH);c.lineTo(wx+11,H-botH-14);c.closePath();c.fill();
+    });
+    // crystals
+    [[W*.26,H*.5],[W*.5,H*.48],[W*.74,H*.52]].forEach(([cx,cy])=>{
+      const cg=c.createRadialGradient(cx,cy,0,cx,cy,16);cg.addColorStop(0,'rgba(61,184,160,0.5)');cg.addColorStop(1,'transparent');
+      c.fillStyle=cg;c.beginPath();c.arc(cx,cy,16,0,Math.PI*2);c.fill();
+      c.fillStyle='#3db8a0';c.beginPath();c.moveTo(cx,cy-8);c.lineTo(cx+6,cy);c.lineTo(cx,cy+8);c.lineTo(cx-6,cy);c.closePath();c.fill();
+    });
+    // trail
+    [[W*.06,H*.48],[W*.07,H*.47],[W*.08,H*.47],[W*.09,H*.46]].forEach(([tx,ty],i)=>{
+      c.globalAlpha=0.1+(i/4)*0.3;c.fillStyle='#9b5de5';c.beginPath();c.arc(tx,ty,3+i,0,Math.PI*2);c.fill();
+    });c.globalAlpha=1;
+    // player
+    const px=W*.1,py=H*.44;
+    const pg=c.createRadialGradient(px+11,py+11,0,px+11,py+11,22);pg.addColorStop(0,'rgba(155,93,229,0.5)');pg.addColorStop(1,'transparent');
+    c.fillStyle=pg;c.beginPath();c.arc(px+11,py+11,22,0,Math.PI*2);c.fill();
+    c.fillStyle='#3a1860';c.beginPath();c.roundRect(px,py,22,22,4);c.fill();
+    c.fillStyle='#9b5de5';c.beginPath();c.roundRect(px,py,22,9,3);c.fill();
+    c.fillStyle='#f0e6d0';c.beginPath();c.arc(px+6,py+13,3,0,Math.PI*2);c.fill();c.beginPath();c.arc(px+16,py+13,3,0,Math.PI*2);c.fill();
+  }
+
+  function drawMiner(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#060310');bg.addColorStop(1,'#0c0520');c.fillStyle=bg;c.fillRect(0,0,W,H);
+    const gems=[
+      {e:'💎',col:'#3db8a0',glow:'61,184,160'},{e:'💜',col:'#9b59b6',glow:'155,89,182'},
+      {e:'🔴',col:'#e74c3c',glow:'231,76,60'},{e:'💛',col:'#e8a020',glow:'232,160,32'},
+      {e:'🔵',col:'#2980b9',glow:'41,128,185'},{e:'💚',col:'#27ae60',glow:'39,174,96'},
+      {e:'🌟',col:'#f1c40f',glow:'241,196,15'},{e:'💎',col:'#3db8a0',glow:'61,184,160'},
+      {e:'🪨',col:'#5a5060',glow:'90,80,96'}
+    ];
+    const cell=44, cols=4, rows=3, ox=(W-cols*cell-3*4)/2, oy=(H-rows*cell-2*4)/2;
+    for(let i=0;i<cols*rows;i++){
+      const col=i%cols, row=Math.floor(i/cols);
+      const x=ox+col*(cell+4), y=oy+row*(cell+4);
+      const g=gems[i];
+      c.fillStyle='rgba(15,8,30,0.85)';c.beginPath();c.roundRect(x,y,cell,cell,6);c.fill();
+      if(g.e!=='🪨'){
+        const gl=c.createRadialGradient(x+cell/2,y+cell/2,0,x+cell/2,y+cell/2,cell*.7);
+        gl.addColorStop(0,`rgba(${g.glow},0.2)`);gl.addColorStop(1,'transparent');
+        c.fillStyle=gl;c.beginPath();c.arc(x+cell/2,y+cell/2,cell*.7,0,Math.PI*2);c.fill();
+        c.strokeStyle=g.col+'88';c.lineWidth=1.5;c.beginPath();c.roundRect(x+1,y+1,cell-2,cell-2,5);c.stroke();
+      }
+      c.font=`${cell*.52}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(g.e,x+cell/2,y+cell/2);
+    }
+    // timer bar
+    c.fillStyle='rgba(0,0,0,0.5)';c.beginPath();c.roundRect(ox,oy-16,cols*cell+3*4,8,4);c.fill();
+    c.fillStyle='#e8a020';c.beginPath();c.roundRect(ox,oy-16,(cols*cell+3*4)*.6,8,4);c.fill();
+  }
+
+  // Draw all previews once DOM is ready
+  window.addEventListener('load', () => {
+    drawDesert(document.getElementById('prev-desert'));
+    drawDodge(document.getElementById('prev-dodge'));
+    drawNova(document.getElementById('prev-nova'));
+    drawRunner(document.getElementById('prev-runner'));
+    drawFlood(document.getElementById('prev-flood'));
+    drawJuice(document.getElementById('prev-juice'));
+    drawGravity(document.getElementById('prev-gravity'));
+    drawMiner(document.getElementById('prev-miner'));
+  });
+</script>
+</body>
+</html>
