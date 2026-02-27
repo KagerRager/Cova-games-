@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Flood – GameCave</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#e8a020;--gold2:#ffcc55;--ember:#ff6a00;--bg:#0d0a07;--card:#211a12;--border:#4a3820;--crystal:#3db8a0;--moss:#4a6741;--text:#f0e6d0;--muted:#9a8870;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(61,184,160,0.04) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(232,160,32,0.05) 0%,transparent 50%);pointer-events:none;z-index:0;}
+
+  .topbar{background:rgba(13,10,7,0.95);border-bottom:2px solid var(--border);padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10;}
+  .logo{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(232,160,32,0.4);text-decoration:none;letter-spacing:0.08em;}
+  .logo span{color:var(--gold2);}
+  .back-btn{color:var(--muted);text-decoration:none;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.15s;padding:0.4rem 1rem;border:1px solid var(--border);border-radius:3px;}
+  .back-btn:hover{color:var(--gold2);border-color:var(--gold);}
+
+  .main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;gap:1rem;position:relative;z-index:1;}
+
+  /* HUD */
+  .hud{display:flex;gap:1.5rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .stat-box{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:0.4rem 1.1rem;}
+  .stat-val{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;color:var(--gold);line-height:1;text-shadow:0 0 10px rgba(232,160,32,0.4);}
+  .stat-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-top:0.1rem;}
+  .stat-val.danger{color:#ff6a00;text-shadow:0 0 10px rgba(255,106,0,0.5);}
+
+  /* GRID */
+  #grid-wrap{position:relative;}
+  #grid{display:grid;gap:2px;border:2px solid var(--border);border-radius:4px;overflow:hidden;box-shadow:0 0 30px rgba(0,0,0,0.5);}
+  .cell{width:100%;aspect-ratio:1;transition:background 0.12s;}
+
+  /* COLOR BUTTONS */
+  .color-btns{display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;}
+  .color-btn{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s;outline:none;}
+  .color-btn:hover{transform:scale(1.2);}
+  .color-btn.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.4),0 0 15px rgba(255,255,255,0.2);}
+
+  /* BOTTOM ROW */
+  .bottom-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:center;}
+  .btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.55rem 1.5rem;border-radius:4px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--ember));color:#1a0e00;box-shadow:0 4px 0 #5a3000;}
+  .btn-gold:hover{box-shadow:0 6px 0 #5a3000;}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .btn-ghost:hover{color:var(--gold2);border-color:var(--gold);}
+
+  /* WIN/LOSE OVERLAY */
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;background:rgba(0,0,0,0.8);border-radius:2px;}
+  .overlay.show{display:flex;}
+  .overlay-title{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(232,160,32,0.6);}
+  .overlay-sub{font-size:0.85rem;color:var(--muted);}
+
+  /* DIFFICULTY */
+  .diff-row{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;}
+  .diff-btn{font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.3rem 0.9rem;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'Nunito',sans-serif;}
+  .diff-btn:hover,.diff-btn.active{border-color:var(--gold);color:var(--gold2);background:rgba(232,160,32,0.08);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
+  <a class="back-btn" href="index.html">← Back</a>
+</div>
+
+<div class="main">
+
+  <div class="hud">
+    <div class="stat-box"><div class="stat-val" id="movesVal">25</div><div class="stat-label">Moves Left</div></div>
+    <div class="stat-box"><div class="stat-val" id="capturedVal">0%</div><div class="stat-label">Captured</div></div>
+    <div class="stat-box"><div class="stat-val" id="bestVal">–</div><div class="stat-label">Best Moves</div></div>
+  </div>
+
+  <div id="grid-wrap">
+    <div id="grid"></div>
+    <div class="overlay" id="overlay">
+      <div class="overlay-title" id="overlayTitle">You Win!</div>
+      <div class="overlay-sub" id="overlaySub"></div>
+    </div>
+  </div>
+
+  <div class="color-btns" id="colorBtns"></div>
+
+  <div class="bottom-row">
+    <button class="btn btn-gold" onclick="newGame()">⛏ New Game</button>
+    <div class="diff-row">
+      <button class="diff-btn active" id="d-easy"   onclick="setDiff('easy')">Easy</button>
+      <button class="diff-btn"        id="d-medium" onclick="setDiff('medium')">Medium</button>
+      <button class="diff-btn"        id="d-hard"   onclick="setDiff('hard')">Hard</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── PALETTE ───
+const COLORS = [
+  '#e8a020', // gold
+  '#3db8a0', // crystal
+  '#c0392b', // rust
+  '#4a6741', // moss
+  '#7b5ea7', // purple
+  '#d4870a', // amber
+];
+
+// ─── DIFFICULTY ───
+const DIFFS = {
+  easy:   { size: 10, moves: 28, colors: 4 },
+  medium: { size: 14, moves: 25, colors: 5 },
+  hard:   { size: 18, moves: 22, colors: 6 },
+};
+
+let diff    = 'easy';
+let SIZE    = DIFFS[diff].size;
+let MOVES   = DIFFS[diff].moves;
+let NCOLORS = DIFFS[diff].colors;
+
+let grid    = [];
+let movesLeft, gameOver, bests = {};
+
+function setDiff(d) {
+  diff    = d;
+  SIZE    = DIFFS[d].size;
+  MOVES   = DIFFS[d].moves;
+  NCOLORS = DIFFS[d].colors;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('d-' + d).classList.add('active');
+  newGame();
+}
+
+// ─── INIT GRID ───
+function newGame() {
+  gameOver = false;
+  movesLeft = MOVES;
+
+  // Build random grid
+  grid = [];
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    grid.push(Math.floor(Math.random() * NCOLORS));
+  }
+
+  // Render grid
+  const gridEl = document.getElementById('grid');
+  const cellPx = Math.min(Math.floor(300 / SIZE), 32);
+  gridEl.style.gridTemplateColumns = `repeat(${SIZE}, ${cellPx}px)`;
+  gridEl.style.width  = (SIZE * cellPx + (SIZE - 1) * 2) + 'px';
+  gridEl.style.height = (SIZE * cellPx + (SIZE - 1) * 2) + 'px';
+  gridEl.innerHTML = '';
+
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const cell = document.createElement('div');
+    cell.className  = 'cell';
+    cell.id         = 'cell' + i;
+    cell.style.background = COLORS[grid[i]];
+    cell.style.width  = cellPx + 'px';
+    cell.style.height = cellPx + 'px';
+    gridEl.appendChild(cell);
+  }
+
+  // Render color buttons
+  const btnWrap = document.getElementById('colorBtns');
+  btnWrap.innerHTML = '';
+  for (let c = 0; c < NCOLORS; c++) {
+    const btn = document.createElement('button');
+    btn.className = 'color-btn';
+    btn.style.background = COLORS[c];
+    btn.dataset.color = c;
+    btn.setAttribute('aria-label', 'Color ' + (c+1));
+    btn.addEventListener('click', () => flood(c));
+    btnWrap.appendChild(btn);
+  }
+
+  updateHUD();
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ─── FLOOD FILL ───
+function flood(targetColor) {
+  if (gameOver) return;
+  const originColor = grid[0];
+  if (targetColor === originColor) return;
+
+  // BFS from top-left
+  const visited = new Array(SIZE * SIZE).fill(false);
+  const queue   = [0];
+  visited[0]    = true;
+
+  while (queue.length) {
+    const idx = queue.shift();
+    if (grid[idx] !== originColor) continue;
+    grid[idx] = targetColor;
+
+    const row = Math.floor(idx / SIZE), col = idx % SIZE;
+    const neighbors = [];
+    if (row > 0)        neighbors.push(idx - SIZE);
+    if (row < SIZE - 1) neighbors.push(idx + SIZE);
+    if (col > 0)        neighbors.push(idx - 1);
+    if (col < SIZE - 1) neighbors.push(idx + 1);
+
+    neighbors.forEach(n => {
+      if (!visited[n] && grid[n] === originColor) {
+        visited[n] = true;
+        queue.push(n);
+      }
+    });
+  }
+
+  movesLeft--;
+  updateBoard();
+  updateHUD();
+  checkWin();
+}
+
+function updateBoard() {
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    document.getElementById('cell' + i).style.background = COLORS[grid[i]];
+  }
+}
+
+function updateHUD() {
+  const captured  = grid.filter(c => c === grid[0]).length;
+  const pct       = Math.round(captured / (SIZE * SIZE) * 100);
+  const movesEl   = document.getElementById('movesVal');
+  movesEl.textContent = movesLeft;
+  movesEl.className   = 'stat-val' + (movesLeft <= 5 ? ' danger' : '');
+  document.getElementById('capturedVal').textContent = pct + '%';
+}
+
+function checkWin() {
+  const allSame = grid.every(c => c === grid[0]);
+
+  if (allSame) {
+    gameOver = true;
+    const used = MOVES - movesLeft;
+    const key  = diff;
+    if (!bests[key] || used < bests[key]) bests[key] = used;
+    document.getElementById('bestVal').textContent = bests[key] + ' moves';
+    showOverlay('⛏ CLEARED!', 'Solved in ' + used + ' moves! Best: ' + bests[key]);
+    gtag('event','game_win',{game:'Color Flood',moves_used:used,difficulty:diff});
+    return;
+  }
+
+  if (movesLeft <= 0) {
+    gameOver = true;
+    const captured  = grid.filter(c => c === grid[0]).length;
+    const pct       = Math.round(captured / (SIZE * SIZE) * 100);
+    showOverlay('OUT OF MOVES', 'You captured ' + pct + '% of the cave.');
+    gtag('event','game_over',{game:'Color Flood',captured_pct:pct,difficulty:diff});
+  }
+}
+
+function showOverlay(title, sub) {
+  document.getElementById('overlayTitle').textContent = title;
+  document.getElementById('overlaySub').textContent   = sub;
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ─── START ───
+newGame();
+</script>
+</body>
+</html>
