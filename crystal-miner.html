@@ -5,6 +5,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crystal Miner – GameCave</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -72,7 +73,7 @@ function buildLayout() {
 }
 
 /* ─── STATE ─── */
-let gems=[], parts=[], score=0, hi=0, wave=1;
+let gems=[], parts=[], score=0, hi=parseInt(localStorage.getItem('crystalminer_hi'))||0, wave=1;
 let timerMax=0, timerLeft=0, timerLastMs=0;
 let running=false, phase='menu', raf=0;
 let shake=0, transitioning=false;
@@ -156,7 +157,7 @@ function hitGem(idx) {
     burst(cx, cy, '#fff', 8, 5);
     const isStar = g.name === 'Star Gem';
     score += g.pts;
-    if(score > hi) hi = score;
+    if(score > hi) { hi = score; localStorage.setItem('crystalminer_hi', hi); }
     popTxt(cx, cy-40, '+'+g.pts+(isStar?' ⭐':''), g.col, isStar);
     shake = isStar ? 12 : 5;
     gtag('event','gem_mined',{game:'Crystal Miner',gem:g.name,pts:g.pts});

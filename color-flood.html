@@ -5,6 +5,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Flood – GameCave</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -121,7 +122,7 @@ let MOVES   = DIFFS[diff].moves;
 let NCOLORS = DIFFS[diff].colors;
 
 let grid    = [];
-let movesLeft, gameOver, bests = {};
+let movesLeft, gameOver, bests = JSON.parse(localStorage.getItem('colorflood_bests') || '{}');
 
 function setDiff(d) {
   diff    = d;
@@ -136,6 +137,8 @@ function setDiff(d) {
 // ─── INIT GRID ───
 function newGame() {
   gameOver = false;
+  const savedBest = bests[diff];
+  document.getElementById('bestVal').textContent = savedBest ? savedBest + ' moves' : '–';
   movesLeft = MOVES;
 
   // Build random grid
@@ -238,7 +241,7 @@ function checkWin() {
     gameOver = true;
     const used = MOVES - movesLeft;
     const key  = diff;
-    if (!bests[key] || used < bests[key]) bests[key] = used;
+    if (!bests[key] || used < bests[key]) { bests[key] = used; localStorage.setItem('colorflood_bests', JSON.stringify(bests)); }
     document.getElementById('bestVal').textContent = bests[key] + ' moves';
     showOverlay('⛏ CLEARED!', 'Solved in ' + used + ' moves! Best: ' + bests[key]);
     gtag('event','game_win',{game:'Color Flood',moves_used:used,difficulty:diff});

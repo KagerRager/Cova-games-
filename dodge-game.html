@@ -12,6 +12,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178"
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dodge Game — Build It Yourself</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -358,6 +359,7 @@
 <body>
 
 <div class="topbar">
+  <a href="index.html" style="color:#e8a020;text-decoration:none;font-family:Cinzel,serif;font-weight:900;font-size:0.75rem;letter-spacing:0.08em;padding:3px 8px;border:1px solid #4a3820;border-radius:3px;text-shadow:0 0 8px rgba(232,160,32,0.4);">🪨 GAMECAVE</a>
   <div class="logo">dodge<span>.js</span></div>
   <div class="tab-row">
     <button class="tab-btn active" onclick="switchView('play', this)">▶ Play</button>
@@ -385,8 +387,8 @@
   <canvas id="c" width="360" height="480"></canvas>
 
   <div class="mobile-controls">
-    <button class="arrow-btn" onmousedown="mLeft=true" onmouseup="mLeft=false" ontouchstart="mLeft=true;e.preventDefault()" ontouchend="mLeft=false">◀</button>
-    <button class="arrow-btn" onmousedown="mRight=true" onmouseup="mRight=false" ontouchstart="mRight=true;e.preventDefault()" ontouchend="mRight=false">▶</button>
+    <button class="arrow-btn" onmousedown="mLeft=true" onmouseup="mLeft=false" ontouchstart="mLeft=true;event.preventDefault()" ontouchend="mLeft=false">◀</button>
+    <button class="arrow-btn" onmousedown="mRight=true" onmouseup="mRight=false" ontouchstart="mRight=true;event.preventDefault()" ontouchend="mRight=false">▶</button>
   </div>
 </div>
 

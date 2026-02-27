@@ -19,13 +19,14 @@
 <meta name="description" content="Play the best free unblocked games in 2026 at GameCave. Enjoy Desert Chase, Dodge, Nova Strike and more free online browser games — no download required.">
 <meta name="keywords" content="free online browser games, best unblocked games 2026, gamecave, desert chase game, dodge game, nova strike, play games online free">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://covagames.github.io/">
+<link rel="canonical" href="https://kagerrager.github.io/GameCave/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
 
 <!-- Open Graph -->
 <meta property="og:title" content="GameCave – Best Free Unblocked Games 2026">
 <meta property="og:description" content="Play free unblocked browser games at GameCave. No downloads, no sign-ups — just fun.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://covagames.github.io/">
+<meta property="og:url" content="https://kagerrager.github.io/GameCave/">
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -153,14 +154,7 @@
   }
   .nav-links a:hover { color:var(--gold2); text-shadow:0 0 8px rgba(255,204,85,0.4); }
 
-  /* ── AD BANNER ── */
-  .ad-banner {
-    background:rgba(26,20,12,0.9); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
-    text-align:center; padding:1rem; font-size:0.65rem; font-weight:700;
-    letter-spacing:0.2em; color:var(--muted); text-transform:uppercase;
-    min-height:90px; display:flex; align-items:center; justify-content:center;
-  }
-  .ad-banner span { border:1px dashed var(--border); padding:0.5rem 2rem; border-radius:4px; }
+
 
   /* ── HERO ── */
   .hero {
@@ -361,10 +355,25 @@
   .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease,transform 0.6s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 
+
+  /* ── MOBILE FIX: restore normal cursor ── */
+  @media (pointer: coarse) {
+    body, a, button, .btn, .game-play-btn { cursor: auto !important; }
+    .cursor, .cursor-dot { display: none !important; }
+    .embers .ember-p { animation-duration: 12s !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ember-p, .stalactite, .stalagmite, .ticker { animation: none !important; }
+  }
+
+  .hamburger { display:none; background:none; border:none; color:var(--gold); font-size:1.6rem; cursor:pointer; padding:0.3rem; }
   @media (max-width:600px) {
-    .nav-links { display:none; }
+    .nav-links { display:none; flex-direction:column; position:absolute; top:100%; right:0; background:rgba(13,10,7,0.97); border:1px solid var(--border); border-radius:0 0 8px 8px; padding:1rem 2rem; gap:1rem; min-width:160px; }
+    .nav-links.open { display:flex; }
+    .hamburger { display:block; }
     .hero-btns { flex-direction:column; align-items:center; }
     .hero::before, .hero::after { display:none; }
+    .games-grid { gap:1rem; }
   }
 </style>
 </head>
@@ -387,6 +396,7 @@
       <li><a href="#puzzle">Puzzle</a></li>
       <li><a href="privacy.html">Privacy</a></li>
     </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
   </nav>
 
   <section class="hero">
@@ -403,10 +413,6 @@
   </section>
 
   <div class="stone-divider"></div>
-
-  <div class="ad-banner" aria-label="Advertisement">
-    <span>Advertisement</span>
-  </div>
 
   <div class="ticker-wrap">
     <div class="ticker">
@@ -636,10 +642,6 @@
     </div>
   </section>
 
-  <div class="ad-banner" aria-label="Advertisement">
-    <span>Advertisement</span>
-  </div>
-
   <footer>
     <span class="footer-logo">🪨 GAMECAVE</span>
     <ul class="footer-links">
@@ -673,7 +675,9 @@
 
   // Embers
   const embersEl=document.getElementById('embers');
-  for(let i=0;i<40;i++){
+  const isMob=window.matchMedia('(pointer:coarse)').matches;
+    const emberCount=isMob?12:40;
+    for(let i=0;i<emberCount;i++){
     const e=document.createElement('div'); e.className='ember-p';
     const sz=Math.random()*4+2;
     e.style.cssText=`--w:${sz}px;left:${Math.random()*100}%;--dur:${4+Math.random()*6}s;--delay:${Math.random()*6}s;--drift:${(Math.random()-0.5)*80}px;`;
