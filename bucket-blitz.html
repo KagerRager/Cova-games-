@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪣</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bucket Blitz — GameCave</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#e8a020;--gold2:#ffcc55;--ember:#ff6a00;
+    --bg:#0d0a07;--card:#211a12;--border:#4a3820;
+    --text:#f0e6d0;--muted:#9a8870;
+    --orange:#ff7433;--purple:#b388ff;--red:#ff4444;--green:#4eff91;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 50% 80%,rgba(232,160,32,0.05) 0%,transparent 60%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NAV */
+  .topbar{
+    background:rgba(13,10,7,0.95);
+    border-bottom:2px solid var(--border);
+    padding:0.7rem 1.5rem;
+    display:flex;align-items:center;justify-content:space-between;
+    flex-shrink:0;position:relative;z-index:10;
+  }
+  .logo{
+    font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;
+    color:var(--gold);text-shadow:0 0 12px rgba(232,160,32,0.4);
+    text-decoration:none;letter-spacing:0.08em;
+  }
+  .logo span{color:var(--gold2);}
+  .back-btn{
+    color:var(--muted);text-decoration:none;font-size:0.8rem;
+    font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    transition:color 0.15s;padding:0.4rem 1rem;
+    border:1px solid var(--border);border-radius:3px;
+  }
+  .back-btn:hover{color:var(--gold2);border-color:var(--gold);}
+
+  /* MAIN */
+  .main{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:1rem;gap:0.75rem;position:relative;z-index:1;
+  }
+
+  /* HUD */
+  .hud{display:flex;gap:1.5rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .stat-box{
+    text-align:center;background:var(--card);
+    border:1px solid var(--border);border-radius:6px;
+    padding:0.4rem 1.1rem;
+  }
+  .stat-val{
+    font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;
+    color:var(--gold);line-height:1;
+    text-shadow:0 0 10px rgba(232,160,32,0.4);
+  }
+  .stat-label{
+    font-size:0.58rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:0.12em;margin-top:0.15rem;
+  }
+  .lives-box{display:flex;gap:0.3rem;justify-content:center;font-size:1.1rem;margin-top:0.15rem;}
+
+  /* CANVAS */
+  canvas{
+    display:block;border:2px solid var(--border);
+    border-radius:4px;
+    box-shadow:0 0 30px rgba(232,160,32,0.08);
+    max-width:100%;
+  }
+
+  /* CONTROLS */
+  .controls{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:center;}
+  .btn{
+    font-family:'Nunito',sans-serif;font-weight:800;
+    font-size:0.85rem;letter-spacing:0.06em;text-transform:uppercase;
+    padding:0.6rem 1.8rem;border-radius:4px;border:none;cursor:pointer;
+    transition:transform 0.15s,box-shadow 0.15s;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),var(--ember));
+    color:#1a0e00;box-shadow:0 4px 0 #5a3000;
+  }
+  .btn-gold:hover{box-shadow:0 6px 0 #5a3000;}
+
+  /* MOBILE ARROW BUTTONS */
+  .arrow-row{display:flex;gap:0.75rem;}
+  .arrow-btn{
+    width:70px;height:55px;
+    background:var(--card);border:2px solid var(--border);border-radius:6px;
+    color:var(--gold2);font-size:1.3rem;cursor:pointer;
+    transition:background 0.1s;
+    display:flex;align-items:center;justify-content:center;
+    user-select:none;-webkit-user-select:none;
+  }
+  .arrow-btn:active{background:var(--gold);color:#1a0e00;}
+
+  /* LEGEND */
+  .legend{
+    display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;
+    font-size:0.7rem;color:var(--muted);
+  }
+  .legend-item{display:flex;align-items:center;gap:0.35rem;}
+  .legend-dot{
+    width:12px;height:12px;border-radius:50%;flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
+  <a class="back-btn" href="index.html">← Back</a>
+</div>
+
+<div class="main">
+  <div class="hud">
+    <div class="stat-box">
+      <div class="stat-val" id="scoreVal">0</div>
+      <div class="stat-label">Score</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="hiVal">0</div>
+      <div class="stat-label">Best</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label" style="margin-top:0.3rem">Lives</div>
+      <div class="lives-box" id="livesBox">❤️❤️❤️</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="levelVal">1</div>
+      <div class="stat-label">Level</div>
+    </div>
+  </div>
+
+  <canvas id="c" width="400" height="500"></canvas>
+
+  <div class="controls">
+    <button class="btn btn-gold" id="startBtn" onclick="startGame()">▶ Start</button>
+    <div class="arrow-row">
+      <button class="arrow-btn"
+        onmousedown="mLeft=true" onmouseup="mLeft=false" onmouseleave="mLeft=false"
+        ontouchstart="mLeft=true;event.preventDefault()" ontouchend="mLeft=false">◀</button>
+      <button class="arrow-btn"
+        onmousedown="mRight=true" onmouseup="mRight=false" onmouseleave="mRight=false"
+        ontouchstart="mRight=true;event.preventDefault()" ontouchend="mRight=false">▶</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ff7433"></div> +1 ball</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffcc55"></div> +5 golden</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#cc44ff"></div> +3 mystery</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div> 💥 bomb</div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// BUCKET BLITZ  –  catch balls, avoid bombs
+// ================================================================
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// Bucket dimensions
+const BUCKET_W = 70, BUCKET_H = 30, BUCKET_Y = H - 55;
+const BUCKET_SPEED = 6;
+const BUCKET_SPEED_INCREASE_PER_LEVEL = 0.3;
+const BALL_RADIUS  = 12;
+const MAX_LIVES    = 3;
+const MISS_PENALTY = 1; // lives lost when a good ball hits the ground
+
+// Difficulty / spawn tuning
+const MIN_SPAWN_GAP           = 35;  // minimum frames between ball spawns
+const BASE_SPAWN_GAP          = 80;  // starting frames between ball spawns
+const SPAWN_REDUCTION_PER_LEVEL = 6; // frames removed per level
+
+// ── STATE ──
+let bucket, balls, particles, score, hi, lives, level, frameCount, running, animId, spawnTimer;
+hi = parseInt(localStorage.getItem('bucketblitz_hi')) || 0;
+document.getElementById('hiVal').textContent = hi;
+
+let keys   = { left: false, right: false };
+let mLeft  = false, mRight = false;
+
+// ── BALL TYPES ──
+const TYPES = [
+  { type:'normal', color:'#ff7433', outline:'#ff9966', pts:1,  weight:50, emoji:'🏀' },
+  { type:'golden', color:'#ffcc55', outline:'#ffe599', pts:5,  weight:15, emoji:'⭐' },
+  { type:'mystery',color:'#cc44ff', outline:'#dd88ff', pts:3,  weight:20, emoji:'🔮' },
+  { type:'bomb',   color:'#ff4444', outline:'#ff8888', pts:-1, weight:15, emoji:'💣' },
+];
+
+function pickType() {
+  const total = TYPES.reduce((s, t) => s + t.weight, 0);
+  let r = Math.random() * total;
+  for (const t of TYPES) { r -= t.weight; if (r <= 0) return t; }
+  return TYPES[0];
+}
+
+// ── INIT ──
+function initState() {
+  bucket     = { x: W/2 - BUCKET_W/2, dx: 0 };
+  balls      = [];
+  particles  = [];
+  score      = 0;
+  lives      = MAX_LIVES;
+  level      = 1;
+  frameCount = 0;
+  spawnTimer = 0;
+  updateHUD();
+}
+
+function updateHUD() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('levelVal').textContent = level;
+  const livesDisplay = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, MAX_LIVES - lives));
+  document.getElementById('livesBox').textContent = livesDisplay;
+  if (score > hi) {
+    hi = score;
+    localStorage.setItem('bucketblitz_hi', hi);
+    document.getElementById('hiVal').textContent = hi;
+  }
+}
+
+// ── PARTICLES ──
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 4 + 1;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      life: 1,
+      color,
+      size: Math.random() * 5 + 2,
+    });
+  }
+}
+
+function updateParticles() {
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vy += 0.15; p.life -= 0.03;
+  });
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle   = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+// ── BACKGROUND ──
+function drawBg() {
+  // Night-court gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#0a0810');
+  grad.addColorStop(1, '#130d05');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle court lines
+  ctx.strokeStyle = 'rgba(232,160,32,0.06)';
+  ctx.lineWidth = 1;
+  // Half-court arc hint
+  ctx.beginPath();
+  ctx.arc(W/2, H - 55, 80, Math.PI, 0);
+  ctx.stroke();
+  // Center line
+  ctx.beginPath();
+  ctx.moveTo(0, H - 55);
+  ctx.lineTo(W, H - 55);
+  ctx.stroke();
+
+  // Spotlight glow from top
+  const spotlight = ctx.createRadialGradient(W/2, -20, 0, W/2, -20, 280);
+  spotlight.addColorStop(0, 'rgba(232,160,32,0.08)');
+  spotlight.addColorStop(1, 'transparent');
+  ctx.fillStyle = spotlight;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// ── DRAW BALL ──
+function drawBall(b) {
+  // Glow
+  const glow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, BALL_RADIUS * 2);
+  glow.addColorStop(0, b.tdef.color + '55');
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, BALL_RADIUS * 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main circle
+  ctx.fillStyle = b.tdef.color;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Shine / highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath();
+  ctx.arc(b.x - 4, b.y - 4, BALL_RADIUS * 0.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Outline
+  ctx.strokeStyle = b.tdef.outline;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Basketball seam lines for normal + golden
+  if (b.tdef.type !== 'bomb') {
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1;
+    // Horizontal seam
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, BALL_RADIUS * 0.85, 0, Math.PI);
+    ctx.stroke();
+    // Vertical seam
+    ctx.beginPath();
+    ctx.moveTo(b.x, b.y - BALL_RADIUS);
+    ctx.lineTo(b.x, b.y + BALL_RADIUS);
+    ctx.stroke();
+  }
+}
+
+// ── DRAW BUCKET ──
+function drawBucket(bx) {
+  const x = bx, y = BUCKET_Y, w = BUCKET_W, h = BUCKET_H;
+
+  // Shadow beneath bucket
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(x + w/2, H - 28, w/2, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bucket body (trapezoid — open at top)
+  ctx.fillStyle = '#c87832';
+  ctx.beginPath();
+  ctx.moveTo(x + 8,  y);          // top-left (inset)
+  ctx.lineTo(x + w - 8, y);       // top-right (inset)
+  ctx.lineTo(x + w,     y + h);   // bottom-right
+  ctx.lineTo(x,         y + h);   // bottom-left
+  ctx.closePath();
+  ctx.fill();
+
+  // Rim (top bar)
+  ctx.fillStyle = '#e8a020';
+  ctx.fillRect(x, y - 5, w, 6);
+  // Rim sheen
+  ctx.fillStyle = 'rgba(255,220,100,0.4)';
+  ctx.fillRect(x, y - 5, w, 2);
+
+  // Net lines
+  ctx.strokeStyle = 'rgba(255,200,120,0.5)';
+  ctx.lineWidth = 1;
+  const netTop = y + 1, netBot = y + h - 4;
+  for (let i = 0; i <= 5; i++) {
+    const nx = x + (w * i / 5);
+    ctx.beginPath();
+    ctx.moveTo(nx, netTop);
+    ctx.lineTo(x + (w * i / 5) + (i < 3 ? 4 : -4) * (5 - i), netBot);
+    ctx.stroke();
+  }
+
+  // Bucket glow when catching
+  if (bucket.catching > 0) {
+    ctx.strokeStyle = `rgba(255,220,80,${bucket.catching})`;
+    ctx.lineWidth   = 3;
+    ctx.beginPath();
+    ctx.rect(x - 3, y - 8, w + 6, h + 11);
+    ctx.stroke();
+    bucket.catching -= 0.05;
+  }
+}
+
+// ── SPAWN BALL ──
+function spawnBall() {
+  const tdef = pickType();
+  // Slight speed boost per level
+  const baseSpeed = 2 + level * 0.4;
+  balls.push({
+    x: BALL_RADIUS + Math.random() * (W - BALL_RADIUS * 2),
+    y: -BALL_RADIUS,
+    vy: baseSpeed + Math.random() * 1.5,
+    tdef,
+    wobble: (Math.random() - 0.5) * 0.5,  // slight horizontal drift
+    angle: 0,
+  });
+}
+
+// ── COLLISION: ball vs bucket ──
+function ballInBucket(b) {
+  // Use rim rectangle for catch detection
+  const rimL = bucket.x;
+  const rimR = bucket.x + BUCKET_W;
+  const rimY = BUCKET_Y - 5;
+  return (
+    b.x + BALL_RADIUS > rimL &&
+    b.x - BALL_RADIUS < rimR &&
+    b.y + BALL_RADIUS >= rimY &&
+    b.y - BALL_RADIUS <= rimY + BUCKET_H + 10
+  );
+}
+
+// ── UPDATE ──
+function update() {
+  frameCount++;
+  level = 1 + Math.floor(score / 10);
+
+  // Move bucket
+  const spd = BUCKET_SPEED + level * BUCKET_SPEED_INCREASE_PER_LEVEL;
+  if (keys.left  || mLeft)  bucket.x = Math.max(0, bucket.x - spd);
+  if (keys.right || mRight) bucket.x = Math.min(W - BUCKET_W, bucket.x + spd);
+
+  // Spawn balls
+  const spawnGap = Math.max(MIN_SPAWN_GAP, BASE_SPAWN_GAP - level * SPAWN_REDUCTION_PER_LEVEL);
+  spawnTimer++;
+  if (spawnTimer >= spawnGap) {
+    spawnBall();
+    spawnTimer = 0;
+  }
+
+  // Move balls
+  balls.forEach(b => {
+    b.y += b.vy;
+    b.x += b.wobble;
+    // Clamp horizontal drift
+    if (b.x < BALL_RADIUS) { b.x = BALL_RADIUS; b.wobble *= -1; }
+    if (b.x > W - BALL_RADIUS) { b.x = W - BALL_RADIUS; b.wobble *= -1; }
+  });
+
+  // Check catches / misses
+  const toRemove = [];
+  balls.forEach((b, i) => {
+    if (ballInBucket(b)) {
+      toRemove.push(i);
+      if (b.tdef.type === 'bomb') {
+        // Caught a bomb — lose a life
+        spawnParticles(b.x, b.y, '#ff4444', 20);
+        spawnParticles(b.x, b.y, '#ff8800', 12);
+        loseLife();
+      } else {
+        score += b.tdef.pts;
+        spawnParticles(b.x, BUCKET_Y, b.tdef.color, 14);
+        bucket.catching = 1;
+        updateHUD();
+      }
+    } else if (b.y - BALL_RADIUS > H) {
+      toRemove.push(i);
+      if (b.tdef.type !== 'bomb') {
+        // Missed a good ball — lose a life
+        loseLife();
+      }
+    }
+  });
+  // Remove in reverse to preserve indices
+  for (let i = toRemove.length - 1; i >= 0; i--) {
+    balls.splice(toRemove[i], 1);
+  }
+
+  updateParticles();
+}
+
+function loseLife() {
+  lives = Math.max(0, lives - MISS_PENALTY);
+  updateHUD();
+  if (lives <= 0) endGame();
+}
+
+// ── DRAW ──
+function draw() {
+  drawBg();
+  drawParticles();
+  balls.forEach(drawBall);
+  drawBucket(bucket.x);
+
+  // Level badge
+  ctx.font = 'bold 12px Cinzel, serif';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(232,160,32,0.6)';
+  ctx.fillText('LVL ' + level, W - 10, 22);
+  ctx.textAlign = 'left';
+}
+
+// ── LOOP ──
+function loop() {
+  if (!running) return;
+  update();
+  draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// ── START / END ──
+function startGame() {
+  cancelAnimationFrame(animId);
+  initState();
+  running = true;
+  gtag('event', 'game_start', { game: 'Bucket Blitz' });
+  document.getElementById('startBtn').textContent = '↺ Restart';
+  loop();
+}
+
+function endGame() {
+  running = false;
+  cancelAnimationFrame(animId);
+  gtag('event', 'game_over', { game: 'Bucket Blitz', score: score });
+
+  // Game-over overlay
+  ctx.fillStyle = 'rgba(0,0,0,0.78)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e8a020';
+  ctx.font = 'bold 30px Cinzel, serif';
+  ctx.fillText('GAME OVER', W/2, H/2 - 35);
+
+  ctx.fillStyle = '#f0e6d0';
+  ctx.font = '15px Nunito, sans-serif';
+  ctx.fillText('Score: ' + score, W/2, H/2);
+
+  if (score >= hi) {
+    ctx.fillStyle = '#ffcc55';
+    ctx.font = 'bold 13px Nunito, sans-serif';
+    ctx.fillText('🏆 New Best!', W/2, H/2 + 24);
+  }
+
+  ctx.fillStyle = '#9a8870';
+  ctx.font = '12px Nunito, sans-serif';
+  ctx.fillText('Press ▶ Start to play again', W/2, H/2 + 50);
+  ctx.textAlign = 'left';
+
+  document.getElementById('startBtn').textContent = '▶ Start';
+}
+
+// ── IDLE SCREEN ──
+function drawIdle() {
+  drawBg();
+  drawBucket(W/2 - BUCKET_W/2);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(232,160,32,0.9)';
+  ctx.font = 'bold 22px Cinzel, serif';
+  ctx.fillText('BUCKET BLITZ', W/2, H/2 - 40);
+
+  ctx.fillStyle = '#9a8870';
+  ctx.font = '13px Nunito, sans-serif';
+  ctx.fillText('Catch balls, dodge bombs!', W/2, H/2 - 12);
+  ctx.fillText('← → arrow keys or tap buttons', W/2, H/2 + 12);
+  ctx.textAlign = 'left';
+}
+
+// ── INPUT ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); keys.left  = true; }
+  if (e.key === 'ArrowRight') { e.preventDefault(); keys.right = true; }
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft')  keys.left  = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+});
+
+// ── INIT ──
+initState();
+drawIdle();
+</script>
+</body>
+</html>
