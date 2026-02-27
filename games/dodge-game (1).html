@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1VFNJ21V0');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dodge Game — Build It Yourself</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d14;
+    --panel: #13131e;
+    --panel2: #1c1c2e;
+    --border: #252538;
+    --text: #dde1f0;
+    --muted: #5a5a7a;
+    --cyan: #00e5ff;
+    --pink: #ff4fa3;
+    --yellow: #ffe566;
+    --green: #4eff91;
+    --orange: #ff8c42;
+    --purple: #b388ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fira Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .logo { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--cyan); }
+  .logo span { color: var(--pink); }
+
+  .tab-row { display: flex; gap: 0.2rem; }
+  .tab-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--panel2); border-color: var(--border); color: var(--cyan); }
+  .tab-btn:hover:not(.active) { color: var(--text); border-color: var(--border); }
+
+  .main { flex: 1; display: flex; overflow: hidden; }
+
+  /* ===== PLAY TAB ===== */
+  #view-play {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  canvas {
+    border: 2px solid var(--border);
+    display: block;
+    max-width: 100%;
+  }
+
+  .game-ui {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .score-box {
+    text-align: center;
+  }
+
+  .score-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--yellow);
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .play-btn {
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+  .play-btn:hover { opacity: 0.8; }
+
+  .mobile-controls {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .arrow-btn {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.2rem;
+    width: 60px;
+    height: 50px;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow-btn:active { background: var(--cyan); color: var(--bg); }
+
+  /* ===== CODE TAB ===== */
+  #view-code {
+    flex: 1;
+    display: none;
+    overflow: hidden;
+  }
+
+  .code-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  @media (max-width: 680px) {
+    .code-layout { grid-template-columns: 1fr; grid-template-rows: 1fr 260px; }
+  }
+
+  .code-pane {
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .code-block {
+    margin-bottom: 2rem;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+    cursor: pointer;
+  }
+
+  .code-block.unlocked { opacity: 1; }
+  .code-block.active { outline: 1px solid var(--cyan); }
+
+  .block-label {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .block-num {
+    background: var(--cyan);
+    color: var(--bg);
+    font-size: 0.55rem;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  .block-num.locked { background: var(--border); color: var(--muted); }
+
+  pre {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    font-size: 0.72rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  .kw { color: var(--pink); }
+  .fn { color: var(--cyan); }
+  .num { color: var(--yellow); }
+  .str { color: var(--green); }
+  .cm { color: var(--muted); font-style: italic; }
+  .var { color: var(--orange); }
+  .prop { color: var(--purple); }
+
+  .explain-pane {
+    overflow-y: auto;
+    padding: 1.25rem;
+    background: var(--panel);
+  }
+
+  .explain-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+    color: var(--cyan);
+  }
+
+  .explain-body {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .explain-body strong { color: var(--text); }
+
+  .analogy-box {
+    background: rgba(255,229,102,0.06);
+    border: 1px solid rgba(255,229,102,0.2);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .analogy-label {
+    font-size: 0.58rem;
+    color: var(--yellow);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .analogy-box p { font-size: 0.7rem; color: var(--muted); line-height: 1.6; }
+  .analogy-box strong { color: var(--text); }
+
+  .unlock-btn {
+    background: var(--pink);
+    color: white;
+    border: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    width: 100%;
+    margin-top: 0.5rem;
+    transition: opacity 0.15s;
+  }
+  .unlock-btn:hover { opacity: 0.8; }
+  .unlock-btn:disabled { background: var(--border); color: var(--muted); cursor: default; opacity: 1; }
+
+  .progress-dots {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.done { background: var(--cyan); }
+
+  /* ===== CHALLENGE TAB ===== */
+  #view-challenge {
+    flex: 1;
+    display: none;
+    overflow-y: auto;
+    padding: 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .challenge-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+  }
+
+  .challenge-title span { color: var(--pink); }
+
+  .challenge-sub { font-size: 0.72rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+
+  .challenge-card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .challenge-card:hover { border-color: var(--pink); }
+  .challenge-card.done-c { border-color: var(--green); background: rgba(78,255,145,0.04); }
+
+  .challenge-icon {
+    font-size: 1.5rem;
+    min-width: 2rem;
+    text-align: center;
+  }
+
+  .challenge-name { font-size: 0.78rem; margin-bottom: 0.2rem; }
+  .challenge-card.done-c .challenge-name { color: var(--green); }
+  .challenge-desc { font-size: 0.67rem; color: var(--muted); line-height: 1.6; }
+  .challenge-hint { font-size: 0.63rem; color: var(--cyan); margin-top: 0.4rem; display: none; }
+  .challenge-card:hover .challenge-hint { display: block; }
+  .challenge-check {
+    margin-left: auto;
+    font-size: 0.6rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    flex-shrink: 0;
+    align-self: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .challenge-card.done-c .challenge-check { background: var(--green); color: var(--bg); border-color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">dodge<span>.js</span></div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchView('play', this)">▶ Play</button>
+    <button class="tab-btn" onclick="switchView('code', this)">{ } Code</button>
+    <button class="tab-btn" onclick="switchView('challenge', this)">★ Challenges</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- PLAY VIEW -->
+<div id="view-play">
+  <div class="game-ui">
+    <div class="score-box">
+      <div class="score-val" id="scoreVal">0</div>
+      <div class="score-label">Score</div>
+    </div>
+    <button class="play-btn" id="playBtn" onclick="startGame()">▶ Start</button>
+    <div class="score-box">
+      <div class="score-val" id="hiVal">0</div>
+      <div class="score-label">Best</div>
+    </div>
+  </div>
+
+  <canvas id="c" width="360" height="480"></canvas>
+
+  <div class="mobile-controls">
+    <button class="arrow-btn" onmousedown="mLeft=true" onmouseup="mLeft=false" ontouchstart="mLeft=true;e.preventDefault()" ontouchend="mLeft=false">◀</button>
+    <button class="arrow-btn" onmousedown="mRight=true" onmouseup="mRight=false" ontouchstart="mRight=true;e.preventDefault()" ontouchend="mRight=false">▶</button>
+  </div>
+</div>
+
+<!-- CODE VIEW -->
+<div id="view-code">
+  <div class="code-layout">
+    <div class="code-pane" id="codePane">
+
+      <div class="code-block unlocked" id="block0" onclick="selectBlock(0)">
+        <div class="block-label"><span class="block-num">01</span> <span style="color:var(--cyan)">The Canvas — your drawing surface</span></div>
+        <pre><span class="cm">// Get the canvas element from HTML</span>
+<span class="kw">const</span> <span class="var">canvas</span> = document.<span class="fn">getElementById</span>(<span class="str">'c'</span>);
+<span class="kw">const</span> <span class="var">ctx</span> = <span class="var">canvas</span>.<span class="fn">getContext</span>(<span class="str">'2d'</span>);
+
+<span class="cm">// canvas size</span>
+<span class="kw">const</span> <span class="var">W</span> = <span class="num">360</span>, <span class="var">H</span> = <span class="num">480</span>;</pre>
+      </div>
+
+      <div class="code-block unlocked" id="block1" onclick="selectBlock(1)">
+        <div class="block-label"><span class="block-num">02</span> <span style="color:var(--orange)">The Player — your character</span></div>
+        <pre><span class="kw">let</span> <span class="var">player</span> = {
+  <span class="prop">x</span>: <span class="num">160</span>,   <span class="cm">// horizontal position</span>
+  <span class="prop">y</span>: <span class="num">430</span>,   <span class="cm">// near the bottom</span>
+  <span class="prop">w</span>: <span class="num">40</span>,    <span class="cm">// width</span>
+  <span class="prop">h</span>: <span class="num">40</span>,    <span class="cm">// height</span>
+  <span class="prop">speed</span>: <span class="num">5</span>  <span class="cm">// pixels per frame</span>
+};</pre>
+      </div>
+
+      <div class="code-block unlocked" id="block2" onclick="selectBlock(2)">
+        <div class="block-label"><span class="block-num">03</span> <span style="color:var(--pink)">The Boxes — enemies that fall</span></div>
+        <pre><span class="kw">let</span> <span class="var">boxes</span> = [];  <span class="cm">// starts empty</span>
+
+<span class="cm">// Spawn a new box every 900ms</span>
+<span class="fn">setInterval</span>(() => {
+  <span class="var">boxes</span>.<span class="fn">push</span>({
+    <span class="prop">x</span>: <span class="fn">random</span>(<span class="num">0</span>, W - <span class="num">40</span>), <span class="cm">// random column</span>
+    <span class="prop">y</span>: -<span class="num">40</span>,               <span class="cm">// starts above screen</span>
+    <span class="prop">w</span>: <span class="num">40</span>, <span class="prop">h</span>: <span class="num">40</span>,
+    <span class="prop">speed</span>: <span class="fn">random</span>(<span class="num">2</span>, <span class="num">5</span>)   <span class="cm">// random speed</span>
+  });
+}, <span class="num">900</span>);</pre>
+      </div>
+
+      <div class="code-block unlocked" id="block3" onclick="selectBlock(3)">
+        <div class="block-label"><span class="block-num">04</span> <span style="color:var(--green)">The Game Loop — heartbeat of the game</span></div>
+        <pre><span class="kw">function</span> <span class="fn">loop</span>() {
+  <span class="fn">update</span>();   <span class="cm">// move everything</span>
+  <span class="fn">draw</span>();     <span class="cm">// repaint the screen</span>
+  <span class="fn">requestAnimationFrame</span>(<span class="var">loop</span>); <span class="cm">// repeat!</span>
+}
+
+<span class="cm">// requestAnimationFrame = "run this
+// function again next screen refresh"
+// = 60 times per second</span></pre>
+      </div>
+
+      <div class="code-block unlocked" id="block4" onclick="selectBlock(4)">
+        <div class="block-label"><span class="block-num">05</span> <span style="color:var(--yellow)">Update — move the player & boxes</span></div>
+        <pre><span class="kw">function</span> <span class="fn">update</span>() {
+  <span class="cm">// Move player if key is held</span>
+  <span class="kw">if</span> (<span class="var">keys</span>.<span class="prop">left</span>)  <span class="var">player</span>.<span class="prop">x</span> -= <span class="var">player</span>.<span class="prop">speed</span>;
+  <span class="kw">if</span> (<span class="var">keys</span>.<span class="prop">right</span>) <span class="var">player</span>.<span class="prop">x</span> += <span class="var">player</span>.<span class="prop">speed</span>;
+
+  <span class="cm">// Move every box down</span>
+  <span class="var">boxes</span>.<span class="fn">forEach</span>(<span class="var">b</span> => <span class="var">b</span>.<span class="prop">y</span> += <span class="var">b</span>.<span class="prop">speed</span>);
+
+  <span class="cm">// Remove boxes that left the screen</span>
+  <span class="var">boxes</span> = <span class="var">boxes</span>.<span class="fn">filter</span>(<span class="var">b</span> => <span class="var">b</span>.<span class="prop">y</span> < H);
+
+  <span class="cm">// Check if any box hit the player</span>
+  <span class="kw">if</span> (<span class="var">boxes</span>.<span class="fn">some</span>(<span class="var">b</span> => <span class="fn">hits</span>(<span class="var">b</span>, <span class="var">player</span>))) <span class="fn">endGame</span>();
+}</pre>
+      </div>
+
+      <div class="code-block unlocked" id="block5" onclick="selectBlock(5)">
+        <div class="block-label"><span class="block-num">06</span> <span style="color:var(--purple)">Collision Detection — did they touch?</span></div>
+        <pre><span class="kw">function</span> <span class="fn">hits</span>(<span class="var">a</span>, <span class="var">b</span>) {
+  <span class="kw">return</span> (
+    <span class="var">a</span>.<span class="prop">x</span> < <span class="var">b</span>.<span class="prop">x</span> + <span class="var">b</span>.<span class="prop">w</span> &&
+    <span class="var">a</span>.<span class="prop">x</span> + <span class="var">a</span>.<span class="prop">w</span> > <span class="var">b</span>.<span class="prop">x</span> &&
+    <span class="var">a</span>.<span class="prop">y</span> < <span class="var">b</span>.<span class="prop">y</span> + <span class="var">b</span>.<span class="prop">h</span> &&
+    <span class="var">a</span>.<span class="prop">y</span> + <span class="var">a</span>.<span class="prop">h</span> > <span class="var">b</span>.<span class="prop">y</span>
+  );
+}
+<span class="cm">// This is called AABB collision —
+// checks if two rectangles overlap</span></pre>
+      </div>
+
+    </div>
+
+    <div class="explain-pane" id="explainPane">
+      <div class="progress-dots" id="dots"></div>
+      <div class="explain-title" id="expTitle">Click any block →</div>
+      <div class="explain-body" id="expBody">Click on any code block on the left to get a plain-English explanation of what it does and why it matters.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLENGE VIEW -->
+<div id="view-challenge">
+  <div class="challenge-title">Level Up — <span>Make It Your Own</span></div>
+  <p class="challenge-sub">These are real code changes you can make to the game. Each one teaches you something new. Try them one at a time — use Claude to help if you get stuck!</p>
+
+  <div class="challenge-card" id="ch0" onclick="toggleChallenge(0)">
+    <div class="challenge-icon">🎨</div>
+    <div>
+      <div class="challenge-name">Change the player color</div>
+      <div class="challenge-desc">Find where the player is drawn and change its color from cyan to something else.</div>
+      <div class="challenge-hint">💡 Hint: look for ctx.fillStyle and change the color value</div>
+    </div>
+    <div class="challenge-check" id="chk0">Mark done</div>
+  </div>
+
+  <div class="challenge-card" id="ch1" onclick="toggleChallenge(1)">
+    <div class="challenge-icon">⚡</div>
+    <div>
+      <div class="challenge-name">Make the game speed up over time</div>
+      <div class="challenge-desc">Right now boxes always fall at the same speed. Make them faster the longer you survive.</div>
+      <div class="challenge-hint">💡 Hint: multiply box speed by (1 + score * 0.01) in the spawn function</div>
+    </div>
+    <div class="challenge-check" id="chk1">Mark done</div>
+  </div>
+
+  <div class="challenge-card" id="ch2" onclick="toggleChallenge(2)">
+    <div class="challenge-icon">💣</div>
+    <div>
+      <div class="challenge-name">Add a "big box" that's 3x the size</div>
+      <div class="challenge-desc">Every 5 seconds, spawn one giant box. Big target = harder to dodge.</div>
+      <div class="challenge-hint">💡 Hint: use a separate setInterval with w: 120, h: 120</div>
+    </div>
+    <div class="challenge-check" id="chk2">Mark done</div>
+  </div>
+
+  <div class="challenge-card" id="ch3" onclick="toggleChallenge(3)">
+    <div class="challenge-icon">❤️</div>
+    <div>
+      <div class="challenge-name">Add 3 lives instead of instant death</div>
+      <div class="challenge-desc">Give the player 3 lives. On collision, lose 1 life and flash red. Only game over at 0.</div>
+      <div class="challenge-hint">💡 Hint: add a lives variable, decrement on hit, only call endGame() when lives === 0</div>
+    </div>
+    <div class="challenge-check" id="chk3">Mark done</div>
+  </div>
+
+  <div class="challenge-card" id="ch4" onclick="toggleChallenge(4)">
+    <div class="challenge-icon">⭐</div>
+    <div>
+      <div class="challenge-name">Add a collectible star that gives +50 points</div>
+      <div class="challenge-desc">Spawn a yellow star randomly. If the player touches it, add 50 points and play a sound.</div>
+      <div class="challenge-hint">💡 Hint: create a star object like a box, check collision same way, remove it when collected</div>
+    </div>
+    <div class="challenge-check" id="chk4">Mark done</div>
+  </div>
+
+  <div class="challenge-card" id="ch5" onclick="toggleChallenge(5)">
+    <div class="challenge-icon">🏆</div>
+    <div>
+      <div class="challenge-name">Save the high score with localStorage</div>
+      <div class="challenge-desc">The high score resets when you refresh the page. Make it persist using localStorage.</div>
+      <div class="challenge-hint">💡 Hint: localStorage.setItem('hi', score) and localStorage.getItem('hi')</div>
+    </div>
+    <div class="challenge-check" id="chk5">Mark done</div>
+  </div>
+
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ============================================================
+// GAME ENGINE
+// ============================================================
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 360, H = 480;
+
+let player = { x: 160, y: 430, w: 40, h: 40, speed: 5 };
+let boxes = [];
+let keys = { left: false, right: false };
+let mLeft = false, mRight = false;
+let score = 0, hiScore = 0;
+let running = false;
+let spawnInterval, scoreInterval;
+let animId;
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function hits(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x &&
+         a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function startGame() {
+  if (running) return;
+  running = true;
+  boxes = [];
+  score = 0;
+  player.x = 160;
+  gtag('event','game_start',{game:'Dodge Game'});
+  document.getElementById('playBtn').textContent = 'Playing...';
+
+  spawnInterval = setInterval(() => {
+    boxes.push({
+      x: random(0, W - 40),
+      y: -40,
+      w: 40, h: 40,
+      speed: random(2, 4 + score * 0.03),
+      color: `hsl(${random(0,360)},80%,60%)`
+    });
+  }, 900);
+
+  scoreInterval = setInterval(() => {
+    score++;
+    document.getElementById('scoreVal').textContent = score;
+  }, 1000);
+
+  loop();
+}
+
+function endGame() {
+  running = false;
+  clearInterval(spawnInterval);
+  clearInterval(scoreInterval);
+  cancelAnimationFrame(animId);
+  gtag('event','game_over',{game:'Dodge Game',score:score});
+  if (score > hiScore) {
+    hiScore = score;
+    document.getElementById('hiVal').textContent = hiScore;
+  }
+  document.getElementById('playBtn').textContent = '↺ Retry';
+
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ff4fa3';
+  ctx.font = 'bold 28px Syne, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME OVER', W/2, H/2 - 20);
+  ctx.fillStyle = '#ffe566';
+  ctx.font = '16px Fira Code, monospace';
+  ctx.fillText('Score: ' + score, W/2, H/2 + 15);
+  ctx.fillStyle = '#5a5a7a';
+  ctx.font = '13px Fira Code, monospace';
+  ctx.fillText('Press Retry to play again', W/2, H/2 + 45);
+  ctx.textAlign = 'left';
+}
+
+function update() {
+  if (keys.left || mLeft)  player.x = Math.max(0, player.x - player.speed);
+  if (keys.right || mRight) player.x = Math.min(W - player.w, player.x + player.speed);
+
+  boxes.forEach(b => b.y += b.speed);
+  boxes = boxes.filter(b => b.y < H + 50);
+
+  if (boxes.some(b => hits(b, player))) endGame();
+}
+
+function draw() {
+  // Background
+  ctx.fillStyle = '#0d0d14';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines (subtle)
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+
+  // Boxes
+  boxes.forEach(b => {
+    ctx.fillStyle = b.color || '#ff4fa3';
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+  });
+
+  // Player
+  ctx.fillStyle = '#00e5ff';
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+  ctx.fillStyle = 'rgba(0,229,255,0.3)';
+  ctx.fillRect(player.x - 4, player.y - 4, player.w + 8, player.h + 8);
+}
+
+function loop() {
+  if (!running) return;
+  update();
+  draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// Draw idle screen
+(function idleScreen() {
+  ctx.fillStyle = '#0d0d14';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,229,255,0.6)';
+  ctx.font = '15px Fira Code';
+  ctx.textAlign = 'center';
+  ctx.fillText('Press ▶ Start to play', W/2, H/2);
+  ctx.fillStyle = '#5a5a7a';
+  ctx.font = '12px Fira Code';
+  ctx.fillText('← → arrow keys to move', W/2, H/2 + 28);
+  ctx.textAlign = 'left';
+})();
+
+// Key events
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  keys.left = true;
+  if (e.key === 'ArrowRight') keys.right = true;
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft')  keys.left = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+});
+
+// ============================================================
+// CODE EXPLANATIONS
+// ============================================================
+const explanations = [
+  {
+    title: "The Canvas",
+    body: `Think of the canvas like a <strong>whiteboard</strong>. Every frame, you erase it and redraw everything from scratch.\n\n<strong>ctx</strong> (context) is your marker — it's how you actually draw shapes, colors, and text onto the whiteboard.\n\nW and H are just shorthand for width and height so you don't have to type 360 and 480 everywhere.`,
+    analogy: `Like a flip-book animation. Each "page" is one frame. You draw everything fresh on each page, flip through them fast, and it looks like motion.`
+  },
+  {
+    title: "The Player Object",
+    body: `In JavaScript, an <strong>object</strong> is just a collection of related values bundled together. Here we bundle all the player's info: where they are (x, y), how big they are (w, h), and how fast they move (speed).\n\nThis makes it easy — to move the player right, just do <strong>player.x += player.speed</strong>.`,
+    analogy: `Like a character sheet in a video game. All your stats in one place: health, speed, position, etc.`
+  },
+  {
+    title: "The Boxes Array",
+    body: `An <strong>array</strong> (boxes = []) is a list. It starts empty and we add a new box to it every 900 milliseconds using <strong>setInterval</strong>.\n\nEach box is its own object with a random x position and random speed — that's what makes the game unpredictable and fun.\n\nWe use <strong>push()</strong> to add to the list and <strong>filter()</strong> to remove boxes that fall off screen.`,
+    analogy: `Like a conveyor belt. New boxes get added to one end, and boxes that fall off screen get removed automatically.`
+  },
+  {
+    title: "The Game Loop",
+    body: `This is the <strong>heartbeat</strong> of every game ever made.\n\n<strong>requestAnimationFrame</strong> is the browser saying "call this function again right before the next screen refresh" — which is 60 times per second.\n\nSo the loop runs: update positions → draw → update positions → draw → forever, until the game ends.`,
+    analogy: `Like a movie projector. It runs 60 frames per second. Each frame is a still image, but played fast enough it looks like smooth movement.`
+  },
+  {
+    title: "The Update Function",
+    body: `Every frame, update() is called to <strong>move things</strong>:\n\n1. Move the player left or right based on which keys are held\n2. Move every box down by its speed\n3. Remove boxes that left the screen (saves memory)\n4. Check if any box hit the player — if so, end the game\n\nNotice player movement uses <strong>Math.max/min</strong> to prevent going off screen.`,
+    analogy: `Like a referee checking the field every second — moving players, cleaning up, and calling fouls (collisions).`
+  },
+  {
+    title: "Collision Detection",
+    body: `This is the most important math in 2D games. It checks: <strong>are two rectangles overlapping?</strong>\n\nTwo rectangles overlap if and only if they overlap on BOTH the X axis and the Y axis at the same time. That's exactly what these 4 conditions check.\n\nThis is called <strong>AABB collision</strong> (Axis-Aligned Bounding Boxes) — used in almost every 2D game.`,
+    analogy: `Imagine two shadow boxes on the floor. They're colliding only if the shadows overlap both left-right AND up-down at the same time.`
+  }
+];
+
+let selectedBlock = -1;
+
+function selectBlock(i) {
+  document.querySelectorAll('.code-block').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+  selectedBlock = i;
+  const e = explanations[i];
+  document.getElementById('expTitle').textContent = e.title;
+  document.getElementById('expBody').innerHTML = e.body.replace(/\n/g, '<br>');
+
+  const pane = document.getElementById('explainPane');
+  let analogy = pane.querySelector('.analogy-box');
+  if (!analogy) {
+    analogy = document.createElement('div');
+    analogy.className = 'analogy-box';
+    analogy.innerHTML = `<div class="analogy-label">Real-world analogy</div><p></p>`;
+    pane.appendChild(analogy);
+  }
+  analogy.querySelector('p').textContent = e.analogy;
+}
+
+// Init dots
+const dotsEl = document.getElementById('dots');
+explanations.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot done';
+  d.id = 'dot' + i;
+  dotsEl.appendChild(d);
+});
+
+// ============================================================
+// VIEW SWITCHER
+// ============================================================
+function switchView(id, btn) {
+  document.querySelectorAll('#view-play, #view-code, #view-challenge').forEach(v => {
+    v.style.display = 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('view-' + id);
+  el.style.display = (id === 'challenge') ? 'flex' : 'flex';
+  el.style.flexDirection = 'column';
+  if (id === 'play') el.style.display = 'flex';
+  else if (id === 'code') { el.style.display = 'flex'; el.style.overflow = 'hidden'; }
+  else el.style.display = 'flex';
+  btn.classList.add('active');
+}
+
+// ============================================================
+// CHALLENGES
+// ============================================================
+function toggleChallenge(i) {
+  const card = document.getElementById('ch' + i);
+  const chk = document.getElementById('chk' + i);
+  card.classList.toggle('done-c');
+  chk.textContent = card.classList.contains('done-c') ? '✓ Done!' : 'Mark done';
+}
+</script>
+</body>
+</html>
