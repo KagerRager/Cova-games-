@@ -282,9 +282,7 @@
   .game-thumb-nova    { background:#001a12; }
   .game-thumb-runner  { background:#1a1005; }
   .game-thumb-flood   { background:#0a1218; }
-  .game-thumb-juice   { background:#1a0a00; }
   .game-thumb-gravity { background:#060310; }
-  .game-thumb-miner   { background:#080516; }
 
   .game-tag {
     position:absolute; top:12px; right:12px; font-size:0.58rem; font-weight:800;
@@ -404,7 +402,7 @@
 
   <div class="ticker-wrap">
     <div class="ticker">
-      🪨 GAMECAVE &nbsp;⚔&nbsp; 8 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; 🍹 JUICE TAP &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; ⛏ CRYSTAL MINER &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp; 🪨 GAMECAVE &nbsp;⚔&nbsp; 8 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; 🍹 JUICE TAP &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; ⛏ CRYSTAL MINER &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp;
+      🪨 GAMECAVE &nbsp;⚔&nbsp; 6 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp; 🪨 GAMECAVE &nbsp;⚔&nbsp; 6 GAMES LIVE &nbsp;⚔&nbsp; 🚗 DESERT CHASE &nbsp;⚔&nbsp; 💥 DODGE &nbsp;⚔&nbsp; 🚀 NOVA STRIKE &nbsp;⚔&nbsp; 🏃 CAVE RUNNER &nbsp;⚔&nbsp; 🎨 COLOR FLOOD &nbsp;⚔&nbsp; ⬆⬇ GRAVITY FLIP &nbsp;⚔&nbsp; MADE WITH 🔥 &nbsp;⚔&nbsp;
     </div>
   </div>
 
@@ -487,20 +485,6 @@
         </div>
       </div>
 
-      <div class="game-card reveal" style="transition-delay:0.5s">
-        <div class="game-thumb game-thumb-juice">
-          <canvas id="prev-juice" width="320" height="160" aria-label="Juice Tap preview"></canvas>
-          <span class="game-tag tag-new">✨ New!</span>
-        </div>
-        <div class="game-info">
-          <h3 class="game-name">Juice Tap</h3>
-          <div class="game-desc">Tap falling fruit before it hits the ground. Build combos, tap bombs for slow-mo.</div>
-          <div class="game-tags"><span class="game-pill">Reflex</span><span class="game-pill">Combo</span><span class="game-pill">Tap</span></div>
-          <div class="game-review">"The combo system turns it from casual to seriously competitive."</div>
-          <a href="juice-tap.html" class="game-play-btn" style="background:linear-gradient(135deg,#e67e22,#c0392b);color:#fff;" onclick="gtag('event','game_open',{game:'Juice Tap'})">🍋 Play Juice Tap</a>
-        </div>
-      </div>
-
       <div class="game-card reveal" style="transition-delay:0.6s">
         <div class="game-thumb game-thumb-gravity">
           <canvas id="prev-gravity" width="320" height="160" aria-label="Gravity Flip preview"></canvas>
@@ -512,20 +496,6 @@
           <div class="game-tags"><span class="game-pill">One Button</span><span class="game-pill">Endless</span><span class="game-pill">Reflex</span></div>
           <div class="game-review">"Feels impossible at first — then suddenly it clicks. Can't stop replaying."</div>
           <a href="gravity-flip.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Gravity Flip'})">⬆⬇ Play Gravity Flip</a>
-        </div>
-      </div>
-
-      <div class="game-card reveal" style="transition-delay:0.7s">
-        <div class="game-thumb game-thumb-miner">
-          <canvas id="prev-miner" width="320" height="160" aria-label="Crystal Miner preview"></canvas>
-          <span class="game-tag tag-new">✨ New!</span>
-        </div>
-        <div class="game-info">
-          <h3 class="game-name">Crystal Miner</h3>
-          <div class="game-desc">Mine every gem before the cave seals them. Tough gems need multiple hits — don't run out of time.</div>
-          <div class="game-tags"><span class="game-pill">Puzzle</span><span class="game-pill">Waves</span><span class="game-pill">Speed</span></div>
-          <div class="game-review">"Wave after wave of frantic clicking. The timer pressure is absolutely brutal."</div>
-          <a href="crystal-miner.html" class="game-play-btn" style="background:linear-gradient(135deg,#7b5ea7,#3db8a0);color:#fff;" onclick="gtag('event','game_open',{game:'Crystal Miner'})">⛏ Play Crystal Miner</a>
         </div>
       </div>
 
@@ -708,22 +678,6 @@
     c.font='bold 11px sans-serif';c.fillStyle='#9a8870';c.textAlign='center';c.fillText('MOVES LEFT: 18',W/2,H-8);
   }
 
-  function drawJuice(cv){
-    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
-    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#12000a');bg.addColorStop(1,'#1a0510');c.fillStyle=bg;c.fillRect(0,0,W,H);
-    // ground glow
-    const gg=c.createLinearGradient(0,H-40,0,H);gg.addColorStop(0,'transparent');gg.addColorStop(1,'rgba(200,30,80,0.2)');c.fillStyle=gg;c.fillRect(0,H-40,W,40);
-    c.strokeStyle='rgba(220,60,100,0.3)';c.lineWidth=2;c.beginPath();c.moveTo(0,H-3);c.lineTo(W,H-3);c.stroke();
-    // fruits falling
-    const fruits=[['🍋',W*.15,H*.25,24],['🍓',W*.5,H*.12,22],['🍊',W*.78,H*.4,24],['🍇',W*.35,H*.55,26],['🫐',W*.65,H*.3,20]];
-    fruits.forEach(([e,x,y,r])=>{
-      const gl=c.createRadialGradient(x,y,0,x,y,r*1.6);gl.addColorStop(0,'rgba(255,255,255,0.15)');gl.addColorStop(1,'transparent');c.fillStyle=gl;c.beginPath();c.arc(x,y,r*1.6,0,Math.PI*2);c.fill();
-      c.font=`${r*1.7}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(e,x,y);
-    });
-    // combo
-    c.font='bold 14px Cinzel,serif';c.fillStyle='#e8a020';c.textAlign='center';c.fillText('3× COMBO 🔥',W/2,H*.82);
-  }
-
   function drawGravity(cv){
     const c=cv.getContext('2d'),W=cv.width,H=cv.height;
     const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#04020c');bg.addColorStop(1,'#080418');c.fillStyle=bg;c.fillRect(0,0,W,H);
@@ -755,35 +709,6 @@
     c.fillStyle='#f0e6d0';c.beginPath();c.arc(px+6,py+13,3,0,Math.PI*2);c.fill();c.beginPath();c.arc(px+16,py+13,3,0,Math.PI*2);c.fill();
   }
 
-  function drawMiner(cv){
-    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
-    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#060310');bg.addColorStop(1,'#0c0520');c.fillStyle=bg;c.fillRect(0,0,W,H);
-    const gems=[
-      {e:'💎',col:'#3db8a0',glow:'61,184,160'},{e:'💜',col:'#9b59b6',glow:'155,89,182'},
-      {e:'🔴',col:'#e74c3c',glow:'231,76,60'},{e:'💛',col:'#e8a020',glow:'232,160,32'},
-      {e:'🔵',col:'#2980b9',glow:'41,128,185'},{e:'💚',col:'#27ae60',glow:'39,174,96'},
-      {e:'🌟',col:'#f1c40f',glow:'241,196,15'},{e:'💎',col:'#3db8a0',glow:'61,184,160'},
-      {e:'🪨',col:'#5a5060',glow:'90,80,96'}
-    ];
-    const cell=44, cols=4, rows=3, ox=(W-cols*cell-3*4)/2, oy=(H-rows*cell-2*4)/2;
-    for(let i=0;i<cols*rows;i++){
-      const col=i%cols, row=Math.floor(i/cols);
-      const x=ox+col*(cell+4), y=oy+row*(cell+4);
-      const g=gems[i];
-      c.fillStyle='rgba(15,8,30,0.85)';c.beginPath();c.roundRect(x,y,cell,cell,6);c.fill();
-      if(g.e!=='🪨'){
-        const gl=c.createRadialGradient(x+cell/2,y+cell/2,0,x+cell/2,y+cell/2,cell*.7);
-        gl.addColorStop(0,`rgba(${g.glow},0.2)`);gl.addColorStop(1,'transparent');
-        c.fillStyle=gl;c.beginPath();c.arc(x+cell/2,y+cell/2,cell*.7,0,Math.PI*2);c.fill();
-        c.strokeStyle=g.col+'88';c.lineWidth=1.5;c.beginPath();c.roundRect(x+1,y+1,cell-2,cell-2,5);c.stroke();
-      }
-      c.font=`${cell*.52}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(g.e,x+cell/2,y+cell/2);
-    }
-    // timer bar
-    c.fillStyle='rgba(0,0,0,0.5)';c.beginPath();c.roundRect(ox,oy-16,cols*cell+3*4,8,4);c.fill();
-    c.fillStyle='#e8a020';c.beginPath();c.roundRect(ox,oy-16,(cols*cell+3*4)*.6,8,4);c.fill();
-  }
-
   // Draw all previews once DOM is ready
   window.addEventListener('load', () => {
     drawDesert(document.getElementById('prev-desert'));
@@ -791,9 +716,7 @@
     drawNova(document.getElementById('prev-nova'));
     drawRunner(document.getElementById('prev-runner'));
     drawFlood(document.getElementById('prev-flood'));
-    drawJuice(document.getElementById('prev-juice'));
     drawGravity(document.getElementById('prev-gravity'));
-    drawMiner(document.getElementById('prev-miner'));
   });
 </script>
 </body>
