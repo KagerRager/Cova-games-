@@ -283,6 +283,7 @@
   .game-thumb-runner  { background:#1a1005; }
   .game-thumb-flood   { background:#0a1218; }
   .game-thumb-gravity { background:#060310; }
+  .game-thumb-bucket  { background:#060d1a; }
   .game-thumb-snake   { background:#02080a; }
 
   .game-tag {
@@ -500,6 +501,20 @@
         </div>
       </div>
 
+      <div class="game-card reveal" style="transition-delay:0.5s">
+        <div class="game-thumb game-thumb-bucket">
+          <canvas id="prev-bucket" width="320" height="160" aria-label="Bucket Blitz preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Bucket Blitz</h3>
+          <div class="game-desc">Slide your basket to catch falling balls and dodge bombs. Golden balls score big — but one bomb costs a life!</div>
+          <div class="game-tags"><span class="game-pill">Arcade</span><span class="game-pill">Reflex</span><span class="game-pill">3 Lives</span></div>
+          <div class="game-review">"Simple to pick up, hard to put down. The bomb balls keep you on edge every second."</div>
+          <a href="bucket-blitz.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Bucket Blitz'})">🪣 Play Bucket Blitz</a>
+        </div>
+      </div>
+
       <div class="game-card reveal" style="transition-delay:0.7s">
         <div class="game-thumb game-thumb-snake">
           <canvas id="prev-snake" width="320" height="160" aria-label="Neon Snake preview"></canvas>
@@ -530,7 +545,7 @@
       <p>GameCave is an <strong>indie game studio</strong> making fun browser games from scratch. Every game you play here was coded by hand — no game engines, no templates, just pure creativity and code.</p>
       <p>We're just getting started. More games are being unearthed and dropping soon. Follow along as the cave grows.</p>
       <div class="stat-row">
-        <div class="stat-box"><div class="stat-val">7</div><div class="stat-label">Games Live</div></div>
+        <div class="stat-box"><div class="stat-val">8</div><div class="stat-label">Games Live</div></div>
         <div class="stat-box"><div class="stat-val">∞</div><div class="stat-label">More Coming</div></div>
         <div class="stat-box"><div class="stat-val">$0</div><div class="stat-label">Cost to Play</div></div>
       </div>
@@ -693,6 +708,43 @@
     c.font='bold 11px sans-serif';c.fillStyle='#9a8870';c.textAlign='center';c.fillText('MOVES LEFT: 18',W/2,H-8);
   }
 
+  function drawBucketBlitz(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    // Night-court background
+    const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#060d1a');bg.addColorStop(1,'#0d1408');c.fillStyle=bg;c.fillRect(0,0,W,H);
+    // Spotlight glow from above
+    const spot=c.createRadialGradient(W*.5,-10,0,W*.5,-10,160);spot.addColorStop(0,'rgba(232,160,32,0.1)');spot.addColorStop(1,'transparent');c.fillStyle=spot;c.fillRect(0,0,W,H);
+    // Court line (half arc hint at bottom)
+    c.strokeStyle='rgba(232,160,32,0.1)';c.lineWidth=1;
+    c.beginPath();c.arc(W*.5,H+10,80,Math.PI,0);c.stroke();
+    c.beginPath();c.moveTo(0,H-40);c.lineTo(W,H-40);c.stroke();
+    // Falling balls
+    const balls=[
+      {x:W*.15,y:H*.18,r:11,col:'#ff7433',out:'#ff9966'},
+      {x:W*.45,y:H*.38,r:11,col:'#ffcc55',out:'#ffe599'},
+      {x:W*.7, y:H*.12,r:11,col:'#cc44ff',out:'#dd88ff'},
+      {x:W*.82,y:H*.52,r:11,col:'#ff4444',out:'#ff8888'},
+      {x:W*.3, y:H*.6, r:11,col:'#ff7433',out:'#ff9966'},
+    ];
+    balls.forEach(b=>{
+      // glow
+      const gl=c.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r*2);gl.addColorStop(0,b.col+'55');gl.addColorStop(1,'transparent');
+      c.fillStyle=gl;c.beginPath();c.arc(b.x,b.y,b.r*2,0,Math.PI*2);c.fill();
+      // ball
+      c.fillStyle=b.col;c.beginPath();c.arc(b.x,b.y,b.r,0,Math.PI*2);c.fill();
+      c.fillStyle='rgba(255,255,255,0.22)';c.beginPath();c.arc(b.x-3,b.y-3,b.r*.4,0,Math.PI*2);c.fill();
+      c.strokeStyle=b.out;c.lineWidth=1.5;c.beginPath();c.arc(b.x,b.y,b.r,0,Math.PI*2);c.stroke();
+    });
+    // Bucket
+    const bx=W*.38,by=H-44,bw=58,bh=22;
+    c.fillStyle='rgba(0,0,0,0.25)';c.beginPath();c.ellipse(bx+bw/2,H-18,bw/2,4,0,0,Math.PI*2);c.fill();
+    c.fillStyle='#c87832';c.beginPath();c.moveTo(bx+7,by);c.lineTo(bx+bw-7,by);c.lineTo(bx+bw,by+bh);c.lineTo(bx,by+bh);c.closePath();c.fill();
+    c.fillStyle='#e8a020';c.fillRect(bx,by-4,bw,5);
+    c.fillStyle='rgba(255,220,100,0.35)';c.fillRect(bx,by-4,bw,2);
+    // Score
+    c.font='bold 12px Cinzel,serif';c.fillStyle='rgba(232,160,32,0.75)';c.textAlign='left';c.fillText('SCORE  7',10,H-10);
+  }
+
   function drawSnakePreview(cv){
     const c=cv.getContext('2d'),W=cv.width,H=cv.height;
     c.fillStyle='#02080a';c.fillRect(0,0,W,H);
@@ -772,6 +824,7 @@
     drawRunner(document.getElementById('prev-runner'));
     drawFlood(document.getElementById('prev-flood'));
     drawGravity(document.getElementById('prev-gravity'));
+    drawBucketBlitz(document.getElementById('prev-bucket'));
     drawSnakePreview(document.getElementById('prev-snake'));
   });
 </script>
