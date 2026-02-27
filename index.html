@@ -283,7 +283,8 @@
   .game-thumb-runner  { background:#1a1005; }
   .game-thumb-flood   { background:#0a1218; }
   .game-thumb-gravity { background:#060310; }
-  .game-thumb-snake   { background:#02080a; }
+  .game-thumb-snake       { background:#02080a; }
+  .game-thumb-basketball  { background:#0a1520; }
 
   .game-tag {
     position:absolute; top:12px; right:12px; font-size:0.58rem; font-weight:800;
@@ -511,6 +512,20 @@
           <div class="game-tags"><span class="game-pill">Classic</span><span class="game-pill">Keyboard</span><span class="game-pill">High Score</span></div>
           <div class="game-review">"Silky smooth and dangerously addictive. The neon glow makes every run feel epic."</div>
           <a href="snake.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Neon Snake'})">🐍 Play Neon Snake</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" style="transition-delay:0.8s">
+        <div class="game-thumb game-thumb-basketball">
+          <canvas id="prev-basketball" width="320" height="160" aria-label="Basketball Legends preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Basketball Legends</h3>
+          <div class="game-desc">Drag to aim, release to shoot. Score baskets before your shots run out — streaks earn bonus points!</div>
+          <div class="game-tags"><span class="game-pill">Sports</span><span class="game-pill">Aim</span><span class="game-pill">Streak</span></div>
+          <div class="game-review">"Super satisfying when you nail a streak shot. The moving hoop makes it genuinely hard."</div>
+          <a href="basketball.html" class="game-play-btn" onclick="gtag('event','game_open',{game:'Basketball Legends'})">🏀 Play Basketball</a>
         </div>
       </div>
 
@@ -765,6 +780,43 @@
   }
 
   // Draw all previews once DOM is ready
+  function drawBasketball(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    // sky background
+    c.fillStyle='#0a1520';c.fillRect(0,0,W,H);
+    // court floor
+    const fg=c.createLinearGradient(0,H-28,0,H);fg.addColorStop(0,'#5a3010');fg.addColorStop(1,'#3a1e08');
+    c.fillStyle=fg;c.fillRect(0,H-28,W,28);
+    c.strokeStyle='rgba(232,160,32,0.3)';c.lineWidth=1.5;c.beginPath();c.moveTo(0,H-28);c.lineTo(W,H-28);c.stroke();
+    // backboard
+    c.fillStyle='#f0f4f8';c.fillRect(W*0.5-28,18,56,28);
+    c.strokeStyle='#e8a020';c.lineWidth=1.5;c.strokeRect(W*0.5-28,18,56,28);
+    c.strokeStyle='rgba(232,160,32,0.5)';c.strokeRect(W*0.5-13,22,26,18);
+    // pole
+    c.fillStyle='#c0c8d0';c.fillRect(W*0.5-4,46,8,H-74);
+    // rim
+    c.strokeStyle='#e85020';c.lineWidth=3.5;
+    c.beginPath();c.moveTo(W*0.5-28,50);c.lineTo(W*0.5+28,50);c.stroke();
+    // net
+    c.strokeStyle='rgba(240,240,240,0.45)';c.lineWidth=1;
+    for(let i=0;i<=5;i++){const tx=W*0.5-28+(56*i/5);const bx=W*0.5+(tx-W*0.5)*0.45;c.beginPath();c.moveTo(tx,50);c.lineTo(bx,82);c.stroke();}
+    for(let r=1;r<=3;r++){const t=r/3;const ly=50+(82-50)*t;c.beginPath();c.moveTo(W*0.5-28*(1-t*0.45),ly);c.lineTo(W*0.5+28*(1-t*0.45),ly);c.stroke();}
+    // ball
+    const bx=W*0.3,by=H-50;
+    const bg2=c.createRadialGradient(bx-4,by-4,2,bx,by,14);bg2.addColorStop(0,'#ff9933');bg2.addColorStop(0.6,'#e85510');bg2.addColorStop(1,'#7a2000');
+    c.fillStyle=bg2;c.beginPath();c.arc(bx,by,14,0,Math.PI*2);c.fill();
+    c.strokeStyle='rgba(0,0,0,0.35)';c.lineWidth=1;
+    c.beginPath();c.arc(bx,by,14,0,Math.PI*2);c.stroke();
+    c.beginPath();c.moveTo(bx-14,by);c.lineTo(bx+14,by);c.stroke();
+    c.beginPath();c.arc(bx,by,9,0.15,Math.PI-0.15);c.stroke();
+    c.beginPath();c.arc(bx,by,9,Math.PI+0.15,-0.15);c.stroke();
+    // aim arrow
+    c.save();c.setLineDash([4,5]);c.strokeStyle='rgba(232,160,32,0.45)';c.lineWidth=1.5;
+    c.beginPath();c.moveTo(bx,by);c.lineTo(W*0.5+5,55);c.stroke();c.restore();c.setLineDash([]);
+    // score text
+    c.font='bold 11px monospace';c.fillStyle='#e8a020';c.textAlign='left';c.fillText('SCORE  6',10,H-12);
+  }
+
   window.addEventListener('load', () => {
     drawDesert(document.getElementById('prev-desert'));
     drawDodge(document.getElementById('prev-dodge'));
@@ -773,6 +825,7 @@
     drawFlood(document.getElementById('prev-flood'));
     drawGravity(document.getElementById('prev-gravity'));
     drawSnakePreview(document.getElementById('prev-snake'));
+    drawBasketball(document.getElementById('prev-basketball'));
   });
 </script>
 </body>
