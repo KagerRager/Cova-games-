@@ -284,6 +284,7 @@
   .game-thumb-flood   { background:#0a1218; }
   .game-thumb-gravity { background:#060310; }
   .game-thumb-bucket  { background:#060d1a; }
+  .game-thumb-snake   { background:#02080a; }
 
   .game-tag {
     position:absolute; top:12px; right:12px; font-size:0.58rem; font-weight:800;
@@ -514,6 +515,20 @@
         </div>
       </div>
 
+      <div class="game-card reveal" style="transition-delay:0.7s">
+        <div class="game-thumb game-thumb-snake">
+          <canvas id="prev-snake" width="320" height="160" aria-label="Neon Snake preview"></canvas>
+          <span class="game-tag tag-new">✨ New!</span>
+        </div>
+        <div class="game-info">
+          <h3 class="game-name">Neon Snake</h3>
+          <div class="game-desc">Guide the glowing serpent, feast on apples, and don't bite yourself. Speed ramps up the longer you survive.</div>
+          <div class="game-tags"><span class="game-pill">Classic</span><span class="game-pill">Keyboard</span><span class="game-pill">High Score</span></div>
+          <div class="game-review">"Silky smooth and dangerously addictive. The neon glow makes every run feel epic."</div>
+          <a href="snake.html" class="game-play-btn crystal-btn" onclick="gtag('event','game_open',{game:'Neon Snake'})">🐍 Play Neon Snake</a>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -730,6 +745,46 @@
     c.font='bold 12px Cinzel,serif';c.fillStyle='rgba(232,160,32,0.75)';c.textAlign='left';c.fillText('SCORE  7',10,H-10);
   }
 
+  function drawSnakePreview(cv){
+    const c=cv.getContext('2d'),W=cv.width,H=cv.height;
+    c.fillStyle='#02080a';c.fillRect(0,0,W,H);
+    // grid lines
+    c.strokeStyle='rgba(0,255,160,0.05)';c.lineWidth=1;
+    for(let x=0;x<W;x+=20){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke();}
+    for(let y=0;y<H;y+=20){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
+    // border
+    c.strokeStyle='rgba(61,184,160,0.4)';c.lineWidth=2;c.strokeRect(10,10,W-20,H-20);
+    // snake body (S-curve path)
+    const segs=[
+      [W*.55,H*.5],[W*.45,H*.5],[W*.35,H*.5],[W*.25,H*.5],[W*.25,H*.62],[W*.35,H*.62],[W*.45,H*.62],[W*.55,H*.62],[W*.65,H*.62],[W*.65,H*.5],[W*.65,H*.38],[W*.55,H*.38]
+    ];
+    segs.forEach(([sx,sy],i)=>{
+      const t=1-i/segs.length;
+      if(i===0){
+        // head glow
+        const g=c.createRadialGradient(sx+9,sy+9,0,sx+9,sy+9,18);
+        g.addColorStop(0,'rgba(0,255,180,0.5)');g.addColorStop(1,'transparent');
+        c.fillStyle=g;c.fillRect(sx-9,sy-9,36,36);
+        c.fillStyle='#00ffb4';
+      } else {
+        c.fillStyle=`rgba(0,${Math.round(160+95*t)},${Math.round(100+80*t)},${0.5+0.5*t})`;
+      }
+      const p=i===0?2:3;
+      c.beginPath();c.roundRect(sx+p,sy+p,18-p*2,18-p*2,i===0?4:2);c.fill();
+    });
+    // apple
+    const ax=W*.78,ay=H*.35;
+    const ag=c.createRadialGradient(ax,ay,0,ax,ay,14);
+    ag.addColorStop(0,'rgba(255,80,80,0.6)');ag.addColorStop(1,'transparent');
+    c.fillStyle=ag;c.beginPath();c.arc(ax,ay,14,0,Math.PI*2);c.fill();
+    c.fillStyle='#ff4444';c.beginPath();c.arc(ax,ay,7,0,Math.PI*2);c.fill();
+    c.fillStyle='#ff8888';c.beginPath();c.arc(ax-1,ay-2,2,0,Math.PI*2);c.fill();
+    c.strokeStyle='#44aa44';c.lineWidth=2;
+    c.beginPath();c.moveTo(ax,ay-7);c.lineTo(ax+3,ay-12);c.stroke();
+    // score
+    c.font='bold 11px monospace';c.fillStyle='#3db8a0';c.textAlign='left';c.fillText('SCORE  120',14,H-14);
+  }
+
   function drawGravity(cv){
     const c=cv.getContext('2d'),W=cv.width,H=cv.height;
     const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#04020c');bg.addColorStop(1,'#080418');c.fillStyle=bg;c.fillRect(0,0,W,H);
@@ -770,6 +825,7 @@
     drawFlood(document.getElementById('prev-flood'));
     drawGravity(document.getElementById('prev-gravity'));
     drawBucketBlitz(document.getElementById('prev-bucket'));
+    drawSnakePreview(document.getElementById('prev-snake'));
   });
 </script>
 </body>
