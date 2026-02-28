@@ -71,8 +71,10 @@ const sfx = (() => {
 // ── PLAYER COLOR ──
 const PLAYER_COLORS = ['#9b5de5','#3db8a0','#e8a020','#ff4444','#4488ff'];
 const PLAYER_COLORS_RGBA = ['rgba(155,93,229,0.45)','rgba(61,184,160,0.45)','rgba(232,160,32,0.45)','rgba(255,68,68,0.45)','rgba(68,136,255,0.45)'];
+const PLAYER_COLORS_RGBA_DIM = ['rgba(155,93,229,0.08)','rgba(61,184,160,0.08)','rgba(232,160,32,0.08)','rgba(255,68,68,0.08)','rgba(68,136,255,0.08)'];
 let playerColor = PLAYER_COLORS[0];
 let playerColorRGBA = PLAYER_COLORS_RGBA[0];
+let playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[0];
 let playerColorIdx = 0;
 const C = document.getElementById('c');
 const X = C.getContext('2d');
@@ -297,7 +299,7 @@ function drawGame() {
 
   // Ambient glow at player
   const ag = X.createRadialGradient(PX+PSZ, py+PSZ, 0, PX+PSZ, py+PSZ, 130);
-  ag.addColorStop(0, playerColorRGBA.replace('0.45', '0.08'));
+  ag.addColorStop(0, playerColorRGBADim);
   ag.addColorStop(1, 'transparent');
   X.fillStyle = ag; X.fillRect(0,0,W,H);
 
@@ -549,6 +551,7 @@ C.addEventListener('pointerdown', e => {
         playerColorIdx = i;
         playerColor = PLAYER_COLORS[i];
         playerColorRGBA = PLAYER_COLORS_RGBA[i];
+        playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[i];
         drawMenu();
         return;
       }
