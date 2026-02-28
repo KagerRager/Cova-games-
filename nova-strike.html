@@ -20,13 +20,16 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background:#000;
+    font-family:'Rajdhani',sans-serif;
+  }
+  .game-viewport {
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     height:100vh;
-    font-family:'Rajdhani',sans-serif;
     overflow:hidden;
+    background:#000;
   }
   #wrap {
     position:relative;
@@ -43,6 +46,19 @@
     border:1px solid #1a1a2e;
     box-shadow: 0 0 60px rgba(0,200,255,0.15), 0 0 120px rgba(0,200,255,0.05);
   }
+  .game-info { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; font-family: 'Nunito', sans-serif; }
+  .game-info h2 { font-family: 'Cinzel', serif; color: #00e5ff; font-size: 1.4rem; margin-bottom: 0.75rem; margin-top: 2.5rem; }
+  .game-info h2:first-child { margin-top: 0; }
+  .game-info p { color: #8a8aaa; font-size: 0.9rem; line-height: 1.8; margin-bottom: 0.9rem; }
+  .game-info ul { color: #8a8aaa; font-size: 0.9rem; line-height: 1.8; padding-left: 1.4rem; margin-bottom: 0.9rem; }
+  .game-info ul li { margin-bottom: 0.4rem; }
+  .game-info strong { color: #dde1f0; }
+  .game-footer { border-top: 1px solid #252538; padding: 2rem 1.5rem; text-align: center; background: rgba(0,0,0,0.6); }
+  .game-footer .footer-logo { font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900; color: #00e5ff; display: block; margin-bottom: 0.5rem; letter-spacing: 0.1em; text-decoration: none; }
+  .game-footer .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.5rem; list-style: none; padding: 0; }
+  .game-footer .footer-links a { color: #5a5a7a; text-decoration: none; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .game-footer .footer-links a:hover { color: #00e5ff; }
+  .game-footer p { color: #5a5a7a; font-size: 0.72rem; }
 </style>
 </head>
 <body>
@@ -64,10 +80,12 @@
     }, 400);
   });
 </script>
+<div class="game-viewport">
 <div id="wrap">
   <a href="index.html" style="position:fixed;top:8px;left:8px;z-index:100;font-family:Cinzel,serif;font-weight:900;font-size:0.7rem;color:#e8a020;text-decoration:none;text-shadow:0 0 8px rgba(232,160,32,0.4);padding:3px 8px;background:rgba(0,0,0,0.7);border:1px solid #4a3820;border-radius:3px;letter-spacing:0.08em;">🪨 GAMECAVE</a>
   <canvas id="c"></canvas>
 </div>
+</div><!-- end game-viewport -->
 <script>
 // ── SOUND ENGINE ──
 const sfx = (() => {
@@ -1211,5 +1229,39 @@ function loop(){
 }
 loop();
 </script>
+
+<div class="game-info">
+  <h2>How to Play Nova Strike</h2>
+  <p>Nova Strike is an intense, wave-based space shooter that puts you in command of a starfighter against relentless alien armadas. Your mission is to survive for as long as possible, destroying enemy ships and collecting power-ups to boost your capabilities. The game takes place on a vertically scrolling battlefield — enemies descend from the top of the screen while your ship fights from the bottom.</p>
+  <p>Select your <strong>preferred ship</strong> from the pre-game selection screen. Each ship has a slightly different visual style and starting weapon configuration, so choose the one that suits your playstyle. Once in the game, your ship moves in response to your input: use the <strong>arrow keys or WASD keys</strong> on a keyboard to move in any direction. On touchscreen devices, <strong>tap and drag</strong> to position your fighter anywhere on the screen.</p>
+  <p>Your ship fires <strong>automatically</strong> — you don't need to press any button to shoot. This lets you focus entirely on positioning, which is the heart of the game. Every enemy ship you destroy earns you points and occasionally drops a glowing power-up orb. Fly over these orbs to collect them and immediately gain the associated benefit.</p>
+  <p>Nova Strike features a <strong>wave system</strong>: each wave brings progressively tougher enemies in greater numbers. Some enemies fly in straight lines; others zigzag, spiral, or fire projectiles back at you. Boss enemies appear at key milestones and require sustained fire and careful avoidance of their attack patterns to defeat. Surviving a boss wave grants bonus points and briefly resets the enemy density, giving you a moment to recover.</p>
+  <p><strong>Power-ups</strong> are critical to long survival. Each orb you collect enhances your ship's capabilities — spread shot multiplies your bullets into a fan, rapid fire increases your rate of fire, and shield orbs create a temporary barrier that absorbs incoming enemy projectiles. Managing which power-ups you prioritise and collecting them safely is a major skill component of the game.</p>
+
+  <h2>Tips &amp; Tricks for Nova Strike</h2>
+  <p>Nova Strike rewards players who combine aggressive offence with disciplined positioning. These strategies will help you survive deeper into the game and post higher scores.</p>
+  <ul>
+    <li><strong>Keep moving constantly:</strong> A stationary ship is an easy target. Always be moving, even gently, to make yourself harder for enemy projectiles to hit. Small, rhythmic lateral movements help you dodge while keeping your shots on target.</li>
+    <li><strong>Control the vertical centre:</strong> Position your ship in the middle of the screen vertically. This gives you room to retreat upward or fall back downward when enemy formation patterns get dense near the bottom of the screen.</li>
+    <li><strong>Prioritise rapid fire power-ups:</strong> Among all the available power-ups, rapid fire provides the most consistent damage increase throughout a run. More bullets mean more kills, more cleared screen space, and more orb drops. Always try to collect rapid fire orbs first when multiple power-ups appear simultaneously.</li>
+    <li><strong>Learn enemy attack patterns:</strong> Each enemy type has a predictable attack behaviour. Straight-flying enemies are easy to anticipate — move to the side of their path before they reach you. Homing enemies require short, sharp directional changes to break lock. Spend your first few runs studying how each enemy type moves rather than just focusing on survival.</li>
+    <li><strong>Pre-position for boss fights:</strong> When you notice the wave count approaching a boss milestone, clear all remaining regular enemies and move your ship to the centre-bottom of the screen. This default position gives you the most flexibility to respond to the boss's opening attack pattern.</li>
+    <li><strong>Use spread shot defensively:</strong> The spread shot power-up fans your bullets out in a wide arc, which is excellent for clearing clusters of enemies. When the screen fills with enemies, spread shot can clear multiple targets in a single burst, reducing the threat quickly.</li>
+    <li><strong>Don't rush power-up orbs:</strong> It's tempting to dash across the screen to grab every orb the moment it appears. Resist this impulse. If collecting an orb means flying through a dense enemy formation, the risk of dying outweighs the power-up's benefit. Wait for a gap in the enemy pattern before moving to collect.</li>
+    <li><strong>Maintain consistent damage output:</strong> Your ship fires automatically, so your highest-priority job is always keeping enemies in front of your ship. Don't dodge so far to one side that you stop hitting the current enemy cluster — keep your ship aligned with the most threatening group.</li>
+  </ul>
+  <p>Nova Strike is a game of patience, pattern recognition, and controlled aggression. The players who last longest are those who resist the urge to react wildly and instead make deliberate, precise movements that maximise both survival and damage output simultaneously.</p>
+</div>
+
+<footer class="game-footer">
+  <a class="footer-logo" href="index.html">🪨 GAMECAVE</a>
+  <ul class="footer-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="privacy.html">Privacy Policy</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <p>© 2026 GameCave · All rights reserved</p>
+</footer>
 </body>
 </html>
