@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1VFNJ21V0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦇</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bat Cave – GameCave</title>
+<meta name="description" content="Guide a bat through a dark cave. Tap to flap, emit sonar to reveal the path. Collect fireflies. Free browser game on GameCave.">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#020308;}
+body{display:flex;flex-direction:column;font-family:'Nunito',sans-serif;}
+.topbar{flex-shrink:0;background:rgba(2,3,8,0.97);border-bottom:2px solid #0a1520;padding:0.6rem 1.2rem;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+.logo{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:900;color:#e8a020;text-decoration:none;letter-spacing:0.08em;}
+.logo span{color:#ffcc55;}
+.back{color:#9a8870;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.35rem 0.9rem;border:1px solid #0a1520;border-radius:3px;transition:all .15s;}
+.back:hover{color:#3db8a0;border-color:#1a6a58;}
+canvas{display:block;flex:1;touch-action:none;cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#020308;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#3db8a0;text-shadow:0 0 20px rgba(61,184,160,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#0a1520;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#3db8a0;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width='100%';
+  window.addEventListener('load',()=>{setTimeout(()=>{const ls=document.getElementById('loadingScreen');ls.style.opacity='0';setTimeout(()=>ls.style.display='none',500);},400);});
+</script>
+<div class="topbar">
+  <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
+  <a class="back" href="index.html">← Back</a>
+</div>
+<canvas id="c"></canvas>
+<script>
+'use strict';
+
+// ── SOUND ENGINE ──
+const sfx=(()=>{
+  let ctx;
+  function ensure(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx;}
+  function tone(c,type,freq,freqEnd,vol,dur,t){
+    const g=c.createGain(),o=c.createOscillator();
+    o.type=type;o.frequency.setValueAtTime(freq,t);if(freqEnd!==null)o.frequency.linearRampToValueAtTime(freqEnd,t+dur);
+    g.gain.setValueAtTime(vol,t);g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);
+  }
+  function play(name){
+    try{
+      const c=ensure(),t=c.currentTime;
+      if(name==='flap'){
+        // Wing flap: quick high whoosh
+        tone(c,'sine',900,400,0.12,0.1,t);
+      }else if(name==='sonar'){
+        // Sonar ping: sweeping high-frequency blip
+        tone(c,'sine',3000,800,0.08,0.2,t);
+        tone(c,'sine',2000,600,0.05,0.25,t+0.05);
+      }else if(name==='firefly'){
+        // Tiny chime
+        tone(c,'triangle',1200,1600,0.15,0.12,t);
+        tone(c,'triangle',1600,2000,0.1,0.1,t+0.08);
+      }else if(name==='gem'){
+        // Crystal collect: ascending tones
+        const g=c.createGain();g.connect(c.destination);
+        g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.3);
+        [660,880,1100].forEach((f,i)=>{const o=c.createOscillator();o.type='triangle';o.frequency.value=f;o.connect(g);o.start(t+i*0.06);o.stop(t+i*0.06+0.09);});
+      }else if(name==='die'){
+        tone(c,'sawtooth',440,80,0.3,0.5,t);
+      }else if(name==='start'){
+        const g=c.createGain();g.connect(c.destination);
+        g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.5);
+        [220,293,349,440].forEach((f,i)=>{const o=c.createOscillator();o.type='triangle';o.frequency.value=f;o.connect(g);o.start(t+i*0.1);o.stop(t+i*0.1+0.15);});
+      }else if(name==='score5'){
+        const g=c.createGain();g.connect(c.destination);
+        g.gain.setValueAtTime(0.18,t);g.gain.linearRampToValueAtTime(0,t+0.45);
+        [523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator();o.type='triangle';o.frequency.value=f;o.connect(g);o.start(t+i*0.09);o.stop(t+i*0.09+0.13);});
+      }
+    }catch(e){}
+  }
+  return{play};
+})();
+
+// ── CANVAS ──
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let W=0,H=0,DPR=1;
+function resize(){
+  DPR=window.devicePixelRatio||1;
+  const r=canvas.getBoundingClientRect();
+  W=r.width;H=r.height;
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize',()=>{resize();if(state!=='play')draw();});
+resize();
+
+// ── CAVE GENERATION ──
+// Cave is an array of {top, bot} normalized [0..1] heights for each segment.
+const SEG_W=60; // pixels per cave segment
+let caveSegs=[];  // {top:px, bot:px} absolute coords
+let caveX=0;     // scroll position
+
+const CAVE_GAP_BASE=0.42; // fraction of H
+const CAVE_GAP_MIN=0.22;
+const BAT_X_FRAC=0.22; // bat horizontal position as fraction of W
+const GRAVITY=1100;
+const FLAP_VEL=-380;
+const SCROLL_BASE=180;
+const SCROLL_MAX=420;
+
+let bat={x:0,y:0,vy:0,wingAngle:0,wingDir:1,dead:false};
+let sonarRings=[];
+let fireflies=[];
+let particles=[];
+let gems=[];
+let score=0,hiScore=0;
+let state='start'; // start|play|gameover
+let scrollSpeed=SCROLL_BASE;
+let lastTime=0;
+let frameId;
+let sonarTimer=0;
+let pingSent=false; // for auto sonar
+let flashAlpha=0;
+let screenShake=0;
+let flapAnim=0; // wing flap animation counter
+
+// darkness reveal: track sonar wave radius for ambient reveal
+let sonarPulse=null; // {x,y,r,maxR,alpha}
+let darkLevel=1; // 1=full dark, 0=fully revealed
+
+function initCave(){
+  caveSegs=[];
+  // Start with a comfortable opening
+  const startTop=H*0.15;
+  const startBot=H*0.15;
+  const gap=H*(CAVE_GAP_BASE);
+  // Seed a few flat segments at start
+  for(let i=0;i<50;i++){
+    caveSegs.push({top:startTop,bot:startBot,hasPillar:false,pillarH:0});
+  }
+  // Fill enough segs
+  while(caveSegs.length<200){
+    appendSeg();
+  }
+}
+
+let prevTop=0,prevBot=0;
+function appendSeg(){
+  const pLen=caveSegs.length;
+  let top,bot;
+  const maxDrift=14;
+  if(pLen===0){
+    top=H*0.16;bot=H*0.16;
+  }else{
+    const last=caveSegs[pLen-1];
+    top=Math.max(H*0.04,Math.min(H*0.42,last.top+(Math.random()-0.5)*maxDrift*2));
+    bot=Math.max(H*0.04,Math.min(H*0.42,last.bot+(Math.random()-0.5)*maxDrift*2));
+  }
+  // Gap shrinks with distance
+  const progress=Math.max(0,Math.min(1,(pLen-50)/300));
+  const gap=H*(CAVE_GAP_BASE-progress*(CAVE_GAP_BASE-CAVE_GAP_MIN));
+  // Clamp so gap is always preserved
+  const bodyH=H-top-bot;
+  if(bodyH<gap){
+    const excess=(gap-bodyH)/2;
+    top=Math.max(H*0.04,top-excess);
+    bot=Math.max(H*0.04,bot-excess);
+  }
+  // Occasional pillar (after 50 segs)
+  const hasPillar=(pLen>80&&Math.random()<0.06);
+  const pillarH=hasPillar?(gap*0.4+Math.random()*gap*0.2):0;
+  const pillarFromTop=Math.random()<0.5;
+  caveSegs.push({top,bot,hasPillar,pillarH,pillarFromTop});
+}
+
+function initGame(){
+  score=0;
+  scrollSpeed=SCROLL_BASE;
+  sonarRings=[];fireflies=[];particles=[];gems=[];
+  sonarPulse=null;darkLevel=1;flapAnim=0;
+  bat.x=W*BAT_X_FRAC;
+  bat.y=H/2;bat.vy=0;bat.dead=false;
+  flashAlpha=0;screenShake=0;
+  initCave();
+  caveX=0;
+  // Scatter initial fireflies
+  for(let i=0;i<8;i++) spawnFirefly();
+  for(let i=0;i<3;i++) spawnGem();
+}
+
+function spawnFirefly(){
+  // Place somewhere ahead in the cave
+  const segIdx=Math.floor(caveX/SEG_W)+10+Math.floor(Math.random()*30);
+  if(segIdx>=caveSegs.length)return;
+  const seg=caveSegs[segIdx];
+  const clearTop=seg.top+12;
+  const clearBot=H-seg.bot-12;
+  if(clearBot-clearTop<20)return;
+  fireflies.push({
+    wx:segIdx*SEG_W+Math.random()*SEG_W*0.8, // world x
+    y:clearTop+Math.random()*(clearBot-clearTop),
+    r:4,
+    phase:Math.random()*Math.PI*2,
+    collected:false
+  });
+}
+
+function spawnGem(){
+  const segIdx=Math.floor(caveX/SEG_W)+15+Math.floor(Math.random()*40);
+  if(segIdx>=caveSegs.length)return;
+  const seg=caveSegs[segIdx];
+  const clearTop=seg.top+16;
+  const clearBot=H-seg.bot-16;
+  if(clearBot-clearTop<24)return;
+  gems.push({
+    wx:segIdx*SEG_W+SEG_W/2,
+    y:clearTop+Math.random()*(clearBot-clearTop),
+    r:7,
+    collected:false,
+    phase:Math.random()*Math.PI*2
+  });
+}
+
+function spawnParticle(x,y,color,n,spd){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=(spd||80)+Math.random()*80;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:2+Math.random()*3,color,alpha:1,life:0.5+Math.random()*0.35});
+  }
+}
+
+// Get cave bounds at world-x position
+function caveAt(wx){
+  const idx=Math.floor(wx/SEG_W);
+  const t=(wx%SEG_W)/SEG_W;
+  const s0=caveSegs[Math.max(0,Math.min(idx,caveSegs.length-1))];
+  const s1=caveSegs[Math.max(0,Math.min(idx+1,caveSegs.length-1))];
+  const top=s0.top*(1-t)+s1.top*t;
+  const bot=s0.bot*(1-t)+s1.bot*t;
+  return{top,bot};
+}
+
+function emitSonar(x,y){
+  sonarRings.push({x,y,r:0,maxR:Math.max(W,H)*0.85,alpha:0.7,speed:550});
+  sonarPulse={x,y,r:0,maxR:Math.max(W,H)*0.85,alpha:0.9};
+  sfx.play('sonar');
+}
+
+function update(dt){
+  if(state!=='play')return;
+  if(dt>0.1)dt=0.1;
+
+  // Ramp speed
+  scrollSpeed=Math.min(SCROLL_MAX,SCROLL_BASE+score*0.8);
+
+  // Scroll cave
+  caveX+=scrollSpeed*dt;
+
+  // Ensure we have enough cave ahead
+  while(caveSegs.length<Math.ceil(caveX/SEG_W)+80) appendSeg();
+
+  // Bat physics
+  bat.vy+=GRAVITY*dt;
+  bat.y+=bat.vy*dt;
+  bat.x=W*BAT_X_FRAC;
+
+  // Wing flap animation
+  flapAnim+=dt*6;
+  bat.wingAngle=Math.sin(flapAnim)*(bat.vy<0?0.6:0.25);
+
+  // Sonar auto-pulse every 5s (quality of life)
+  sonarTimer+=dt;
+  if(sonarTimer>5){sonarTimer=0;emitSonar(bat.x,bat.y);}
+
+  // Cave collision
+  const batWorldX=caveX+bat.x;
+  const cv=caveAt(batWorldX);
+  const batR=10;
+  if(bat.y-batR<cv.top||bat.y+batR>H-cv.bot){
+    if(!bat.dead){
+      bat.dead=true;
+      sfx.play('die');
+      flashAlpha=1;screenShake=0.3;
+      spawnParticle(bat.x,bat.y,'#3db8a0',16,120);
+      setTimeout(()=>{if(score>hiScore)hiScore=score;state='gameover';},800);
+    }
+  }
+
+  // Pillar collision
+  const segIdx=Math.floor(batWorldX/SEG_W);
+  const seg=caveSegs[Math.max(0,Math.min(segIdx,caveSegs.length-1))];
+  if(seg.hasPillar&&!bat.dead){
+    const pillarX=segIdx*SEG_W+SEG_W/2;
+    const screenPillarX=pillarX-caveX;
+    if(Math.abs(bat.x-screenPillarX)<batR+8){
+      const pillarTop=seg.pillarFromTop?seg.top:H-seg.bot-seg.pillarH;
+      const pillarBot=seg.pillarFromTop?seg.top+seg.pillarH:H-seg.bot;
+      if(bat.y-batR<pillarBot&&bat.y+batR>pillarTop){
+        bat.dead=true;sfx.play('die');flashAlpha=1;screenShake=0.3;
+        spawnParticle(bat.x,bat.y,'#3db8a0',16,120);
+        setTimeout(()=>{if(score>hiScore)hiScore=score;state='gameover';},800);
+      }
+    }
+  }
+
+  // Sonar rings
+  sonarRings.forEach(r=>{r.r+=r.speed*dt;r.alpha=Math.max(0,r.alpha-(dt/1.2));});
+  sonarRings=sonarRings.filter(r=>r.alpha>0);
+  if(sonarPulse){
+    sonarPulse.r+=550*dt;sonarPulse.alpha=Math.max(0,sonarPulse.alpha-(dt/1.0));
+    if(sonarPulse.alpha<=0)sonarPulse=null;
+    darkLevel=Math.max(0.05,1-((sonarPulse?sonarPulse.r/sonarPulse.maxR*1.2:0)));
+  }else{
+    darkLevel=Math.min(1,darkLevel+(dt*0.35));
+  }
+
+  // Fireflies
+  fireflies.forEach(f=>{
+    f.phase+=dt*2.5;
+    // Screen x
+    const sx=f.wx-caveX;
+    if(f.collected)return;
+    // Collect
+    const dx=bat.x-sx,dy=bat.y-f.y;
+    if(Math.sqrt(dx*dx+dy*dy)<batR+f.r+4){
+      f.collected=true;score++;
+      if(score%5===0)sfx.play('score5');else sfx.play('firefly');
+      spawnParticle(bat.x,bat.y,'#fbbf24',8,70);
+    }
+  });
+  fireflies=fireflies.filter(f=>!f.collected&&f.wx>caveX-20);
+  while(fireflies.length<8)spawnFirefly();
+
+  // Gems
+  gems.forEach(g=>{
+    g.phase+=dt*2;
+    const sx=g.wx-caveX;
+    if(g.collected)return;
+    const dx=bat.x-sx,dy=bat.y-g.y;
+    if(Math.sqrt(dx*dx+dy*dy)<batR+g.r+4){
+      g.collected=true;score+=5;
+      sfx.play('gem');
+      spawnParticle(bat.x,bat.y,'#3db8a0',12,90);
+    }
+  });
+  gems=gems.filter(g=>!g.collected&&g.wx>caveX-20);
+  while(gems.length<3)spawnGem();
+
+  // Particles
+  particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;p.life-=dt;p.alpha=Math.max(0,p.life/0.85);});
+  particles=particles.filter(p=>p.life>0);
+
+  // Flash / shake decay
+  flashAlpha=Math.max(0,flashAlpha-dt*3.5);
+  screenShake=Math.max(0,screenShake-dt*2);
+}
+
+// Build cave path for drawing
+function buildCavePath(fromSeg,toSeg,screenOffX,top){
+  ctx.beginPath();
+  const first=caveSegs[fromSeg];
+  if(top){ctx.moveTo(screenOffX,0);ctx.lineTo(screenOffX,first.top);}
+  else{ctx.moveTo(screenOffX,H);ctx.lineTo(screenOffX,H-first.bot);}
+  for(let i=fromSeg;i<=toSeg;i++){
+    const seg=caveSegs[Math.min(i,caveSegs.length-1)];
+    const nextSeg=caveSegs[Math.min(i+1,caveSegs.length-1)];
+    const x0=i*SEG_W-caveX;
+    const x1=(i+1)*SEG_W-caveX;
+    const y0=top?seg.top:H-seg.bot;
+    const y1=top?nextSeg.top:H-nextSeg.bot;
+    ctx.lineTo(x1,y1);
+  }
+  const lastSeg=caveSegs[Math.min(toSeg,caveSegs.length-1)];
+  const lastX=(toSeg+1)*SEG_W-caveX;
+  if(top){ctx.lineTo(lastX,0);}else{ctx.lineTo(lastX,H);}
+  ctx.closePath();
+}
+
+function draw(){
+  const shakeX=screenShake>0?(Math.random()-0.5)*screenShake*14:0;
+  const shakeY=screenShake>0?(Math.random()-0.5)*screenShake*8:0;
+  ctx.save();
+  ctx.translate(shakeX,shakeY);
+
+  // BG
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#020308');bg.addColorStop(0.5,'#040512');bg.addColorStop(1,'#020308');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  if(state==='start'){ctx.restore();drawStart();return;}
+  if(state==='gameover'){ctx.restore();drawGameOver();return;}
+
+  // Cave drawing
+  const fromSeg=Math.max(0,Math.floor(caveX/SEG_W)-1);
+  const toSeg=Math.min(caveSegs.length-1,Math.ceil((caveX+W)/SEG_W)+1);
+  const screenOffX=fromSeg*SEG_W-caveX;
+
+  // Cave walls gradient
+  const caveGrad=ctx.createLinearGradient(0,0,0,H);
+  caveGrad.addColorStop(0,'#0a0614');caveGrad.addColorStop(0.5,'#14091e');caveGrad.addColorStop(1,'#0a0614');
+
+  // Top wall
+  buildCavePath(fromSeg,toSeg,screenOffX,true);
+  ctx.fillStyle=caveGrad;ctx.fill();
+  // Bottom wall
+  buildCavePath(fromSeg,toSeg,screenOffX,false);
+  ctx.fillStyle=caveGrad;ctx.fill();
+
+  // Wall rock texture (overlay stripes)
+  ctx.save();
+  ctx.globalAlpha=0.06;
+  for(let x=0;x<W;x+=18){
+    ctx.strokeStyle='rgba(100,80,150,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+  }
+  ctx.restore();
+
+  // Wall glow edge (ceiling)
+  ctx.save();
+  buildCavePath(fromSeg,toSeg,screenOffX,true);
+  ctx.clip();
+  const ceilGlow=ctx.createLinearGradient(0,0,0,H*0.35);
+  ceilGlow.addColorStop(0,'rgba(61,184,160,0.0)');ceilGlow.addColorStop(1,'rgba(61,184,160,0.06)');
+  ctx.fillStyle=ceilGlow;ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  // Wall glow edge (floor)
+  ctx.save();
+  buildCavePath(fromSeg,toSeg,screenOffX,false);
+  ctx.clip();
+  const floorGlow=ctx.createLinearGradient(0,H*0.65,0,H);
+  floorGlow.addColorStop(0,'rgba(61,184,160,0.06)');floorGlow.addColorStop(1,'rgba(61,184,160,0.0)');
+  ctx.fillStyle=floorGlow;ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  // Pillars
+  for(let i=fromSeg;i<=toSeg;i++){
+    const seg=caveSegs[Math.min(i,caveSegs.length-1)];
+    if(!seg.hasPillar)continue;
+    const px=(i*SEG_W+SEG_W/2)-caveX;
+    const pw=24;
+    if(seg.pillarFromTop){
+      ctx.save();
+      ctx.shadowColor='rgba(61,184,160,0.15)';ctx.shadowBlur=8;
+      const pg=ctx.createLinearGradient(px-pw/2,0,px+pw/2,0);
+      pg.addColorStop(0,'#0a0614');pg.addColorStop(0.5,'#1a103a');pg.addColorStop(1,'#0a0614');
+      ctx.fillStyle=pg;
+      ctx.fillRect(px-pw/2,seg.top,pw,seg.pillarH);
+      // Crystal tip
+      ctx.fillStyle='rgba(61,184,160,0.3)';
+      ctx.beginPath();ctx.moveTo(px-pw/2,seg.top+seg.pillarH);
+      ctx.lineTo(px,seg.top+seg.pillarH+12);ctx.lineTo(px+pw/2,seg.top+seg.pillarH);ctx.closePath();ctx.fill();
+      ctx.restore();
+    }else{
+      ctx.save();
+      ctx.shadowColor='rgba(61,184,160,0.15)';ctx.shadowBlur=8;
+      const y0=H-seg.bot-seg.pillarH;
+      const pg=ctx.createLinearGradient(px-pw/2,0,px+pw/2,0);
+      pg.addColorStop(0,'#0a0614');pg.addColorStop(0.5,'#1a103a');pg.addColorStop(1,'#0a0614');
+      ctx.fillStyle=pg;
+      ctx.fillRect(px-pw/2,y0,pw,seg.pillarH);
+      // Crystal tip
+      ctx.fillStyle='rgba(61,184,160,0.3)';
+      ctx.beginPath();ctx.moveTo(px-pw/2,y0);
+      ctx.lineTo(px,y0-12);ctx.lineTo(px+pw/2,y0);ctx.closePath();ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // Sonar rings
+  sonarRings.forEach(ring=>{
+    ctx.save();
+    ctx.globalAlpha=ring.alpha*0.55;
+    ctx.strokeStyle='#3db8a0';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(ring.x,ring.y,ring.r,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  });
+
+  // Fireflies
+  fireflies.forEach(f=>{
+    if(f.collected)return;
+    const sx=f.wx-caveX;
+    if(sx<-20||sx>W+20)return;
+    const pulse=0.7+0.3*Math.sin(f.phase);
+    ctx.save();
+    ctx.shadowColor='#fbbf24';ctx.shadowBlur=16*pulse;
+    ctx.globalAlpha=0.55+0.45*pulse;
+    ctx.fillStyle='#fde68a';
+    ctx.beginPath();ctx.arc(sx,f.y,f.r*pulse,0,Math.PI*2);ctx.fill();
+    // Inner
+    ctx.fillStyle='#fffbeb';ctx.globalAlpha=0.9*pulse;
+    ctx.beginPath();ctx.arc(sx,f.y,f.r*0.45*pulse,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  });
+
+  // Gems (crystals)
+  gems.forEach(g=>{
+    if(g.collected)return;
+    const sx=g.wx-caveX;
+    if(sx<-20||sx>W+20)return;
+    const pulse=0.85+0.15*Math.sin(g.phase*1.7);
+    ctx.save();
+    ctx.shadowColor='#3db8a0';ctx.shadowBlur=20*pulse;
+    ctx.globalAlpha=0.9;
+    const gg=ctx.createRadialGradient(sx-1,g.y-1,0,sx,g.y,g.r*pulse);
+    gg.addColorStop(0,'#a7f3d0');gg.addColorStop(0.5,'#3db8a0');gg.addColorStop(1,'#0d6e57');
+    ctx.fillStyle=gg;
+    ctx.beginPath();
+    ctx.moveTo(sx,g.y-g.r*pulse);ctx.lineTo(sx+g.r*0.7*pulse,g.y);
+    ctx.lineTo(sx,g.y+g.r*pulse);ctx.lineTo(sx-g.r*0.7*pulse,g.y);ctx.closePath();ctx.fill();
+    // Facet
+    ctx.globalAlpha=0.3;ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.moveTo(sx,g.y-g.r*pulse);ctx.lineTo(sx+g.r*0.3*pulse,g.y-g.r*0.3*pulse);ctx.lineTo(sx,g.y);ctx.closePath();ctx.fill();
+    ctx.restore();
+  });
+
+  // Bat
+  if(!bat.dead){
+    ctx.save();
+    ctx.translate(bat.x,bat.y);
+    // Wing glow
+    const batGlow=ctx.createRadialGradient(0,0,0,0,0,30);
+    batGlow.addColorStop(0,'rgba(61,184,160,0.2)');batGlow.addColorStop(1,'transparent');
+    ctx.fillStyle=batGlow;ctx.beginPath();ctx.arc(0,0,30,0,Math.PI*2);ctx.fill();
+
+    // Wings (arcs)
+    const wingSpan=22;
+    const wingDrop=8+bat.wingAngle*10;
+    ctx.fillStyle='#1a2a1e';
+    // Left wing
+    ctx.save();ctx.shadowColor='#3db8a0';ctx.shadowBlur=8;
+    ctx.beginPath();
+    ctx.moveTo(0,-2);ctx.quadraticCurveTo(-wingSpan,-wingDrop,-wingSpan*1.3,4);
+    ctx.quadraticCurveTo(-wingSpan*0.8,10,-4,5);ctx.closePath();ctx.fill();
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(0,-2);ctx.quadraticCurveTo(wingSpan,-wingDrop,wingSpan*1.3,4);
+    ctx.quadraticCurveTo(wingSpan*0.8,10,4,5);ctx.closePath();ctx.fill();
+    ctx.restore();
+
+    // Body
+    ctx.fillStyle='#223322';
+    ctx.beginPath();ctx.ellipse(0,2,8,6,0,0,Math.PI*2);ctx.fill();
+    // Eyes
+    ctx.fillStyle='#3db8a0';ctx.shadowColor='#3db8a0';ctx.shadowBlur=10;
+    ctx.beginPath();ctx.arc(-3,-1,2.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(3,-1,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.shadowBlur=0;
+    ctx.beginPath();ctx.arc(-2.5,-0.5,0.9,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(3.5,-0.5,0.9,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Particles
+  particles.forEach(p=>{
+    ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color;ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();
+  });
+
+  // ── DARKNESS OVERLAY ──
+  // Use sonar pulse as a revealing light
+  if(darkLevel>0.05){
+    ctx.save();
+    // Full dark layer
+    ctx.fillStyle=`rgba(2,3,8,${darkLevel*0.88})`;
+    ctx.fillRect(0,0,W,H);
+
+    // Bat torch: always reveal a small area around bat
+    if(!bat.dead){
+      const torchGrad=ctx.createRadialGradient(bat.x,bat.y,0,bat.x,bat.y,90);
+      torchGrad.addColorStop(0,`rgba(2,3,8,0)`);
+      torchGrad.addColorStop(1,`rgba(2,3,8,${darkLevel*0.88})`);
+      ctx.fillStyle=torchGrad;
+      ctx.beginPath();ctx.arc(bat.x,bat.y,90,0,Math.PI*2);ctx.fill();
+    }
+
+    // Sonar reveal circle
+    if(sonarPulse&&sonarPulse.r>0){
+      const revealR=sonarPulse.r*0.75;
+      const revGrad=ctx.createRadialGradient(sonarPulse.x,sonarPulse.y,0,sonarPulse.x,sonarPulse.y,revealR);
+      revGrad.addColorStop(0,`rgba(2,3,8,0)`);
+      revGrad.addColorStop(0.7,`rgba(2,3,8,0)`);
+      revGrad.addColorStop(1,`rgba(2,3,8,${darkLevel*0.88})`);
+      ctx.fillStyle=revGrad;
+      ctx.beginPath();ctx.arc(sonarPulse.x,sonarPulse.y,revealR,0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Flash
+  if(flashAlpha>0){
+    ctx.save();ctx.globalAlpha=flashAlpha*0.5;ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.restore();
+  }
+
+  // HUD
+  drawHUD();
+
+  ctx.restore(); // end shake transform
+}
+
+function drawHUD(){
+  ctx.save();
+  ctx.shadowColor='rgba(61,184,160,0.5)';ctx.shadowBlur=8;
+  ctx.font='bold 14px Cinzel,serif';ctx.textBaseline='top';
+  ctx.fillStyle='#3db8a0';ctx.textAlign='left';ctx.fillText('SCORE  '+score,12,8);
+  ctx.fillStyle='#fbbf24';ctx.textAlign='right';ctx.fillText('BEST  '+hiScore,W-12,8);
+  ctx.restore();
+
+  // Mini sonar hint
+  ctx.save();
+  ctx.font='10px Nunito,sans-serif';ctx.fillStyle='rgba(61,184,160,0.5)';
+  ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText('TAP / CLICK TO FLAP  •  S = SONAR',W/2,H-8);
+  ctx.restore();
+
+  // Sonar cooldown bar
+  const sonarFrac=Math.min(sonarTimer/5,1);
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(W/2-50,H-28,100,5);
+  ctx.fillStyle=sonarFrac>=1?'#3db8a0':'#1a5a50';
+  ctx.fillRect(W/2-50,H-28,100*sonarFrac,5);
+  ctx.restore();
+}
+
+function drawPanel(title,lines,btn){
+  const pw2=Math.min(400,W*0.86);
+  const ph2=56+lines.length*30+64;
+  const px=(W-pw2)/2,py=(H-ph2)/2;
+  ctx.fillStyle='rgba(2,3,8,0.82)';ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.shadowColor='#1a6a58';ctx.shadowBlur=40;
+  ctx.fillStyle='#040a12';
+  ctx.beginPath();ctx.roundRect(px,py,pw2,ph2,12);ctx.fill();
+  ctx.strokeStyle='#1a6a58';ctx.lineWidth=2;ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.font='bold 24px Cinzel,serif';ctx.fillStyle='#3db8a0';
+  ctx.shadowColor='rgba(61,184,160,0.6)';ctx.shadowBlur=16;
+  ctx.fillText(title,W/2,py+16);
+  ctx.shadowBlur=0;ctx.font='14px Nunito,sans-serif';
+  lines.forEach((l,i)=>{
+    ctx.fillStyle=l.color||'#a7f3d0';
+    ctx.fillText(l.text||l,W/2,py+52+i*29);
+  });
+  if(btn){
+    const bw2=170,bh2=36;
+    const bx=(W-bw2)/2,by=py+ph2-52;
+    const gr=ctx.createLinearGradient(bx,by,bx+bw2,by);
+    gr.addColorStop(0,'#1a6a58');gr.addColorStop(1,'#0d4a3a');
+    ctx.shadowColor='#3db8a0';ctx.shadowBlur=16;
+    ctx.fillStyle=gr;ctx.beginPath();ctx.roundRect(bx,by,bw2,bh2,8);ctx.fill();
+    ctx.shadowBlur=0;ctx.fillStyle='#a7f3d0';
+    ctx.font='bold 12px Nunito,sans-serif';ctx.fillText(btn,W/2,by+bh2/2);
+  }
+  ctx.restore();
+}
+
+function drawStart(){
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#020308');bg.addColorStop(0.5,'#040512');bg.addColorStop(1,'#020308');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  drawPanel('🦇 BAT CAVE',[
+    {text:'Guide your bat through the dark cave.',color:'#a7f3d0'},
+    {text:'Tap or click to flap upward.',color:'#6ee7b7'},
+    {text:'Press S to emit a sonar pulse to reveal the path.',color:'#34d399'},
+    {text:'Collect 🟡 fireflies (+1) and 💎 crystals (+5).',color:'#6ee7b7'},
+    {text:'BEST: '+hiScore,color:'#fbbf24'}
+  ],'🦇 FLY IN!');
+}
+
+function drawGameOver(){
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#020308');bg.addColorStop(0.5,'#040512');bg.addColorStop(1,'#020308');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  drawPanel('💥 CRASHED!',[
+    {text:'SCORE: '+score,color:'#3db8a0'},
+    {text:'BEST:  '+hiScore,color:'#fbbf24'}
+  ],'🔄 TRY AGAIN');
+}
+
+function loop(ts){
+  const dt=Math.min((ts-lastTime)/1000,0.1);
+  lastTime=ts;
+  update(dt);draw();
+  frameId=requestAnimationFrame(loop);
+}
+
+function startGame(){
+  initGame();state='play';sfx.play('start');sonarTimer=0;
+}
+
+function flap(){
+  if(state==='start'||state==='gameover'){startGame();return;}
+  if(bat.dead)return;
+  bat.vy=FLAP_VEL;
+  sfx.play('flap');
+  flapAnim=0;
+}
+
+function triggerSonar(){
+  if(state!=='play'||bat.dead)return;
+  if(sonarTimer>=5){sonarTimer=0;emitSonar(bat.x,bat.y);}
+}
+
+canvas.addEventListener('click',flap);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();flap();},{passive:false});
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();flap();}
+  if(e.code==='KeyS'){triggerSonar();}
+});
+
+lastTime=performance.now();
+frameId=requestAnimationFrame(loop);
+</script>
+</body>
+</html>
