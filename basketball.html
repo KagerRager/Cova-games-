@@ -5,9 +5,9 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-P1VFNJ21V0');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9556113318001178" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1faa8;</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hoop Chaos – GameCave</title>
+<title>Bounce Brawl &#8211; GameCave</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -22,7 +22,7 @@ body{display:flex;flex-direction:column;font-family:'Nunito',sans-serif;}
 canvas{display:block;border:2px solid #1a2a3a;border-radius:4px;box-shadow:0 0 30px rgba(232,160,32,0.06);max-width:100%;max-height:calc(100vh - 120px);touch-action:none;cursor:default;}
 .mobile-btns{display:none;gap:0.5rem;width:100%;max-width:600px;}
 @media(pointer:coarse){.mobile-btns{display:flex;}}
-.mb{flex:1;padding:0.8rem 0;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;text-transform:uppercase;letter-spacing:0.06em;border:none;border-radius:6px;cursor:pointer;-webkit-user-select:none;user-select:none;active:scale(0.97);}
+.mb{flex:1;padding:0.8rem 0;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;text-transform:uppercase;letter-spacing:0.06em;border:none;border-radius:6px;cursor:pointer;-webkit-user-select:none;user-select:none;}
 .mb-p1{background:linear-gradient(135deg,#1e42b8,#2860e0);color:#fff;box-shadow:0 3px 0 #0e2070;}
 .mb-p2{background:linear-gradient(135deg,#b81e1e,#e03030);color:#fff;box-shadow:0 3px 0 #701010;}
 .mb-start{background:linear-gradient(135deg,#c88010,#e8a020);color:#1a0e00;box-shadow:0 3px 0 #7a5000;}
@@ -30,11 +30,10 @@ canvas{display:block;border:2px solid #1a2a3a;border-radius:4px;box-shadow:0 0 3
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
 <div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#050a0f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
-  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
-  <div style="margin-top:0.4rem;font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;color:#ffcc55;letter-spacing:0.15em;">HOOP CHAOS</div>
-  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:0.9rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.1em;">&#x1faa8; GAMECAVE</div>
+  <div style="margin-top:0.4rem;font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;color:#ffcc55;letter-spacing:0.15em;">BOUNCE BRAWL</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:0.9rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading&#8230;</div>
   <div style="margin-top:1.2rem;width:140px;height:5px;background:#1a2a3a;border-radius:3px;overflow:hidden;">
     <div id="loadBar" style="height:100%;background:linear-gradient(90deg,#e8a020,#ffcc55);width:0%;transition:width 0.8s ease;border-radius:3px;"></div>
   </div>
@@ -51,23 +50,22 @@ canvas{display:block;border:2px solid #1a2a3a;border-radius:4px;box-shadow:0 0 3
 </script>
 
 <div class="topbar">
-  <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
-  <a class="back" href="index.html">← Back</a>
+  <a class="logo" href="index.html">&#x1faa8; GAME<span>CAVE</span></a>
+  <a class="back" href="index.html">&#8592; Back</a>
 </div>
 
 <div class="game-wrap">
   <canvas id="c" width="600" height="400"></canvas>
   <div class="mobile-btns">
-    <button class="mb mb-p1" id="mbP1" ontouchstart="onMobileP1(event)">🏀 P1 JUMP</button>
-    <button class="mb mb-start" id="mbStart" ontouchstart="onMobileStart(event)">▶ START</button>
-    <button class="mb mb-p2" id="mbP2" ontouchstart="onMobileP2(event)">🏀 P2 JUMP</button>
+    <button class="mb mb-p1" id="mbP1" ontouchstart="onMobileP1(event)">&#x1f3c0; P1 JUMP</button>
+    <button class="mb mb-start" id="mbStart" ontouchstart="onMobileStart(event)">&#9654; START</button>
+    <button class="mb mb-p2" id="mbP2" ontouchstart="onMobileP2(event)">&#x1f3c0; P2 JUMP</button>
   </div>
 </div>
 
 <script>
 'use strict';
 
-// ── SOUND ENGINE ──
 const sfx = (() => {
   let ctx;
   function ensure() {
@@ -92,215 +90,182 @@ const sfx = (() => {
   function play(name) {
     switch(name) {
       case 'start':
-        tone(330,'sine',0.15,0.08,440);
-        tone(440,'sine',0.15,0.08,550,0.09);
-        tone(550,'sine',0.15,0.1,660,0.18);
-        break;
-      case 'jump':
-        tone(200,'sine',0.12,0.1,380);
-        break;
-      case 'hit':
-        tone(160,'square',0.2,0.07,80);
-        break;
-      case 'bounce':
-        tone(110,'sawtooth',0.1,0.06,55);
-        break;
-      case 'rim':
-        tone(380,'triangle',0.18,0.12,240);
-        break;
+        tone(330,'sine',0.15,0.08,440); tone(440,'sine',0.15,0.08,550,0.09); tone(550,'sine',0.15,0.1,660,0.18); break;
+      case 'jump':  tone(220,'sine',0.12,0.12,400); break;
+      case 'hit':   tone(180,'square',0.22,0.07,90); break;
+      case 'bounce':tone(120,'sawtooth',0.1,0.06,60); break;
+      case 'rim':   tone(400,'triangle',0.18,0.12,250); break;
       case 'score':
-        tone(523,'sine',0.18,0.1);
-        tone(659,'sine',0.18,0.1,0,0.1);
-        tone(784,'sine',0.18,0.1,0,0.2);
-        tone(1047,'sine',0.22,0.18,0,0.3);
-        break;
+        tone(523,'sine',0.2,0.1); tone(659,'sine',0.2,0.1,0,0.1);
+        tone(784,'sine',0.2,0.1,0,0.2); tone(1047,'sine',0.25,0.22,0,0.3); break;
       case 'win':
-        tone(523,'sine',0.18,0.1);
-        tone(659,'sine',0.18,0.1,0,0.12);
-        tone(784,'sine',0.18,0.1,0,0.24);
-        tone(659,'sine',0.15,0.08,0,0.38);
-        tone(784,'sine',0.18,0.1,0,0.48);
-        tone(1047,'sine',0.25,0.25,0,0.6);
-        break;
-      case 'crowd':
-        for (let i = 0; i < 6; i++) {
-          const f = 200 + Math.random()*300;
-          tone(f, 'sine', 0.06, 0.15 + Math.random()*0.2, f + (Math.random()-0.5)*100, Math.random()*0.4);
-        }
-        break;
+        tone(523,'sine',0.18,0.1); tone(659,'sine',0.18,0.1,0,0.12);
+        tone(784,'sine',0.18,0.1,0,0.24); tone(659,'sine',0.15,0.08,0,0.38);
+        tone(784,'sine',0.18,0.1,0,0.48); tone(1047,'sine',0.25,0.25,0,0.6); break;
     }
   }
   return { play };
 })();
 
-// ── CANVAS ──
 const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
 const W = 600, H = 400;
 
-// ── CONSTANTS ──
-const FLOOR_Y   = 335;
-const GRAVITY   = 0.48;
-const JUMP_VY   = -13.5;
-const BALL_R    = 14;
+const FLOOR_Y  = 330;
+const GRAVITY  = 0.5;
+const JUMP_VY  = -14;
+const BALL_R   = 15;
 const MAX_SCORE = 5;
-const RIM_HALF  = 28;   // half-width of rim
-const RIM_Y     = 162;  // rim height
-const RIM_DOT   = 5;    // rim endpoint radius
-const HOOP_L    = { x: 88 };   // P2 scores in left hoop
-const HOOP_R    = { x: 512 };  // P1 scores in right hoop
+const BASKET_W = 50;
+const BASKET_Y = 175;
 
-// ── PLAYER / AI TUNING ──
-const PLAYER_ACCEL          = 0.6;   // horizontal acceleration per frame (keyboard)
-const PLAYER_MAX_SPEED      = 5.5;   // max horizontal speed for players
-const AI_ACCEL              = 0.75;  // AI horizontal acceleration per frame
-const AI_MAX_SPEED          = 5.5;   // max horizontal speed for AI
-const AI_DEADZONE           = 15;    // min x-distance before AI accelerates
-const AI_JUMP_ALIGN         = 52;    // max x-distance for AI to consider jumping
-const STUCK_SPEED_SQ        = 1.2;   // ball speed² below which stuck timer counts
-const STUCK_TIMEOUT_FRAMES  = 300;   // frames before stuck ball is nudged (~5s at 60fps)
+const CHAOS_EVENTS = [
+  { label:'NORMAL',      grav:1.0,  wind:0,     ballScale:1.0,  superJump:false },
+  { label:'LOW GRAVITY', grav:0.38, wind:0,     ballScale:1.0,  superJump:false },
+  { label:'HEAVY BALL',  grav:1.8,  wind:0,     ballScale:1.15, superJump:false },
+  { label:'BIG BALL',    grav:1.0,  wind:0,     ballScale:1.55, superJump:false },
+  { label:'TINY BALL',   grav:1.0,  wind:0,     ballScale:0.52, superJump:false },
+  { label:'WIND \u2192', grav:1.0,  wind:0.26,  ballScale:1.0,  superJump:false },
+  { label:'WIND \u2190', grav:1.0,  wind:-0.26, ballScale:1.0,  superJump:false },
+  { label:'SUPER JUMP',  grav:0.55, wind:0,     ballScale:1.0,  superJump:true  },
+  { label:'CHAOS!',      grav:1.35, wind:0.18,  ballScale:1.3,  superJump:false },
+];
 
-// ── COURT THEMES ──
 const THEMES = [
-  { bg:'#071320', fl1:'#4a2a08', fl2:'#2a1408', line:'rgba(232,160,32,0.35)', pole:'#8090a8', rim:'#e85020', net:'rgba(255,255,255,0.45)', sky:'rgba(48,80,120,0.2)' },
-  { bg:'#071507', fl1:'#1a4a10', fl2:'#0c2408', line:'rgba(80,220,80,0.35)',  pole:'#60a860', rim:'#30d840', net:'rgba(200,255,200,0.45)', sky:'rgba(20,80,20,0.2)' },
-  { bg:'#0e0720', fl1:'#28083c', fl2:'#150420', line:'rgba(155,93,229,0.4)', pole:'#806090', rim:'#9b5de5', net:'rgba(210,180,255,0.45)', sky:'rgba(60,20,100,0.2)' },
-  { bg:'#1a0808', fl1:'#3a0c0c', fl2:'#200404', line:'rgba(255,80,60,0.35)', pole:'#a06060', rim:'#ff4040', net:'rgba(255,180,180,0.45)', sky:'rgba(100,10,10,0.2)' },
-  { bg:'#040c0b', fl1:'#084030', fl2:'#041c14', line:'rgba(0,220,200,0.35)', pole:'#30a090', rim:'#00d8c0', net:'rgba(180,255,250,0.45)', sky:'rgba(0,60,55,0.2)' },
-  { bg:'#141008', fl1:'#402c08', fl2:'#1e1404', line:'rgba(255,180,0,0.35)', pole:'#a09040', rim:'#ffa020', net:'rgba(255,240,180,0.45)', sky:'rgba(80,60,0,0.2)' },
+  { bg:'#060b10', fl:'#3a1e06', fl2:'#1e0e02', rim:'#e85020', pole:'#8090a8', net:'rgba(255,220,180,0.5)', sky:'rgba(60,90,130,0.25)' },
+  { bg:'#060f06', fl:'#103808', fl2:'#071c04', rim:'#30e840', pole:'#50a850', net:'rgba(180,255,180,0.5)', sky:'rgba(20,80,20,0.25)' },
+  { bg:'#0d0518', fl:'#22063a', fl2:'#100220', rim:'#9b5de5', pole:'#7060a0', net:'rgba(210,180,255,0.5)', sky:'rgba(70,20,120,0.25)' },
+  { bg:'#150404', fl:'#380808', fl2:'#1c0404', rim:'#ff4040', pole:'#a06060', net:'rgba(255,180,180,0.5)', sky:'rgba(100,10,10,0.25)' },
+  { bg:'#040d0c', fl:'#063830', fl2:'#031810', rim:'#00d8c0', pole:'#30a090', net:'rgba(180,255,250,0.5)', sky:'rgba(0,70,60,0.25)' },
 ];
 
-// ── MODIFIERS ──
-const MODS = [
-  { label:'NORMAL',       wind:0,    grav:1.0,  ballScale:1.0 },
-  { label:'LOW GRAVITY',  wind:0,    grav:0.45, ballScale:1.0 },
-  { label:'HEAVY BALL',   wind:0,    grav:1.7,  ballScale:1.1 },
-  { label:'WIND →',       wind:0.22, grav:1.0,  ballScale:1.0 },
-  { label:'WIND ←',       wind:-0.22,grav:1.0,  ballScale:1.0 },
-  { label:'BIG BALL',     wind:0,    grav:1.0,  ballScale:1.35 },
-  { label:'TINY BALL',    wind:0,    grav:1.0,  ballScale:0.65 },
-];
+const BASKET_L = { x: 75  };
+const BASKET_R = { x: 525 };
 
-// ── GAME STATE ──
-let theme, mod;
+let phase = 'title';
 let score1 = 0, score2 = 0;
-let phase = 'title'; // 'title' | 'playing' | 'scoring' | 'over'
-let scoreTimer = 0;
-let lastScorer = 0;
 let mode1P = true;
+let theme, chaos;
+let chaosLabel = '', chaosTimer = 0;
+let scoreTimer = 0, lastScorer = 0;
 let animId;
-let stuckTimer = 0;
-
-// Ball
 let ball, prevBallY;
-
-// Players
 let p1, p2;
+const actionPressed = { p1: false, p2: false };
 
-// Scoring popup
-let modLabel = '', modTimer = 0;
-
-function pickThemeAndMod() {
+function pickSetup() {
   theme = THEMES[Math.floor(Math.random() * THEMES.length)];
-  mod   = MODS[Math.floor(Math.random() * MODS.length)];
-  modLabel = mod.label;
-  modTimer = 150;
+  const ev = CHAOS_EVENTS[Math.floor(Math.random() * CHAOS_EVENTS.length)];
+  chaos = Object.assign({}, ev);
+  chaosLabel = ev.label;
+  chaosTimer = 160;
 }
 
 function resetBall() {
-  const r = BALL_R * (mod ? mod.ballScale : 1);
-  ball = { x: W/2, y: FLOOR_Y - 100, vx: (Math.random()*3 - 1.5), vy: -6, r, spin: 0 };
+  const r = BALL_R * (chaos ? chaos.ballScale : 1);
+  ball = { x: W / 2, y: FLOOR_Y - 120, vx: (Math.random() * 4 - 2), vy: -8, r, spin: 0 };
   prevBallY = ball.y;
-  stuckTimer = 0;
 }
 
-function makePlayer(startX, color, facing, isAI) {
-  return { x:startX, y:FLOOR_Y, vx:0, vy:0, onGround:true, facing,
-           color, isAI, armA:0, legA:0, bodyTilt:0, jumpCd:0, wobble:Math.random()*6, aiTimer:20 };
+function makePlayer(startX, color, isAI) {
+  return { x:startX, y:FLOOR_Y, vx:0, vy:0, onGround:true, color, isAI,
+           armAngle:0, armVel:0, legAngle:0, legVel:0, lean:0, leanVel:0,
+           jumpCd:0, aiCd:0, waving:0 };
 }
 
 function resetPlayers() {
-  p1 = makePlayer(165, '#2860e0', 1,  false);
-  p2 = makePlayer(435, '#e03030', -1, mode1P);
+  p1 = makePlayer(170, '#2860e0', false);
+  p2 = makePlayer(430, '#e03030', mode1P);
 }
 
 function startGame() {
   score1 = 0; score2 = 0;
-  pickThemeAndMod();
+  pickSetup();
   resetBall();
   resetPlayers();
   phase = 'playing';
   sfx.play('start');
-  gtag('event', 'hoop_chaos_start', { mode: mode1P ? '1p' : '2p' });
+  gtag('event', 'bounce_brawl_start', { mode: mode1P ? '1p' : '2p' });
 }
 
-// ── PHYSICS ──
-const getGravity = () => GRAVITY * (mod ? mod.grav : 1);
+function getGrav() { return GRAVITY * (chaos ? chaos.grav : 1); }
+function getWind() { return chaos ? chaos.wind : 0; }
 
-function jump(p) {
+function doJump(p) {
   if (!p.onGround || p.jumpCd > 0) return;
-  p.vy = JUMP_VY;
-  p.vx += p.facing * 1.8;
+  const superMult = (chaos && chaos.superJump) ? 1.38 : 1.0;
+  p.vy = JUMP_VY * superMult;
   p.onGround = false;
-  p.jumpCd = 14;
+  p.jumpCd = 18;
+  p.armVel += (Math.random() - 0.5) * 12;
+  p.legVel += (Math.random() - 0.5) * 10;
+  p.leanVel += (Math.random() - 0.5) * 0.4;
   sfx.play('jump');
 }
 
-function updatePlayer(p) {
-  if (p.jumpCd > 0) p.jumpCd--;
-  p.vy += getGravity();
-  p.x  += p.vx;
-  p.y  += p.vy;
-  if (p.y >= FLOOR_Y) { p.y = FLOOR_Y; p.vy = 0; p.vx *= 0.82; p.onGround = true; }
-  if (p.x < 18)      { p.x = 18;      p.vx =  Math.abs(p.vx) * 0.4; }
-  if (p.x > W - 18)  { p.x = W - 18;  p.vx = -Math.abs(p.vx) * 0.4; }
-  // Face the ball
-  if (ball.x > p.x + 5) p.facing = 1;
-  else if (ball.x < p.x - 5) p.facing = -1;
-}
-
-function updateAI() {
-  const p = p2;
-  const bx = ball.x, by = ball.y;
-
-  // Always move toward ball – faster tracking, no timer gate
-  const dx = bx - p.x;
-  if (Math.abs(dx) > AI_DEADZONE) p.vx += Math.sign(dx) * AI_ACCEL;
-  p.vx = Math.max(-AI_MAX_SPEED, Math.min(AI_MAX_SPEED, p.vx));
-
-  updatePlayer(p);
-  if (p.aiTimer > 0) { p.aiTimer--; return; }
-
-  // Only jump when horizontally close AND ball is reachable height
-  const aligned = Math.abs(dx) < AI_JUMP_ALIGN;
-  const ballReachable = by > FLOOR_Y - 200;
-  if (p.onGround && aligned && ballReachable) {
-    jump(p);
-    p.aiTimer = 16 + Math.random() * 20;
+function updateAI(p) {
+  const dx = ball.x - p.x;
+  const speed = 3.6;
+  if (Math.abs(dx) > 10) {
+    p.vx += Math.sign(dx) * 0.58;
+    p.vx = Math.max(-speed, Math.min(speed, p.vx));
+  }
+  if (p.aiCd > 0) { p.aiCd--; return; }
+  const ballHigh = ball.y < FLOOR_Y - 55;
+  if (p.onGround && Math.abs(dx) < 115 && ballHigh) {
+    doJump(p);
+    p.aiCd = 22 + Math.random() * 22;
   } else {
-    p.aiTimer = 3 + Math.random() * 6;
+    p.aiCd = 4 + Math.random() * 8;
   }
 }
 
-function animatePlayer(p) {
-  p.wobble += 0.08;
-  if (!p.onGround) {
-    p.armA += (Math.PI * 0.6 - p.armA) * 0.15;
-    p.legA += (Math.PI * 0.35 - p.legA) * 0.15;
-    p.bodyTilt += (0.3 * Math.sign(p.vx) - p.bodyTilt) * 0.1;
-  } else {
-    const idle = Math.sin(p.wobble * 0.7) * 0.25;
-    p.armA += (idle - p.armA) * 0.12;
-    p.legA *= 0.88;
-    p.bodyTilt *= 0.85;
+function updatePlayer(p, isP1) {
+  if (p.jumpCd > 0) p.jumpCd--;
+  const dx = ball.x - p.x;
+  const autoSpeed = 3.2;
+  if (Math.abs(dx) > 14) {
+    p.vx += Math.sign(dx) * 0.44;
+    p.vx = Math.max(-autoSpeed, Math.min(autoSpeed, p.vx));
+  }
+  if (isP1 ? actionPressed.p1 : actionPressed.p2) doJump(p);
+  p.vy += getGrav();
+  p.x  += p.vx;
+  p.y  += p.vy;
+  if (p.y >= FLOOR_Y) { p.y = FLOOR_Y; p.vy = 0; p.vx *= 0.78; p.onGround = true; }
+  if (p.x < 20)   { p.x = 20;   p.vx =  Math.abs(p.vx) * 0.4; }
+  if (p.x > W-20) { p.x = W-20; p.vx = -Math.abs(p.vx) * 0.4; }
+  // Ragdoll limbs
+  const damp = 0.80;
+  p.armVel += (0 - p.armAngle) * 0.12;
+  p.armVel += Math.cos(p.armAngle) * 0.038;
+  p.armAngle += p.armVel;
+  p.armVel *= damp;
+  p.legVel += (0 - p.legAngle) * 0.10;
+  p.legVel += Math.cos(p.legAngle) * 0.032;
+  p.legAngle += p.legVel;
+  p.legVel *= damp;
+  p.leanVel += (0 - p.lean) * 0.08;
+  p.lean += p.leanVel;
+  p.leanVel *= 0.82;
+  p.leanVel += p.vx * 0.01;
+  if (p.onGround) {
+    p.waving += 0.14;
+    p.legAngle += Math.sin(p.waving) * 0.12;
+    p.armAngle += Math.sin(p.waving + Math.PI) * 0.08;
   }
 }
 
 function ballPlayerCollision(p) {
+  const headX = p.x + Math.sin(p.lean) * 12;
+  const headY = p.y - 44;
+  const armLen = 22;
+  const armTipX = headX + Math.sin(p.armAngle + p.lean) * armLen;
+  const armTipY = headY + Math.cos(p.armAngle + p.lean) * armLen;
   const parts = [
-    { x: p.x + Math.sin(p.bodyTilt)*8, y: p.y - 40, r: 12 },
-    { x: p.x + Math.sin(p.bodyTilt)*4, y: p.y - 22, r: 13 },
-    { x: p.x, y: p.y - 7, r: 9 },
+    { x: headX,   y: headY,    r: 12 },
+    { x: p.x,     y: p.y - 25, r: 11 },
+    { x: armTipX, y: armTipY,  r: 8  },
   ];
   for (const pt of parts) {
     const dx = ball.x - pt.x, dy = ball.y - pt.y;
@@ -313,11 +278,13 @@ function ballPlayerCollision(p) {
       const rvx = ball.vx - p.vx, rvy = ball.vy - p.vy;
       const dot = rvx*nx + rvy*ny;
       if (dot < 0) {
-        const j = -dot * 1.45;
-        ball.vx += j*nx + p.vx*0.3;
-        ball.vy += j*ny + p.vy*0.3;
+        const j = -dot * 1.5;
+        ball.vx += j*nx + p.vx * 0.25;
+        ball.vy += j*ny + p.vy * 0.25;
         const spd = Math.hypot(ball.vx, ball.vy);
-        if (spd > 22) { ball.vx = ball.vx/spd*22; ball.vy = ball.vy/spd*22; }
+        if (spd > 20) { ball.vx = ball.vx/spd*20; ball.vy = ball.vy/spd*20; }
+        p.armVel += ny * -3;
+        p.leanVel += nx * 0.15;
         sfx.play('hit');
       }
       break;
@@ -325,23 +292,20 @@ function ballPlayerCollision(p) {
   }
 }
 
-function rimCollision(hoopX) {
-  const pts = [
-    { x: hoopX - RIM_HALF, y: RIM_Y },
-    { x: hoopX + RIM_HALF, y: RIM_Y },
-  ];
+function rimCollision(bx) {
+  const pts = [{ x: bx - BASKET_W, y: BASKET_Y }, { x: bx + BASKET_W, y: BASKET_Y }];
   for (const pt of pts) {
     const dx = ball.x - pt.x, dy = ball.y - pt.y;
     const d = Math.hypot(dx, dy);
-    const minD = ball.r + RIM_DOT;
+    const minD = ball.r + 5;
     if (d < minD && d > 0.01) {
       const nx = dx/d, ny = dy/d;
       ball.x = pt.x + nx*minD;
       ball.y = pt.y + ny*minD;
       const dot = ball.vx*nx + ball.vy*ny;
       if (dot < 0) {
-        ball.vx = (ball.vx - dot*nx*1.5) * 0.65;
-        ball.vy = (ball.vy - dot*ny*1.5) * 0.65;
+        ball.vx = (ball.vx - dot*nx*1.6) * 0.6;
+        ball.vy = (ball.vy - dot*ny*1.6) * 0.6;
         sfx.play('rim');
       }
     }
@@ -349,35 +313,19 @@ function rimCollision(hoopX) {
 }
 
 function checkScoring() {
-  // Left hoop: P2 scores; Right hoop: P1 scores
-  for (const [hoop, scorer] of [[HOOP_L, 2],[HOOP_R, 1]]) {
-    if (prevBallY + ball.r < RIM_Y && ball.y + ball.r >= RIM_Y) {
-      const margin = RIM_HALF - RIM_DOT - ball.r * 0.6;
-      if (Math.abs(ball.x - hoop.x) < margin && ball.vy > 0) {
+  for (const [basket, scorer] of [[BASKET_L, 1], [BASKET_R, 2]]) {
+    if (prevBallY + ball.r < BASKET_Y && ball.y + ball.r >= BASKET_Y) {
+      const margin = BASKET_W - ball.r * 0.5;
+      if (Math.abs(ball.x - basket.x) < margin && ball.vy > 0) {
         if (scorer === 1) score1++; else score2++;
         lastScorer = scorer;
         sfx.play('score');
-        sfx.play('crowd');
         phase = 'scoring';
-        scoreTimer = 100;
-        gtag('event','hoop_chaos_point',{scorer,score1,score2});
+        scoreTimer = 110;
+        gtag('event','bounce_brawl_point',{scorer,score1,score2});
         return;
       }
     }
-  }
-}
-
-function applyMovementKeys() {
-  if (phase !== 'playing') return;
-  // P1: A/D to move left/right
-  if (keys['KeyA']) p1.vx -= PLAYER_ACCEL;
-  if (keys['KeyD']) p1.vx += PLAYER_ACCEL;
-  p1.vx = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, p1.vx));
-  // P2: ←/→ to move left/right (2P mode only)
-  if (!mode1P) {
-    if (keys['ArrowLeft'])  p2.vx -= PLAYER_ACCEL;
-    if (keys['ArrowRight']) p2.vx += PLAYER_ACCEL;
-    p2.vx = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, p2.vx));
   }
 }
 
@@ -386,450 +334,279 @@ function update() {
     scoreTimer--;
     if (scoreTimer <= 0) {
       if (score1 >= MAX_SCORE || score2 >= MAX_SCORE) {
-        phase = 'over';
-        sfx.play('win');
-        gtag('event','hoop_chaos_over',{score1,score2});
+        phase = 'over'; sfx.play('win');
+        gtag('event','bounce_brawl_over',{score1,score2});
       } else {
-        pickThemeAndMod();
-        resetBall();
-        resetPlayers();
-        phase = 'playing';
+        pickSetup(); resetBall(); resetPlayers(); phase = 'playing';
       }
     }
     return;
   }
   if (phase !== 'playing') return;
 
-  // Apply held movement keys
-  applyMovementKeys();
-
-  // Ball physics
   prevBallY = ball.y;
-  ball.vy += getGravity();
-  ball.vx += (mod ? mod.wind : 0);
+  ball.vy += getGrav();
+  ball.vx += getWind();
   ball.x  += ball.vx;
   ball.y  += ball.vy;
-  ball.spin += ball.vx * 0.04;
-  ball.vx *= 0.998;
+  ball.spin += ball.vx * 0.05;
+  ball.vx *= 0.999;
 
-  // Walls & floor & ceiling
-  if (ball.y + ball.r > FLOOR_Y) {
-    ball.y = FLOOR_Y - ball.r;
-    ball.vy *= -0.72; ball.vx *= 0.87;
-    if (Math.abs(ball.vy) > 2) sfx.play('bounce');
-  }
-  if (ball.y - ball.r < 0)    { ball.y = ball.r;   ball.vy *= -0.6; }
-  if (ball.x - ball.r < 0)    { ball.x = ball.r;   ball.vx = Math.abs(ball.vx)*0.7; sfx.play('bounce'); }
-  if (ball.x + ball.r > W)    { ball.x = W-ball.r; ball.vx = -Math.abs(ball.vx)*0.7; sfx.play('bounce'); }
+  if (ball.y + ball.r > FLOOR_Y) { ball.y = FLOOR_Y - ball.r; ball.vy *= -0.68; ball.vx *= 0.85; if (Math.abs(ball.vy) > 2) sfx.play('bounce'); }
+  if (ball.y - ball.r < 0)  { ball.y = ball.r;    ball.vy *= -0.55; }
+  if (ball.x - ball.r < 0)  { ball.x = ball.r;    ball.vx =  Math.abs(ball.vx)*0.65; sfx.play('bounce'); }
+  if (ball.x + ball.r > W)  { ball.x = W-ball.r;  ball.vx = -Math.abs(ball.vx)*0.65; sfx.play('bounce'); }
 
-  // Stuck-ball detection: nudge if ball barely moving for ~5 seconds
-  const speedSq = ball.vx * ball.vx + ball.vy * ball.vy;
-  if (speedSq < STUCK_SPEED_SQ && ball.y > FLOOR_Y - ball.r * 3) {
-    stuckTimer++;
-    if (stuckTimer > STUCK_TIMEOUT_FRAMES) {
-      ball.vx = (Math.random() - 0.5) * 9;
-      ball.vy = -(7 + Math.random() * 4);
-      stuckTimer = 0;
-    }
-  } else {
-    stuckTimer = 0;
-  }
-
-  // Rim collisions
-  rimCollision(HOOP_L.x);
-  rimCollision(HOOP_R.x);
-
-  // Scoring check
+  rimCollision(BASKET_L.x);
+  rimCollision(BASKET_R.x);
   checkScoring();
 
-  // Player updates
-  updatePlayer(p1);
-  if (mode1P) updateAI(); else updatePlayer(p2);
+  if (!p1.isAI) updatePlayer(p1, true); else updateAI(p1);
+  if (!p2.isAI) updatePlayer(p2, false); else updateAI(p2);
 
-  // Ball-player collisions
   ballPlayerCollision(p1);
   ballPlayerCollision(p2);
 
-  // Player animations
-  animatePlayer(p1);
-  animatePlayer(p2);
+  actionPressed.p1 = false;
+  actionPressed.p2 = false;
 
-  if (modTimer > 0) modTimer--;
+  if (chaosTimer > 0) chaosTimer--;
 }
 
-// ── DRAWING ──
-function drawHoop(hx) {
-  // Pole
-  ctx.fillStyle = theme.pole;
-  ctx.fillRect(hx - 4, RIM_Y, 8, FLOOR_Y - RIM_Y);
+function shadeColor(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const r = Math.max(0, Math.min(255, (n>>16) + amt));
+  const g = Math.max(0, Math.min(255, ((n>>8)&0xff) + amt));
+  const b = Math.max(0, Math.min(255, (n&0xff) + amt));
+  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
 
-  // Rim bar
+function drawBasket(bx, forPlayer) {
+  const bbX = forPlayer === 1 ? bx - BASKET_W - 12 : bx + BASKET_W + 4;
+  ctx.fillStyle = theme.pole;
+  ctx.fillRect(bbX, BASKET_Y - 40, 8, 58);
+  const poleX = forPlayer === 1 ? bx - BASKET_W - 8 : bx + BASKET_W + 8;
+  ctx.fillStyle = shadeColor(theme.pole, -20);
+  ctx.fillRect(poleX - 3, BASKET_Y + 18, 6, FLOOR_Y - BASKET_Y - 18);
   ctx.strokeStyle = theme.rim;
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(hx - RIM_HALF, RIM_Y);
-  ctx.lineTo(hx + RIM_HALF, RIM_Y);
-  ctx.stroke();
-
-  // Rim endpoints
+  ctx.beginPath(); ctx.moveTo(bx - BASKET_W, BASKET_Y); ctx.lineTo(bx + BASKET_W, BASKET_Y); ctx.stroke();
   ctx.fillStyle = theme.rim;
-  ctx.beginPath(); ctx.arc(hx - RIM_HALF, RIM_Y, RIM_DOT, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(hx + RIM_HALF, RIM_Y, RIM_DOT, 0, Math.PI*2); ctx.fill();
-
-  // Net
+  ctx.beginPath(); ctx.arc(bx - BASKET_W, BASKET_Y, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx + BASKET_W, BASKET_Y, 5, 0, Math.PI*2); ctx.fill();
   ctx.strokeStyle = theme.net;
   ctx.lineWidth = 1;
-  const nl = hx - RIM_HALF, nr = hx + RIM_HALF, nt = RIM_Y, nb = RIM_Y + 34;
+  const nl = bx - BASKET_W, nr = bx + BASKET_W, nt = BASKET_Y, nb = BASKET_Y + 36;
   for (let i = 0; i <= 5; i++) {
-    const tx = nl + (nr-nl)*i/5;
-    const bx = hx + (tx-hx)*0.5;
-    ctx.beginPath(); ctx.moveTo(tx, nt); ctx.lineTo(bx, nb); ctx.stroke();
+    const tx = nl + (nr - nl) * i / 5;
+    const bxNet = bx + (tx - bx) * 0.55;
+    ctx.beginPath(); ctx.moveTo(tx, nt); ctx.lineTo(bxNet, nb); ctx.stroke();
   }
-  for (let r = 1; r <= 3; r++) {
-    const t = r/3, ly = nt + (nb-nt)*t;
-    const ll = nl + (hx-nl)*0.5*t, lr = nr + (hx-nr)*0.5*t;
+  for (let row = 1; row <= 3; row++) {
+    const t = row/3, ly = nt + (nb - nt)*t;
+    const ll = nl + (bx - nl)*0.55*t, lr = nr + (bx - nr)*0.55*t;
     ctx.beginPath(); ctx.moveTo(ll, ly); ctx.lineTo(lr, ly); ctx.stroke();
   }
-
-  // Hoop label (P1 aim left, P2 aim right)
   if (phase === 'playing' || phase === 'scoring') {
-    const isLeft = hx < W / 2;
-    const label = isLeft ? '← P2' : 'P1 →';
-    const col   = isLeft ? 'rgba(224,48,48,0.55)' : 'rgba(40,96,224,0.55)';
-    ctx.textAlign = 'center';
+    const isLeft = bx < W/2;
     ctx.font = 'bold 9px Nunito, sans-serif';
-    ctx.fillStyle = col;
-    ctx.fillText(label, hx, RIM_Y - 14);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = isLeft ? 'rgba(40,96,224,0.6)' : 'rgba(224,48,48,0.6)';
+    ctx.fillText(isLeft ? 'P1 \u2192' : '\u2190 P2', bx, BASKET_Y - 14);
   }
 }
 
 function drawPlayer(p) {
-  const { x, y, facing, color, bodyTilt, armA, legA } = p;
+  const { x, y, color, lean, armAngle, legAngle } = p;
   ctx.save();
   ctx.translate(x, y);
-  ctx.lineCap = 'round';
-
-  const sin = Math.sin(bodyTilt * facing);
-
-  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.18)';
-  ctx.beginPath(); ctx.ellipse(0, 2, 16, 5, 0, 0, Math.PI*2); ctx.fill();
-
-  // Legs
-  ctx.strokeStyle = shadeColor(color, -40);
-  ctx.lineWidth = 5;
-  const legSwing = Math.sin(legA) * 14;
-  ctx.beginPath(); ctx.moveTo(sin*3, -6); ctx.lineTo(-9 - legSwing*0.4, 2); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(sin*3, -6); ctx.lineTo( 9 + legSwing*0.4, 2); ctx.stroke();
-
-  // Body
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.moveTo(sin*2, -8); ctx.lineTo(sin*9, -30); ctx.stroke();
-
-  // Arms
-  ctx.lineWidth = 4;
-  const shoulder = { x: sin*7, y: -28 };
-  const armSwing = Math.sin(armA) * 16;
-  ctx.beginPath(); ctx.moveTo(shoulder.x, shoulder.y); ctx.lineTo(shoulder.x - 17, shoulder.y + armSwing); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(shoulder.x, shoulder.y); ctx.lineTo(shoulder.x + 17, shoulder.y - armSwing); ctx.stroke();
-
-  // Head
-  const headX = sin * 12, headY = -42;
+  ctx.beginPath(); ctx.ellipse(0, 2, 15, 5, 0, 0, Math.PI*2); ctx.fill();
+  const sl = Math.sin(lean);
+  ctx.strokeStyle = shadeColor(color, -35);
+  ctx.lineWidth = 6; ctx.lineCap = 'round';
+  const legLen = 20;
+  ctx.beginPath(); ctx.moveTo(sl*4, -8); ctx.lineTo(sl*4 + Math.sin(legAngle+0.35)*legLen, -8 + Math.cos(legAngle+0.35)*legLen); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sl*4, -8); ctx.lineTo(sl*4 + Math.sin(legAngle-0.35)*legLen, -8 + Math.cos(legAngle-0.35)*legLen); ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.moveTo(sl*4, -8); ctx.lineTo(sl*12, -32); ctx.stroke();
+  const sx = sl*10, sy = -30, armLen = 22;
+  ctx.lineWidth = 5; ctx.strokeStyle = shadeColor(color, 20);
+  const atx = sx + Math.sin(armAngle + lean) * armLen;
+  const aty = sy + Math.cos(armAngle + lean) * armLen;
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(atx, aty); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - Math.sin(armAngle+lean)*armLen*0.7, sy + Math.cos(armAngle+lean)*armLen*0.7); ctx.stroke();
+  const hx = sl*14, hy = -44;
   ctx.fillStyle = color;
-  ctx.beginPath(); ctx.arc(headX, headY, 11, 0, Math.PI*2); ctx.fill();
-  // Face shine
-  ctx.fillStyle = shadeColor(color, 40);
-  ctx.beginPath(); ctx.arc(headX - 3, headY - 3, 4, 0, Math.PI*2); ctx.fill();
-  // Eyes
+  ctx.beginPath(); ctx.arc(hx, hy, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = shadeColor(color, 50);
+  ctx.beginPath(); ctx.arc(hx-4, hy-4, 4, 0, Math.PI*2); ctx.fill();
+  const ed = ball.x > x ? 1 : -1;
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(headX - 4 + facing*2, headY - 2, 2.8, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(headX + 4 + facing*2, headY - 2, 2.8, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx-4+ed*2, hy-1, 3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx+4+ed*2, hy-1, 3, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(headX - 3 + facing*3, headY - 2, 1.3, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(headX + 5 + facing*3, headY - 2, 1.3, 0, Math.PI*2); ctx.fill();
-
+  ctx.beginPath(); ctx.arc(hx-3+ed*3, hy-1, 1.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx+5+ed*3, hy-1, 1.4, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 }
 
 function drawBall() {
   const { x, y, r, spin } = ball;
-
-  // Floor shadow
-  const shadowAlpha = Math.max(0, 1 - (FLOOR_Y - y) / 250) * 0.35;
-  ctx.fillStyle = `rgba(0,0,0,${shadowAlpha})`;
-  ctx.beginPath(); ctx.ellipse(x, FLOOR_Y, r * 0.9, r * 0.28, 0, 0, Math.PI*2); ctx.fill();
-
-  // Ball
-  const g = ctx.createRadialGradient(x - r*0.3, y - r*0.35, r*0.08, x, y, r);
-  g.addColorStop(0, '#ffb040');
-  g.addColorStop(0.45, '#e87228');
-  g.addColorStop(1,   '#7a1e00');
+  const shadowAlpha = Math.max(0, 1 - (FLOOR_Y - y) / 300) * 0.35;
+  ctx.fillStyle = 'rgba(0,0,0,' + shadowAlpha + ')';
+  ctx.beginPath(); ctx.ellipse(x, FLOOR_Y, r*0.9, r*0.25, 0, 0, Math.PI*2); ctx.fill();
+  const g = ctx.createRadialGradient(x-r*0.3, y-r*0.35, r*0.08, x, y, r);
+  g.addColorStop(0, '#ffb848'); g.addColorStop(0.45, '#e87228'); g.addColorStop(1, '#7a1e00');
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
-
-  // Lines (spinning)
-  ctx.save();
-  ctx.translate(x, y); ctx.rotate(spin);
-  ctx.strokeStyle = 'rgba(0,0,0,0.38)'; ctx.lineWidth = 1.5;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(spin);
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0, 0, r*0.62,  0.1,  Math.PI-0.1); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0, 0, r*0.62, Math.PI+0.1, -0.1); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, r*0.6, 0.1, Math.PI-0.1); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, r*0.6, Math.PI+0.1, -0.1); ctx.stroke();
   ctx.restore();
-
-  // Shine
   ctx.fillStyle = 'rgba(255,255,255,0.22)';
-  ctx.beginPath(); ctx.arc(x - r*0.3, y - r*0.32, r*0.28, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x-r*0.3, y-r*0.32, r*0.28, 0, Math.PI*2); ctx.fill();
 }
 
 function drawCourt() {
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, FLOOR_Y);
-  sky.addColorStop(0, theme.bg);
-  sky.addColorStop(1, theme.bg);
-  ctx.fillStyle = sky;
+  ctx.fillStyle = theme.bg;
   ctx.fillRect(0, 0, W, H);
-
-  // Ambient glow
-  const glow = ctx.createRadialGradient(W/2, FLOOR_Y*0.5, 10, W/2, FLOOR_Y*0.5, W*0.55);
-  glow.addColorStop(0, theme.sky);
-  glow.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, FLOOR_Y);
-
-  // Center court line
+  const glow = ctx.createRadialGradient(W/2, FLOOR_Y*0.45, 10, W/2, FLOOR_Y*0.45, W*0.55);
+  glow.addColorStop(0, theme.sky); glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, FLOOR_Y);
   ctx.save();
-  ctx.strokeStyle = `rgba(255,255,255,0.08)`;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 2;
   ctx.setLineDash([8,8]);
   ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, FLOOR_Y); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Center circle
-  ctx.strokeStyle = `rgba(255,255,255,0.06)`;
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(W/2, FLOOR_Y, 65, -Math.PI, 0); ctx.stroke();
-
-  // Floor
-  const flGrad = ctx.createLinearGradient(0, FLOOR_Y, 0, H);
-  flGrad.addColorStop(0, theme.fl1);
-  flGrad.addColorStop(1, theme.fl2);
-  ctx.fillStyle = flGrad;
-  ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
-
-  // Floor edge line
-  ctx.strokeStyle = theme.line;
-  ctx.lineWidth = 2.5;
+  ctx.setLineDash([]); ctx.restore();
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(W/2, FLOOR_Y, 60, -Math.PI, 0); ctx.stroke();
+  const fl = ctx.createLinearGradient(0, FLOOR_Y, 0, H);
+  fl.addColorStop(0, theme.fl); fl.addColorStop(1, theme.fl2);
+  ctx.fillStyle = fl; ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
+  ctx.strokeStyle = 'rgba(232,160,32,0.3)'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(0, FLOOR_Y); ctx.lineTo(W, FLOOR_Y); ctx.stroke();
-
-  // Floor pattern (wood boards)
-  ctx.strokeStyle = `rgba(0,0,0,0.08)`;
-  ctx.lineWidth = 1;
-  for (let i = 1; i < 8; i++) {
-    ctx.beginPath(); ctx.moveTo(0, FLOOR_Y + i*10); ctx.lineTo(W, FLOOR_Y + i*10); ctx.stroke();
-  }
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) { ctx.beginPath(); ctx.moveTo(0, FLOOR_Y+i*10); ctx.lineTo(W, FLOOR_Y+i*10); ctx.stroke(); }
 }
 
 function drawHUD() {
-  // Score boxes
   ctx.textAlign = 'center';
-
-  // P1 score
-  ctx.font = 'bold 52px Cinzel, serif';
-  ctx.fillStyle = 'rgba(40,96,224,0.15)';
-  ctx.fillRect(12, 8, 70, 58);
-  ctx.strokeStyle = 'rgba(40,96,224,0.4)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(12, 8, 70, 58);
-  ctx.fillStyle = '#4080f0';
-  ctx.shadowColor = 'rgba(40,96,224,0.7)'; ctx.shadowBlur = 12;
-  ctx.fillText(score1, 47, 54);
-  ctx.shadowBlur = 0;
-
-  // P2 score
-  ctx.fillStyle = 'rgba(224,48,48,0.15)';
-  ctx.fillRect(W-82, 8, 70, 58);
-  ctx.strokeStyle = 'rgba(224,48,48,0.4)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(W-82, 8, 70, 58);
-  ctx.fillStyle = '#f04040';
-  ctx.shadowColor = 'rgba(224,48,48,0.7)'; ctx.shadowBlur = 12;
-  ctx.fillText(score2, W-47, 54);
-  ctx.shadowBlur = 0;
-
-  // Labels
-  ctx.font = '9px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(154,136,112,0.8)';
-  ctx.fillText('P1', 47, 74);
-  ctx.fillText('P2', W-47, 74);
-
-  // First to X
-  ctx.font = 'bold 10px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(240,230,208,0.45)';
+  ctx.fillStyle = 'rgba(40,96,224,0.14)'; ctx.fillRect(10,8,72,58);
+  ctx.strokeStyle = 'rgba(40,96,224,0.4)'; ctx.lineWidth = 1.5; ctx.strokeRect(10,8,72,58);
+  ctx.font = 'bold 50px Cinzel, serif';
+  ctx.fillStyle = '#4080f0'; ctx.shadowColor = 'rgba(40,96,224,0.7)'; ctx.shadowBlur = 12;
+  ctx.fillText(score1, 46, 54); ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(224,48,48,0.14)'; ctx.fillRect(W-82,8,72,58);
+  ctx.strokeStyle = 'rgba(224,48,48,0.4)'; ctx.lineWidth = 1.5; ctx.strokeRect(W-82,8,72,58);
+  ctx.font = 'bold 50px Cinzel, serif';
+  ctx.fillStyle = '#f04040'; ctx.shadowColor = 'rgba(224,48,48,0.7)'; ctx.shadowBlur = 12;
+  ctx.fillText(score2, W-46, 54); ctx.shadowBlur = 0;
+  ctx.font = '9px Nunito, sans-serif'; ctx.fillStyle = 'rgba(154,136,112,0.8)';
+  ctx.fillText('P1', 46, 74); ctx.fillText('P2', W-46, 74);
+  ctx.font = 'bold 10px Nunito, sans-serif'; ctx.fillStyle = 'rgba(240,230,208,0.45)';
   ctx.fillText('FIRST TO ' + MAX_SCORE, W/2, 18);
-
-  // Modifier label
-  if (modTimer > 0 && phase === 'playing') {
-    const alpha = Math.min(1, modTimer / 40);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.font = 'bold 13px Nunito, sans-serif';
-    ctx.fillStyle = '#ffcc55';
+  if (chaosTimer > 0 && phase === 'playing') {
+    const alpha = Math.min(1, chaosTimer / 45);
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.font = 'bold 13px Nunito, sans-serif'; ctx.fillStyle = '#ffcc55';
     ctx.shadowColor = 'rgba(232,200,80,0.6)'; ctx.shadowBlur = 8;
-    ctx.fillText('⚡ ' + modLabel, W/2, 36);
-    ctx.shadowBlur = 0;
-    ctx.restore();
+    ctx.fillText('\u26a1 ' + chaosLabel, W/2, 36);
+    ctx.shadowBlur = 0; ctx.restore();
   }
-
-  // Controls hint
   if (phase === 'playing') {
-    ctx.font = '10px Nunito, sans-serif';
-    ctx.fillStyle = 'rgba(154,136,112,0.5)';
-    ctx.textAlign = 'left';
-    ctx.fillText('[W] Jump  [A][D] Move', 10, H - 6);
-    ctx.textAlign = 'right';
-    ctx.fillText(mode1P ? '🤖 AI' : '[↑] Jump  [←][→] Move', W - 10, H - 6);
+    ctx.font = '10px Nunito, sans-serif'; ctx.fillStyle = 'rgba(154,136,112,0.5)';
+    ctx.textAlign = 'left'; ctx.fillText('[W] Jump', 10, H - 6);
+    ctx.textAlign = 'right'; ctx.fillText(mode1P ? '\ud83e\udd16 AI' : '[\u2191] P2 Jump', W - 10, H - 6);
   }
 }
 
-function drawTitleScreen() {
-  ctx.fillStyle = 'rgba(5,10,15,0.88)';
-  ctx.fillRect(0, 0, W, H);
-
+function drawTitle() {
+  ctx.fillStyle = 'rgba(5,10,15,0.9)'; ctx.fillRect(0, 0, W, H);
   ctx.textAlign = 'center';
-  ctx.font = 'bold 42px Cinzel, serif';
-  ctx.fillStyle = '#e8a020';
-  ctx.shadowColor = 'rgba(232,160,32,0.8)'; ctx.shadowBlur = 28;
-  ctx.fillText('HOOP CHAOS', W/2, H/2 - 60);
-  ctx.shadowBlur = 0;
-
-  ctx.font = 'bold 13px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(240,230,208,0.7)';
-  ctx.fillText('Ragdoll Basketball · First to ' + MAX_SCORE + ' Wins', W/2, H/2 - 30);
-
-  // Mode buttons
+  ctx.font = 'bold 46px Cinzel, serif'; ctx.fillStyle = '#e8a020';
+  ctx.shadowColor = 'rgba(232,160,32,0.8)'; ctx.shadowBlur = 30;
+  ctx.fillText('BOUNCE BRAWL', W/2, H/2 - 65); ctx.shadowBlur = 0;
+  ctx.font = 'bold 13px Nunito, sans-serif'; ctx.fillStyle = 'rgba(240,230,208,0.7)';
+  ctx.fillText('One-Button Chaos Basketball \u00b7 First to ' + MAX_SCORE + ' Wins', W/2, H/2 - 36);
   const btn = (label, cx, cy, active) => {
-    ctx.fillStyle = active ? 'rgba(232,160,32,0.2)' : 'rgba(255,255,255,0.05)';
-    ctx.strokeStyle = active ? '#e8a020' : 'rgba(255,255,255,0.15)';
+    ctx.fillStyle = active ? 'rgba(232,160,32,0.18)' : 'rgba(255,255,255,0.04)';
+    ctx.strokeStyle = active ? '#e8a020' : 'rgba(255,255,255,0.14)';
     ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.rect(cx-55, cy-14, 110, 28); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.rect(cx-56, cy-14, 112, 28); ctx.fill(); ctx.stroke();
     ctx.font = 'bold 12px Nunito, sans-serif';
     ctx.fillStyle = active ? '#ffcc55' : '#9a8870';
     ctx.fillText(label, cx, cy + 5);
   };
-  btn('1P vs AI', W/2 - 65, H/2 + 10, mode1P);
-  btn('2 PLAYERS', W/2 + 65, H/2 + 10, !mode1P);
-
-  ctx.font = '12px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(154,136,112,0.7)';
-  ctx.fillText('W = Jump  A/D = Move   ·   ↑ = P2 Jump  ←/→ = P2 Move   ·   Space = Start', W/2, H/2 + 50);
-
-  ctx.font = 'bold 16px Nunito, sans-serif';
-  ctx.fillStyle = '#e8a020';
+  btn('1P vs AI', W/2 - 66, H/2 + 8, mode1P);
+  btn('2 PLAYERS', W/2 + 66, H/2 + 8, !mode1P);
+  ctx.font = '11px Nunito, sans-serif'; ctx.fillStyle = 'rgba(154,136,112,0.7)';
+  ctx.fillText('[W] = P1 Jump  \u00b7  Players auto-run to the ball!  \u00b7  [\u2191] = P2 Jump', W/2, H/2 + 46);
+  ctx.font = 'bold 15px Nunito, sans-serif'; ctx.fillStyle = '#e8a020';
   ctx.shadowColor = 'rgba(232,160,32,0.5)'; ctx.shadowBlur = 10;
-  ctx.fillText('▶  PRESS SPACE OR CLICK TO START', W/2, H/2 + 82);
-  ctx.shadowBlur = 0;
+  ctx.fillText('\u25b6  PRESS SPACE OR CLICK TO START', W/2, H/2 + 78); ctx.shadowBlur = 0;
 }
 
 function drawScoringOverlay() {
   const t = scoreTimer;
-  const alpha = Math.min(1, t > 70 ? (100-t)/30 : t/40);
-  ctx.save();
-  ctx.globalAlpha = alpha * 0.65;
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, W, H);
+  const alpha = Math.min(1, t > 75 ? (110-t)/35 : t/45);
+  ctx.save(); ctx.globalAlpha = alpha * 0.65;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   ctx.globalAlpha = alpha;
-
-  const col = lastScorer === 1 ? '#4080f0' : '#f04040';
+  const col  = lastScorer === 1 ? '#4080f0' : '#f04040';
   const glow = lastScorer === 1 ? 'rgba(40,96,224,0.9)' : 'rgba(224,48,48,0.9)';
-
   ctx.textAlign = 'center';
-  ctx.font = 'bold 58px Cinzel, serif';
-  ctx.fillStyle = col;
-  ctx.shadowColor = glow; ctx.shadowBlur = 35;
-  ctx.fillText('SCORE!', W/2, H/2 - 20);
-  ctx.shadowBlur = 0;
-
-  ctx.font = 'bold 20px Nunito, sans-serif';
-  ctx.fillStyle = '#f0e6d0';
+  ctx.font = 'bold 62px Cinzel, serif'; ctx.fillStyle = col;
+  ctx.shadowColor = glow; ctx.shadowBlur = 38;
+  ctx.fillText('SCORE!', W/2, H/2 - 22); ctx.shadowBlur = 0;
+  ctx.font = 'bold 20px Nunito, sans-serif'; ctx.fillStyle = '#f0e6d0';
   const pLabel = lastScorer === 1 ? 'PLAYER 1' : (mode1P ? 'AI' : 'PLAYER 2');
   ctx.fillText(pLabel + ' scores!', W/2, H/2 + 22);
-
-  ctx.font = 'bold 22px Cinzel, serif';
-  ctx.fillStyle = '#e8a020';
-  ctx.fillText(score1 + '  —  ' + score2, W/2, H/2 + 58);
-
+  ctx.font = 'bold 24px Cinzel, serif'; ctx.fillStyle = '#e8a020';
+  ctx.fillText(score1 + '  \u2014  ' + score2, W/2, H/2 + 58);
   ctx.restore();
 }
 
 function drawGameOver() {
-  ctx.fillStyle = 'rgba(5,10,15,0.92)';
-  ctx.fillRect(0, 0, W, H);
-
+  ctx.fillStyle = 'rgba(5,10,15,0.93)'; ctx.fillRect(0, 0, W, H);
   const p1wins = score1 >= MAX_SCORE;
   const winLabel = p1wins ? 'PLAYER 1' : (mode1P ? 'AI' : 'PLAYER 2');
   const col = p1wins ? '#4080f0' : '#f04040';
-
   ctx.textAlign = 'center';
-  ctx.font = 'bold 44px Cinzel, serif';
-  ctx.fillStyle = col;
-  ctx.shadowColor = col; ctx.shadowBlur = 22;
-  ctx.fillText(winLabel + ' WINS!', W/2, H/2 - 44);
-  ctx.shadowBlur = 0;
-
-  ctx.font = 'bold 22px Nunito, sans-serif';
-  ctx.fillStyle = '#f0e6d0';
-  ctx.fillText('Final Score: ' + score1 + ' – ' + score2, W/2, H/2 + 4);
-
-  ctx.font = '13px Nunito, sans-serif';
-  ctx.fillStyle = '#9a8870';
+  ctx.font = 'bold 46px Cinzel, serif'; ctx.fillStyle = col;
+  ctx.shadowColor = col; ctx.shadowBlur = 24;
+  ctx.fillText(winLabel + ' WINS!', W/2, H/2 - 46); ctx.shadowBlur = 0;
+  ctx.font = 'bold 22px Nunito, sans-serif'; ctx.fillStyle = '#f0e6d0';
+  ctx.fillText('Final Score: ' + score1 + ' \u2013 ' + score2, W/2, H/2 + 4);
+  ctx.font = '13px Nunito, sans-serif'; ctx.fillStyle = '#9a8870';
   ctx.fillText('Press Space or click to play again', W/2, H/2 + 38);
-
-  ctx.font = 'bold 13px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(154,136,112,0.6)';
-  ctx.fillText('1P vs AI    ·    2 Players', W/2, H/2 + 62);
+  ctx.font = 'bold 12px Nunito, sans-serif'; ctx.fillStyle = 'rgba(154,136,112,0.6)';
+  ctx.fillText('1P vs AI    \u00b7    2 Players', W/2, H/2 + 62);
 }
 
 function draw() {
   drawCourt();
-  drawHoop(HOOP_L.x);
-  drawHoop(HOOP_R.x);
+  drawBasket(BASKET_L.x, 1);
+  drawBasket(BASKET_R.x, 2);
   drawPlayer(p2);
   drawPlayer(p1);
   drawBall();
   drawHUD();
-  if (phase === 'title')   drawTitleScreen();
+  if (phase === 'title')   drawTitle();
   if (phase === 'scoring') drawScoringOverlay();
   if (phase === 'over')    drawGameOver();
 }
 
-function shadeColor(hex, amt) {
-  const n = parseInt(hex.replace('#',''), 16);
-  const r = Math.max(0, Math.min(255, (n>>16)          + amt));
-  const g = Math.max(0, Math.min(255, ((n>>8)&0xff)    + amt));
-  const b = Math.max(0, Math.min(255, (n&0xff)         + amt));
-  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
-}
+function loop() { update(); draw(); animId = requestAnimationFrame(loop); }
 
-// ── GAME LOOP ──
-function loop() {
-  update();
-  draw();
-  animId = requestAnimationFrame(loop);
-}
+theme = THEMES[0]; chaos = CHAOS_EVENTS[0];
+resetBall(); resetPlayers(); loop();
 
-// Initialise with title state
-theme = THEMES[0];
-mod = MODS[0];
-resetBall();
-resetPlayers();
-loop();
-
-// ── INPUT ──
 const keys = {};
-window.addEventListener('keyup', e => { keys[e.code] = false; });
+window.addEventListener('keyup',  e => { keys[e.code] = false; });
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (e.code === 'Space' || e.code === 'Enter') {
@@ -838,35 +615,31 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Digit1') { mode1P = true;  return; }
   if (e.code === 'Digit2') { mode1P = false; return; }
   if (phase !== 'playing') return;
-  if (e.code === 'KeyW') jump(p1);
-  if (e.code === 'ArrowUp' && !mode1P) jump(p2);
+  if (e.code === 'KeyW')   actionPressed.p1 = true;
+  if (e.code === 'ArrowUp' && !mode1P) actionPressed.p2 = true;
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
 
 canvas.addEventListener('click', e => {
-  const rect = canvas.getBoundingClientRect();
+  const rect  = canvas.getBoundingClientRect();
   const scale = W / rect.width;
   const cx = (e.clientX - rect.left) * scale;
   const cy = (e.clientY - rect.top)  * scale;
-
   if (phase === 'title') {
-    // Mode select buttons
-    if (Math.abs(cy - (H/2+10)) < 16) {
-      if (cx < W/2) { mode1P = true;  return; }
-      else           { mode1P = false; return; }
+    if (Math.abs(cy - (H/2 + 8)) < 16) {
+      if (cx < W/2) { mode1P = true; return; } else { mode1P = false; return; }
     }
-    startGame();
-    return;
+    startGame(); return;
   }
   if (phase === 'over') { startGame(); return; }
   if (phase === 'playing') {
-    if (cx < W/2) jump(p1);
-    else if (!mode1P) jump(p2);
+    if (cx < W/2) actionPressed.p1 = true;
+    else if (!mode1P) actionPressed.p2 = true;
   }
 });
 
-function onMobileP1(e) { e.preventDefault(); if (phase==='title'||phase==='over') { startGame(); return; } jump(p1); }
-function onMobileP2(e) { e.preventDefault(); if (phase==='title'||phase==='over') { startGame(); return; } if (!mode1P) jump(p2); }
+function onMobileP1(e) { e.preventDefault(); if (phase==='title'||phase==='over') { startGame(); return; } actionPressed.p1 = true; }
+function onMobileP2(e) { e.preventDefault(); if (phase==='title'||phase==='over') { startGame(); return; } if (!mode1P) actionPressed.p2 = true; }
 function onMobileStart(e) { e.preventDefault(); if (phase==='playing') return; startGame(); }
 </script>
 </body>
