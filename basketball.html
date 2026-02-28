@@ -223,7 +223,7 @@ function startGame() {
 }
 
 // ── PHYSICS ──
-const G = () => GRAVITY * (mod ? mod.gravityFactor || mod.grav : 1);
+const getGravity = () => GRAVITY * (mod ? mod.grav : 1);
 
 function jump(p) {
   if (!p.onGround || p.jumpCd > 0) return;
@@ -236,7 +236,7 @@ function jump(p) {
 
 function updatePlayer(p) {
   if (p.jumpCd > 0) p.jumpCd--;
-  p.vy += G();
+  p.vy += getGravity();
   p.x  += p.vx;
   p.y  += p.vy;
   if (p.y >= FLOOR_Y) { p.y = FLOOR_Y; p.vy = 0; p.vx *= 0.82; p.onGround = true; }
@@ -372,7 +372,7 @@ function update() {
 
   // Ball physics
   prevBallY = ball.y;
-  ball.vy += G();
+  ball.vy += getGravity();
   ball.vx += (mod ? mod.wind : 0);
   ball.x  += ball.vx;
   ball.y  += ball.vy;
@@ -780,7 +780,7 @@ window.addEventListener('keydown', e => {
   if (phase !== 'playing') return;
   if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyD') jump(p1);
   if ((e.code === 'ArrowUp' || e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !mode1P) jump(p2);
-  e.preventDefault && e.code.startsWith('Arrow') && e.preventDefault();
+  if (e.code.startsWith('Arrow')) e.preventDefault();
 });
 
 canvas.addEventListener('click', e => {
