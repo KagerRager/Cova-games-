@@ -120,6 +120,20 @@ let score = 0, lives = 3, wave = 1;
 let hiScore = +localStorage.getItem('ns2_hi')||0;
 let shakeX=0, shakeY=0, shakeDur=0;
 
+// Upgrade system
+const UPGRADE_POOL = [
+  {id:'speed',  name:'SPEED BOOST',  desc:'+30% movement speed',        icon:'🚀', color:'#00e5ff'},
+  {id:'rof',    name:'RAPID FIRE',   desc:'Permanently faster shooting', icon:'⚡', color:'#ffcc00'},
+  {id:'spread', name:'SPREAD SHOT',  desc:'Fire extra side bullets',     icon:'💥', color:'#ff6600'},
+  {id:'life',   name:'EXTRA LIFE',   desc:'+1 life (max 7)',             icon:'❤️', color:'#ff3366'},
+  {id:'shield', name:'BARRIER',      desc:'Full shield for next wave',   icon:'🛡', color:'#00ccff'},
+  {id:'power',  name:'POWER SHOT',   desc:'Bullets do 2 HP damage',     icon:'🔥', color:'#ff4400'},
+  {id:'score',  name:'SCORE BOOST',  desc:'+50% score multiplier',       icon:'✦', color:'#ffdd00'},
+  {id:'multi',  name:'MULTI-SHOT',   desc:'Fire 5 bullets at once',      icon:'🌟', color:'#cc88ff'},
+];
+let upgradeChoices = [], upgradeSelectedIdx = 0;
+let playerUpgrades = {};
+
 // Level & Boss state
 let level = 1;
 let levelBanner = 0;   // frames to show level transition banner
@@ -159,9 +173,30 @@ let tick = 0;
 function isBossWave(w){ return w>0 && w%5===0; }
 function getEnemyTypes(){
   if(wave<3) return ['basic','fast'];
-  if(wave<6) return ['basic','fast','tank'];
-  if(wave<9) return ['basic','fast','tank','bomber'];
-  return ['basic','fast','tank','bomber','sniper'];
+  if(wave<5) return ['basic','fast','tank'];
+  if(wave<7) return ['basic','fast','tank','bomber'];
+  if(wave<10) return ['basic','fast','tank','bomber','sniper'];
+  if(wave<13) return ['basic','fast','tank','bomber','sniper','stealth'];
+  return ['basic','fast','tank','bomber','sniper','stealth','zigzag'];
+}
+function getRandomUpgrades(n){
+  const pool=[...UPGRADE_POOL];
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,n);
+}
+function selectUpgrade(idx){
+  if(idx<0||idx>=upgradeChoices.length) return;
+  const upg=upgradeChoices[idx];
+  playerUpgrades[upg.id]=(playerUpgrades[upg.id]||0)+1;
+  if(upg.id==='speed') player.speed=Math.min(player.speed*1.3,12);
+  else if(upg.id==='life') lives=Math.min(lives+1,7);
+  else if(upg.id==='shield') player.shield=600;
+  sfx.play('powerup');
+  state='playing';
+  spawnWave();
 }
 
 // ── SPAWN WAVE ──
@@ -219,7 +254,7 @@ function updateBoss(){
 
   boss.attackTimer++;
   const phase2 = boss.hp <= boss.maxHp/2;
-  const attackRate = phase2 ? 48 : 75;
+  const attackRate = phase2 ? 65 : 95;
 
   if(boss.attackTimer >= attackRate){
     boss.attackTimer = 0;
@@ -257,6 +292,7 @@ function buildDivePath(e){
 function resetGame(){
   sfx.play('start');
   score=0; lives=3; wave=1; level=1; levelBanner=0; boss=null; bossWarning=0;
+  playerUpgrades={};
   player=makePlayer();
   bullets=[]; eBullets=[]; particles=[]; powerups=[]; trails=[]; divers=[];
   spawnWave();
@@ -291,7 +327,7 @@ canvas.addEventListener('touchstart', e => {
   } else if (state === 'customize') {
     // Tap on ship cards to select
     const cols = 3;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < SKINS.length; i++) {
       const col = i % cols, row = Math.floor(i / cols);
       const sx = 80 + col * 160, sy = 155 + row * 200;
       if (touchX > sx - 52 && touchX < sx + 52 && touchY > sy - 65 && touchY < sy + 83) {
@@ -299,6 +335,11 @@ canvas.addEventListener('touchstart', e => {
       }
     }
     if (touchY > 620) { state = 'playing'; resetGame(); gtag('event','game_start',{game:'Nova Strike'}); }
+  } else if (state === 'upgrade') {
+    for (let i = 0; i < upgradeChoices.length; i++) {
+      const cardY = 158 + i * 158;
+      if (touchY > cardY - 58 && touchY < cardY + 58) { selectUpgrade(i); }
+    }
   }
 }, { passive: false });
 
@@ -430,6 +471,30 @@ function drawEnemy(e){
       ctx.beginPath(); ctx.arc(0,0,12+cp*7,0,Math.PI*2); ctx.stroke();
       ctx.globalAlpha=1;
     }
+    ctx.restore();
+  } else if(e.type==='stealth'){
+    // Ghost-like, semi-transparent teal enemy
+    ctx.globalAlpha=0.22+Math.sin(e.animT*2.5)*0.18;
+    ctx.shadowBlur=14; ctx.shadowColor='#44ffcc'; ctx.fillStyle='#44ffcc';
+    ctx.save(); ctx.scale(pulse,pulse);
+    ctx.beginPath();
+    ctx.moveTo(0,-14); ctx.lineTo(-10,3); ctx.lineTo(-6,12);
+    ctx.lineTo(0,8);   ctx.lineTo(6,12); ctx.lineTo(10,3);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#aaffee'; ctx.shadowBlur=4;
+    ctx.beginPath(); ctx.arc(0,-3,3.5,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.globalAlpha=1;
+  } else if(e.type==='zigzag'){
+    // Arrow/lightning shape — magenta, erratic movement
+    ctx.shadowBlur=12; ctx.shadowColor='#ff44ff'; ctx.fillStyle='#ff44ff';
+    ctx.save(); ctx.scale(pulse,pulse);
+    ctx.beginPath();
+    ctx.moveTo(0,-14); ctx.lineTo(-12,4); ctx.lineTo(-4,1);
+    ctx.lineTo(0,14);  ctx.lineTo(4,1);  ctx.lineTo(12,4);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ffaaff'; ctx.shadowColor='#ffaaff'; ctx.shadowBlur=5;
+    ctx.beginPath(); ctx.arc(0,-4,3,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
   ctx.shadowBlur=0; ctx.restore();
@@ -567,6 +632,56 @@ function drawHUD(){
     ctx.font='bold 9px Orbitron'; ctx.fillStyle='#fff'; ctx.textAlign='center';
     ctx.fillText('BOSS  '+boss.hp+'/'+boss.maxHp,CX,by+barH+11);
   }
+  ctx.restore();
+}
+
+// ── UPGRADE SCREEN ──
+function drawUpgradeScreen(){
+  drawStarfield();
+  ctx.save(); ctx.textAlign='center';
+  ctx.font='bold 22px Orbitron'; ctx.fillStyle='#00e5ff'; ctx.shadowBlur=20; ctx.shadowColor='#00e5ff';
+  ctx.fillText('WAVE '+(wave-1)+' COMPLETE!',CX,68);
+  ctx.shadowBlur=0; ctx.font='bold 13px Orbitron'; ctx.fillStyle='#ffcc00'; ctx.shadowBlur=8; ctx.shadowColor='#ffcc00';
+  ctx.fillText('CHOOSE AN UPGRADE',CX,100);
+  ctx.shadowBlur=0;
+  upgradeChoices.forEach((upg,i)=>{
+    const cardY=158+i*158;
+    const sel=i===upgradeSelectedIdx;
+    ctx.globalAlpha=sel?0.32:0.10;
+    ctx.fillStyle=upg.color;
+    ctx.fillRect(44,cardY-58,W-88,116);
+    ctx.globalAlpha=1;
+    if(sel){
+      ctx.strokeStyle=upg.color; ctx.lineWidth=2;
+      ctx.shadowBlur=14; ctx.shadowColor=upg.color;
+      ctx.strokeRect(44,cardY-58,W-88,116);
+      ctx.shadowBlur=0;
+    }
+    // Icon
+    ctx.font='34px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(upg.icon,72,cardY+12);
+    // Name
+    ctx.font='bold 15px Orbitron'; ctx.fillStyle=sel?upg.color:'#fff';
+    ctx.shadowBlur=sel?8:0; ctx.shadowColor=upg.color;
+    ctx.fillText(upg.name,122,cardY-14);
+    ctx.shadowBlur=0;
+    // Desc
+    ctx.font='13px Rajdhani'; ctx.fillStyle='#999';
+    ctx.fillText(upg.desc,122,cardY+12);
+    // Current stacks if any
+    const stacks=playerUpgrades[upg.id]||0;
+    if(stacks>0){
+      ctx.font='11px Orbitron'; ctx.fillStyle=upg.color;
+      ctx.fillText('×'+stacks+' active',122,cardY+32);
+    }
+    // Key hint
+    ctx.textAlign='right';
+    ctx.font='bold 13px Orbitron'; ctx.fillStyle='#555';
+    ctx.fillText('['+(i+1)+']',W-58,cardY-14);
+    ctx.textAlign='center';
+  });
+  ctx.shadowBlur=0; ctx.font='12px Rajdhani'; ctx.fillStyle='#444';
+  ctx.fillText(isMobileDevice?'TAP A CARD TO SELECT':'1 / 2 / 3  OR  ↑↓ + ENTER / SPACE',CX,H-20);
   ctx.restore();
 }
 
@@ -715,6 +830,15 @@ function update(){
     if(keys['c']||keys['C']){ state='customize'; keys['c']=keys['C']=false; return; }
     return;
   }
+  if(state==='upgrade'){
+    if(keys['1']||keys['Numpad1']){ selectUpgrade(0); keys['1']=keys['Numpad1']=false; return; }
+    if(keys['2']||keys['Numpad2']){ selectUpgrade(1); keys['2']=keys['Numpad2']=false; return; }
+    if(keys['3']||keys['Numpad3']){ selectUpgrade(2); keys['3']=keys['Numpad3']=false; return; }
+    if(keys['ArrowUp']||keys['w']){ upgradeSelectedIdx=(upgradeSelectedIdx+upgradeChoices.length-1)%upgradeChoices.length; keys['ArrowUp']=keys['w']=false; }
+    if(keys['ArrowDown']||keys['s']){ upgradeSelectedIdx=(upgradeSelectedIdx+1)%upgradeChoices.length; keys['ArrowDown']=keys['s']=false; }
+    if(keys[' ']||keys['Enter']){ selectUpgrade(upgradeSelectedIdx); keys[' ']=keys['Enter']=false; return; }
+    return;
+  }
 
   // ── PLAYING ──
   // Countdown timers
@@ -747,15 +871,21 @@ function update(){
   }
 
   // Shoot
-  const rate=player.rapidFire>0?5:13;
+  const baseRate=Math.max(5,13-(playerUpgrades.rof||0)*2);
+  const rate=player.rapidFire>0?5:baseRate;
   player.shootTimer++;
   if(player.shootTimer>=rate&&(keys[' ']||touchActive)){
     player.shootTimer=0;
     sfx.play('shoot');
-    bullets.push({x:player.x,y:player.y-18,speed:12});
-    if(player.rapidFire>0){
-      bullets.push({x:player.x-11,y:player.y-10,speed:12,dx:-0.6});
-      bullets.push({x:player.x+11,y:player.y-10,speed:12,dx:0.6});
+    const dmg=(playerUpgrades.power||0)>0?2:1;
+    bullets.push({x:player.x,y:player.y-18,speed:12,dmg});
+    if(player.rapidFire>0||(playerUpgrades.spread||0)>0||(playerUpgrades.multi||0)>0){
+      bullets.push({x:player.x-11,y:player.y-10,speed:12,dx:-0.6,dmg});
+      bullets.push({x:player.x+11,y:player.y-10,speed:12,dx:0.6,dmg});
+    }
+    if((playerUpgrades.multi||0)>0){
+      bullets.push({x:player.x-22,y:player.y-6,speed:12,dx:-1.3,dmg});
+      bullets.push({x:player.x+22,y:player.y-6,speed:12,dx:1.3,dmg});
     }
   }
 
@@ -789,12 +919,12 @@ function update(){
         e.y=e.divePath[idx].y*(1-frac)+e.divePath[next].y*frac;
         // Shoot during dive
         if(e.type==='bomber'){
-          if(Math.random()<0.010){
+          if(Math.random()<0.005){
             [-0.55,0,0.55].forEach(ox=>{
               eBullets.push({x:e.x,y:e.y,vx:ox*2,vy:2.8,type:'bomb'});
             });
           }
-        } else if(Math.random()<0.006&&e.type!=='tank'){
+        } else if(Math.random()<0.003&&e.type!=='tank'){
           const ang=Math.atan2(player.y-e.y,player.x-e.x);
           eBullets.push({x:e.x,y:e.y,vx:Math.cos(ang)*3.2,vy:Math.sin(ang)*3.2});
         }
@@ -807,9 +937,11 @@ function update(){
       if(d<spd+2){ e.x=tx; e.y=ty; e.inFormation=true; }
       else { e.x+=dx/d*spd; e.y+=dy/d*spd; }
     } else {
-      e.x=e.hx+formX; e.y=e.hy+formY;
-      // Dive attempt (snipers don't dive; bombers dive rarely)
-      const noDive=e.type==='sniper'||e.charging;
+      // zigzag enemies get extra sinusoidal x offset in formation
+      const zzOff=e.type==='zigzag'?Math.sin(tick*0.05+e.animT)*32:0;
+      e.x=e.hx+formX+zzOff; e.y=e.hy+formY;
+      // Dive attempt (snipers/stealth don't dive; bombers dive rarely)
+      const noDive=e.type==='sniper'||e.type==='stealth'||e.charging;
       if(!noDive){
         const diveChance=(0.00025+wave*0.0001)*(divers.length<3?1:0)*(e.type==='bomber'?0.5:1);
         if(Math.random()<diveChance&&e.y>0&&e.y<H-80){
@@ -832,7 +964,7 @@ function update(){
         } else {
           e.shootTimer--;
           if(e.shootTimer<=0&&e.y>0){
-            e.shootTimer=randInt(110,230-Math.min(wave,20)*5);
+            e.shootTimer=randInt(160,310-Math.min(wave,20)*5);
             e.charging=true; e.chargeTimer=0;
             e.chargeTarget={x:player.x,y:player.y};
           }
@@ -840,16 +972,30 @@ function update(){
       } else if(e.type==='bomber'){
         e.shootTimer--;
         if(e.shootTimer<=0&&e.y>0){
-          e.shootTimer=randInt(90,200-Math.min(wave,20)*5);
+          e.shootTimer=randInt(140,260-Math.min(wave,15)*5);
           [-0.5,0,0.5].forEach(ox=>{
             eBullets.push({x:e.x,y:e.y,vx:ox*1.6,vy:3,type:'bomb'});
           });
+        }
+      } else if(e.type==='stealth'){
+        e.shootTimer--;
+        if(e.shootTimer<=0&&e.y>0){
+          e.shootTimer=randInt(140,280-Math.min(wave,15)*6);
+          const ang=Math.atan2(player.y-e.y,player.x-e.x);
+          eBullets.push({x:e.x,y:e.y,vx:Math.cos(ang)*2.4,vy:Math.sin(ang)*2.4});
+        }
+      } else if(e.type==='zigzag'){
+        e.shootTimer--;
+        if(e.shootTimer<=0&&e.y>0){
+          e.shootTimer=randInt(100,220-Math.min(wave,15)*6);
+          const ang=Math.atan2(player.y-e.y,player.x-e.x);
+          eBullets.push({x:e.x,y:e.y,vx:Math.cos(ang)*2.8,vy:Math.sin(ang)*2.8});
         }
       } else {
         // basic, fast, tank
         e.shootTimer--;
         if(e.shootTimer<=0&&e.y>0){
-          e.shootTimer=randInt(80,220-Math.min(wave,22)*8);
+          e.shootTimer=randInt(130,290-Math.min(wave,18)*7);
           const ang=Math.atan2(player.y-e.y,player.x-e.x);
           eBullets.push({x:e.x,y:e.y,vx:Math.cos(ang)*2.6,vy:Math.sin(ang)*2.6});
         }
@@ -869,7 +1015,7 @@ function update(){
     // Check boss
     if(boss&&Math.abs(b.x-boss.x)<42&&Math.abs(b.y-boss.y)<36){
       bullets.splice(bi,1);
-      boss.hp--;
+      boss.hp-=(b.dmg||1);
       burst(b.x,b.y,'#4488ff',6);
       if(boss.hp<=0){
         burst(boss.x,boss.y,'#ffffff',40);
@@ -878,7 +1024,8 @@ function update(){
           const t=['life','rapid','shield'][i];
           powerups.push({x:boss.x+rand(-30,30),y:boss.y,type:t,vy:1.5,t:0});
         }
-        score+=2000+Math.floor(wave/5)*500;
+        const scoreBonus=Math.round((2000+Math.floor(wave/5)*500)*(1+(playerUpgrades.score||0)*0.5));
+        score+=scoreBonus;
         sfx.play('explode');
         shake(16,30);
         boss=null;
@@ -887,7 +1034,7 @@ function update(){
         const newLevel=Math.ceil(wave/3);
         level=newLevel;
         if(newLevel>oldLevel){ levelBanner=180; }
-        spawnWave();
+        upgradeChoices=getRandomUpgrades(3); upgradeSelectedIdx=0; state='upgrade';
       }
       break;
     }
@@ -896,12 +1043,12 @@ function update(){
       const e=enemies[ei];
       if(Math.abs(b.x-e.x)<15&&Math.abs(b.y-e.y)<15){
         bullets.splice(bi,1);
-        e.hp--;
-        const hitCol=e.type==='bomber'?'#aaff00':e.type==='sniper'?'#3399ff':e.type==='tank'?'#cc00ff':'#ff4444';
+        e.hp-=(b.dmg||1);
+        const hitCol=e.type==='bomber'?'#aaff00':e.type==='sniper'?'#3399ff':e.type==='stealth'?'#44ffcc':e.type==='zigzag'?'#ff44ff':e.type==='tank'?'#cc00ff':'#ff4444';
         burst(e.x,e.y,hitCol,8);
         if(e.hp<=0){
-          const pts=e.type==='tank'?150:e.type==='bomber'?100:e.type==='sniper'?120:e.type==='fast'?75:50;
-          score+=pts;
+          const pts=e.type==='tank'?150:e.type==='bomber'?100:e.type==='sniper'?120:e.type==='stealth'?80:e.type==='zigzag'?90:e.type==='fast'?75:50;
+          score+=Math.round(pts*(1+(playerUpgrades.score||0)*0.5));
           sfx.play('explode');
           burst(e.x,e.y,hitCol,18);
           if(Math.random()<0.12){
@@ -973,7 +1120,7 @@ function update(){
     const newLevel=Math.ceil(wave/3);
     level=newLevel;
     if(newLevel>oldLevel){ levelBanner=180; }
-    spawnWave();
+    upgradeChoices=getRandomUpgrades(3); upgradeSelectedIdx=0; state='upgrade';
   }
 }
 
@@ -1060,6 +1207,7 @@ function loop(){
   else if(state==='customize') drawCustomize();
   else if(state==='playing') renderGame();
   else if(state==='gameover') drawGameOver();
+  else if(state==='upgrade') drawUpgradeScreen();
 }
 loop();
 </script>
