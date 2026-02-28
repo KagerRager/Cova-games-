@@ -19,19 +19,37 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: #1a0f00;
+    font-family: 'Courier New', monospace;
+  }
+  .game-viewport {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     overflow: hidden;
-    font-family: 'Courier New', monospace;
+    background: #1a0f00;
+    position: relative;
     touch-action: none;
   }
   canvas { display: block; cursor: default; touch-action: none; }
   @media (pointer: coarse) { canvas { cursor: none; } }
+  .game-info { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; font-family: 'Nunito', sans-serif; }
+  .game-info h2 { font-family: 'Cinzel', serif; color: #e8a020; font-size: 1.4rem; margin-bottom: 0.75rem; margin-top: 2.5rem; }
+  .game-info h2:first-child { margin-top: 0; }
+  .game-info p { color: #9a8870; font-size: 0.9rem; line-height: 1.8; margin-bottom: 0.9rem; }
+  .game-info ul { color: #9a8870; font-size: 0.9rem; line-height: 1.8; padding-left: 1.4rem; margin-bottom: 0.9rem; }
+  .game-info ul li { margin-bottom: 0.4rem; }
+  .game-info strong { color: #f0e6d0; }
+  .game-footer { border-top: 2px solid #4a3820; padding: 2rem 1.5rem; text-align: center; background: rgba(0,0,0,0.4); }
+  .game-footer .footer-logo { font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900; color: #e8a020; display: block; margin-bottom: 0.5rem; letter-spacing: 0.1em; text-decoration: none; }
+  .game-footer .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.5rem; list-style: none; padding: 0; }
+  .game-footer .footer-links a { color: #9a8870; text-decoration: none; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .game-footer .footer-links a:hover { color: #ffcc55; }
+  .game-footer p { color: #9a8870; font-size: 0.72rem; }
 </style>
 </head>
 <body>
+<div class="game-viewport">
 <div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#1a0f00;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
   <div style="font-family:'Courier New',monospace;font-size:2rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.12em;">🪨 GAMECAVE</div>
   <div style="margin-top:0.8rem;font-family:'Courier New',monospace;font-size:0.9rem;color:#9a8870;letter-spacing:0.18em;text-transform:uppercase;">Loading…</div>
@@ -1526,5 +1544,40 @@ function loop() {
 
 loop();
 </script>
+</div><!-- end game-viewport -->
+
+<div class="game-info">
+  <h2>How to Play Desert Chase</h2>
+  <p>Desert Chase is a fast-paced, top-down survival driving game set on a scorching desert highway. Your objective is straightforward but increasingly difficult: keep your car moving and avoid every police cruiser that tries to intercept you. The longer you survive, the higher your score climbs — and the more intense the pursuit becomes.</p>
+  <p>To control your car, simply <strong>move your mouse</strong> across the screen. Your vehicle follows your cursor's horizontal position, allowing you to weave left and right between oncoming police cars. On mobile devices, <strong>touch and drag</strong> your finger to steer. The controls are deliberately simple — mastering them under pressure is the real challenge.</p>
+  <p>The game begins with a manageable flow of police vehicles, but the <strong>difficulty scales dynamically</strong> over time. As your score increases, more patrol cars spawn, move at higher speeds, and approach from multiple lanes simultaneously. Staying calm and reading the road ahead is just as important as quick reflexes.</p>
+  <p>Throughout each run, <strong>glowing orbs</strong> appear scattered across the highway. Drive over them to collect power-ups that can turn the tide of your run. Power-ups include a <strong>shield</strong> that absorbs one collision, a <strong>ghost mode</strong> that lets you pass through police cars unharmed, and a <strong>freeze</strong> that temporarily slows all enemy vehicles. Prioritise collecting power-ups whenever it's safe to do so — they can dramatically extend your survival time.</p>
+  <p>The game features multiple <strong>unlockable cars</strong>, each with unique visual styles. Beat score targets on earlier levels to unlock new vehicles and show off your driving skills. Your high scores are automatically saved so you can always track your personal best.</p>
+
+  <h2>Tips &amp; Tricks for Desert Chase</h2>
+  <p>Surviving Desert Chase for a long time requires more than just fast reflexes. Here are proven strategies that experienced players use to rack up high scores consistently.</p>
+  <ul>
+    <li><strong>Stay near the centre:</strong> Positioning your car in the middle of the road gives you the most flexibility to dodge left or right. Hugging one edge of the screen limits your escape routes and leaves you vulnerable when multiple cars appear on that side.</li>
+    <li><strong>Look ahead, not at your car:</strong> Keep your eyes focused on the upper portion of the screen, where police cruisers first appear. Reacting to a car as it spawns — rather than when it's already close — gives you far more time to manoeuvre around it.</li>
+    <li><strong>Prioritise shield power-ups:</strong> The shield orb is the most valuable collectible in the game. An active shield effectively gives you a free collision, which can save a run that would otherwise be over. Make collecting shield power-ups a top priority whenever they appear in a safe position to reach.</li>
+    <li><strong>Use freeze strategically:</strong> The freeze power-up stops all police cars momentarily, giving you a precious window to collect other nearby orbs or reposition to a safer area of the road. Activate it during high-pressure moments when multiple cruisers are converging on your lane.</li>
+    <li><strong>Ghost mode for tight clusters:</strong> When police cars spawn in a cluster that seems impossible to navigate, the ghost power-up is your best friend. Drive straight through the cluster while intangible, then resume normal play on the other side.</li>
+    <li><strong>Small, controlled movements:</strong> Jerky, wide mouse sweeps often overshoot gaps between police cars. Use small, deliberate movements to thread through tight corridors. The game rewards precise steering over large, panicked swings.</li>
+    <li><strong>Learn the spawn patterns:</strong> Police cars don't appear completely randomly — they spawn in lanes. Spend your early runs watching where cars most commonly appear so you can anticipate danger zones in later, more intense sessions.</li>
+    <li><strong>Aim for the next level threshold:</strong> Each level in Desert Chase has a score target. Push hard to reach each threshold because beating a level unlocks new cars and resets the spawn rate briefly, giving you a moment to breathe.</li>
+  </ul>
+  <p>Desert Chase rewards patience, pattern recognition, and smart resource management as much as it rewards raw speed. The best players combine calm movement with opportunistic power-up collection to survive far longer than their reflexes alone would allow.</p>
+</div>
+
+<footer class="game-footer">
+  <a class="footer-logo" href="index.html">🪨 GAMECAVE</a>
+  <ul class="footer-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="privacy.html">Privacy Policy</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <p>© 2026 GameCave · All rights reserved</p>
+</footer>
 </body>
 </html>
