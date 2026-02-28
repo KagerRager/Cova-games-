@@ -357,6 +357,24 @@
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#0d0d14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#00e5ff;text-shadow:0 0 20px rgba(0,229,255,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#5a5a7a;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#252538;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#00e5ff;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 
 <div class="topbar">
   <a href="index.html" style="color:#e8a020;text-decoration:none;font-family:Cinzel,serif;font-weight:900;font-size:0.75rem;letter-spacing:0.08em;padding:3px 8px;border:1px solid #4a3820;border-radius:3px;text-shadow:0 0 8px rgba(232,160,32,0.4);">🪨 GAMECAVE</a>
@@ -385,6 +403,15 @@
   </div>
 
   <canvas id="c" width="360" height="480"></canvas>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;flex-wrap:wrap;">
+    <span style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Player:</span>
+    <button id="dc0" onclick="playerColor='#00e5ff';updateDC(0)" style="width:24px;height:24px;border-radius:3px;background:#00e5ff;border:3px solid #fff;cursor:pointer;outline:none;" title="Cyan"></button>
+    <button id="dc1" onclick="playerColor='#ff4fa3';updateDC(1)" style="width:24px;height:24px;border-radius:3px;background:#ff4fa3;border:3px solid transparent;cursor:pointer;outline:none;" title="Pink"></button>
+    <button id="dc2" onclick="playerColor='#4eff91';updateDC(2)" style="width:24px;height:24px;border-radius:3px;background:#4eff91;border:3px solid transparent;cursor:pointer;outline:none;" title="Green"></button>
+    <button id="dc3" onclick="playerColor='#ffe566';updateDC(3)" style="width:24px;height:24px;border-radius:3px;background:#ffe566;border:3px solid transparent;cursor:pointer;outline:none;" title="Yellow"></button>
+    <button id="dc4" onclick="playerColor='#b388ff';updateDC(4)" style="width:24px;height:24px;border-radius:3px;background:#b388ff;border:3px solid transparent;cursor:pointer;outline:none;" title="Purple"></button>
+  </div>
 
   <div class="mobile-controls">
     <button class="arrow-btn" onmousedown="mLeft=true" onmouseup="mLeft=false" ontouchstart="mLeft=true;event.preventDefault()" ontouchend="mLeft=false">◀</button>
@@ -558,6 +585,40 @@
 </div><!-- end main -->
 
 <script>
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
+// ── PLAYER COLOR ──
+let playerColor = '#00e5ff';
+const PLAYER_GLOW = {
+  '#00e5ff': 'rgba(0,229,255,0.3)',
+  '#ff4fa3': 'rgba(255,79,163,0.3)',
+  '#4eff91': 'rgba(78,255,145,0.3)',
+  '#ffe566': 'rgba(255,229,102,0.3)',
+  '#b388ff': 'rgba(179,136,255,0.3)',
+};
+function updateDC(idx) {
+  document.querySelectorAll('[id^="dc"]').forEach((b,i) => {
+    b.style.border = i === idx ? '3px solid #fff' : '3px solid transparent';
+  });
+}
+
 // ============================================================
 // GAME ENGINE
 // ============================================================
@@ -604,6 +665,7 @@ function startGame() {
 
   scoreInterval = setInterval(() => {
     score++;
+    sfx.play('score');
     document.getElementById('scoreVal').textContent = score;
   }, 1000);
 
@@ -615,6 +677,7 @@ function endGame() {
   clearInterval(spawnInterval);
   clearInterval(scoreInterval);
   cancelAnimationFrame(animId);
+  sfx.play('die');
   gtag('event','game_over',{game:'Dodge Game',score:score});
   if (score > hiScore) {
     hiScore = score;
@@ -669,9 +732,9 @@ function draw() {
   });
 
   // Player
-  ctx.fillStyle = '#00e5ff';
+  ctx.fillStyle = playerColor;
   ctx.fillRect(player.x, player.y, player.w, player.h);
-  ctx.fillStyle = 'rgba(0,229,255,0.3)';
+  ctx.fillStyle = PLAYER_GLOW[playerColor] || 'rgba(0,229,255,0.3)';
   ctx.fillRect(player.x - 4, player.y - 4, player.w + 8, player.h + 8);
 }
 

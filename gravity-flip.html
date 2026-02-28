@@ -22,6 +22,24 @@ canvas{display:block;flex:1;touch-action:none;cursor:pointer;}
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#060310;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#9b5de5;text-shadow:0 0 20px rgba(155,93,229,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#1e1038;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#9b5de5;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 <div class="topbar">
   <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
   <a class="back" href="index.html">← Back</a>
@@ -29,6 +47,35 @@ canvas{display:block;flex:1;touch-action:none;cursor:pointer;}
 <canvas id="c"></canvas>
 <script>
 'use strict';
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
+      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+      else if (name==='jump'||name==='click') { o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1); g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
+// ── PLAYER COLOR ──
+const PLAYER_COLORS = ['#9b5de5','#3db8a0','#e8a020','#ff4444','#4488ff'];
+const PLAYER_COLORS_RGBA = ['rgba(155,93,229,0.45)','rgba(61,184,160,0.45)','rgba(232,160,32,0.45)','rgba(255,68,68,0.45)','rgba(68,136,255,0.45)'];
+const PLAYER_COLORS_RGBA_DIM = ['rgba(155,93,229,0.08)','rgba(61,184,160,0.08)','rgba(232,160,32,0.08)','rgba(255,68,68,0.08)','rgba(68,136,255,0.08)'];
+let playerColor = PLAYER_COLORS[0];
+let playerColorRGBA = PLAYER_COLORS_RGBA[0];
+let playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[0];
+let playerColorIdx = 0;
 const C = document.getElementById('c');
 const X = C.getContext('2d');
 let W, H;
@@ -123,11 +170,12 @@ function popTxt(x,y,txt,col,big) {
 /* ─── FLIP ─── */
 function doFlip() {
   if(phase !== 'play') { startGame(); return; }
+  sfx.play('jump');
   flipped = !flipped;
   pvy = flipped ? FLIP_IMPULSE : -FLIP_IMPULSE;
   lastFlipY = py;
   // visual burst at player center
-  const col = flipped ? '#3db8a0' : '#9b5de5';
+  const col = playerColor;
   burst(PX+PSZ, py+PSZ, col, 8, 4);
 }
 
@@ -181,6 +229,7 @@ function update() {
     if(dist < g.r + PSZ*0.8) {
       g.alive = false;
       score += 3;
+      sfx.play('score');
       if(score > hi) { hi = score; localStorage.setItem('gravityflip_hi', hi); }
       burst(g.x, g.y, '#3db8a0', 14, 5);
       popTxt(g.x, g.y-16, '+3 💎', '#3db8a0');
@@ -217,6 +266,7 @@ function update() {
 
 function die() {
   shake = 18;
+  sfx.play('die');
   burst(PX+PSZ, py+PSZ, '#e8a020', 30, 9);
   burst(PX+PSZ, py+PSZ, '#ff6a00', 18, 6);
   burst(PX+PSZ, py+PSZ, '#fff', 8, 4);
@@ -249,7 +299,7 @@ function drawGame() {
 
   // Ambient glow at player
   const ag = X.createRadialGradient(PX+PSZ, py+PSZ, 0, PX+PSZ, py+PSZ, 130);
-  ag.addColorStop(0, flipped ? 'rgba(61,184,160,0.08)' : 'rgba(155,93,229,0.08)');
+  ag.addColorStop(0, playerColorRGBADim);
   ag.addColorStop(1, 'transparent');
   X.fillStyle = ag; X.fillRect(0,0,W,H);
 
@@ -315,7 +365,7 @@ function drawGame() {
     const a = (i / trail.length) * 0.4;
     const r = (i / trail.length) * PSZ * 0.55;
     X.globalAlpha = a;
-    X.fillStyle = flipped ? '#3db8a0' : '#9b5de5';
+    X.fillStyle = playerColor;
     X.beginPath(); X.arc(t.x, t.y, r, 0, Math.PI*2); X.fill();
   });
   X.globalAlpha = 1;
@@ -339,17 +389,24 @@ function drawGame() {
 
   // Outer glow halo
   const pl = X.createRadialGradient(0,0,0,0,0,PSZ*2.2);
-  pl.addColorStop(0, flipped ? 'rgba(61,184,160,0.45)' : 'rgba(155,93,229,0.45)');
+  pl.addColorStop(0, playerColorRGBA);
   pl.addColorStop(1, 'transparent');
   X.fillStyle = pl; X.beginPath(); X.arc(0,0,PSZ*2.2,0,Math.PI*2); X.fill();
 
   // Body
-  const bc = flipped ? '#1a6a58' : '#3a1860';
+  const bodyColorMap = {
+    '#9b5de5': flipped ? '#1a6a58' : '#3a1860',
+    '#3db8a0': flipped ? '#1a5040' : '#0e3050',
+    '#e8a020': flipped ? '#5a3010' : '#3a2010',
+    '#ff4444': flipped ? '#6a1020' : '#3a1010',
+    '#4488ff': flipped ? '#102060' : '#101048',
+  };
+  const bc = bodyColorMap[playerColor] || (flipped ? '#1a6a58' : '#3a1860');
   X.fillStyle = bc;
   X.beginPath(); X.roundRect(-PSZ,-PSZ,PSZ*2,PSZ*2,5); X.fill();
 
   // Visor / top strip
-  const vc = flipped ? '#3db8a0' : '#9b5de5';
+  const vc = playerColor;
   X.fillStyle = vc;
   X.beginPath(); X.roundRect(-PSZ,-PSZ,PSZ*2,PSZ*0.45,3); X.fill();
 
@@ -418,6 +475,16 @@ function drawMenu() {
   X.fillText('Pass through the gaps without hitting the walls', W/2, H*0.55);
   X.fillText('💎 Collect crystals for +3 bonus points', W/2, H*0.61);
 
+  // Color picker
+  X.font=`${Math.min(12,W*0.03)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
+  X.fillText('PLAYER COLOR', W/2, H*0.80);
+  PLAYER_COLORS.forEach((col, i) => {
+    const cx = W/2 + (i-2)*36, cy = H*0.87, r=12;
+    X.beginPath(); X.arc(cx, cy, r, 0, Math.PI*2);
+    X.fillStyle = col; X.fill();
+    if(i === playerColorIdx) { X.strokeStyle='#fff'; X.lineWidth=3; X.stroke(); }
+  });
+
   drawButton(W/2, H*0.73, '⬆⬇  LET\'S GO', '#9b5de5', '#3db8a0');
 }
 
@@ -461,13 +528,37 @@ function gameLoop() {
 function startGame() {
   cancelAnimationFrame(raf);
   resetGame(); phase='play'; running=true;
+  sfx.play('start');
   gtag('event','game_start',{game:'Gravity Flip'});
   raf = requestAnimationFrame(gameLoop);
 }
 
 /* ─── INPUT ─── */
 document.addEventListener('keydown', e => { if(e.code==='Space'){e.preventDefault();doFlip();} });
-C.addEventListener('pointerdown', e => { e.preventDefault(); doFlip(); }, {passive:false});
+C.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if(phase === 'menu') {
+    // Check if click is near color picker circles
+    const rect = C.getBoundingClientRect();
+    const scaleX = C.width / rect.width;
+    const scaleY = C.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    const pickerY = H * 0.87;
+    for(let i=0; i<PLAYER_COLORS.length; i++) {
+      const px2 = W/2 + (i-2)*36;
+      if(Math.hypot(cx - px2, cy - pickerY) < 18) {
+        playerColorIdx = i;
+        playerColor = PLAYER_COLORS[i];
+        playerColorRGBA = PLAYER_COLORS_RGBA[i];
+        playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[i];
+        drawMenu();
+        return;
+      }
+    }
+  }
+  doFlip();
+}, {passive:false});
 
 phase='menu'; drawMenu();
 </script>

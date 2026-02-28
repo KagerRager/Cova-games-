@@ -63,6 +63,24 @@
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#0d0a07;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#211a12;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#e8a020;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 
 <div class="topbar">
   <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
@@ -99,6 +117,27 @@
 </div>
 
 <script>
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
+      else if (name==='win') { [440,550,660,880].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.frequency.value=f; o2.start(t+i*0.1); o2.stop(t+i*0.1+0.15); }); g.gain.setValueAtTime(0.22,t); g.gain.linearRampToValueAtTime(0,t+0.55); o.disconnect(); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
 // ─── PALETTE ───
 const COLORS = [
   '#e8a020', // gold
@@ -187,6 +226,7 @@ function flood(targetColor) {
   if (gameOver) return;
   const originColor = grid[0];
   if (targetColor === originColor) return;
+  sfx.play('click');
 
   // BFS from top-left
   const visited = new Array(SIZE * SIZE).fill(false);
@@ -239,6 +279,7 @@ function checkWin() {
 
   if (allSame) {
     gameOver = true;
+    sfx.play('win');
     const used = MOVES - movesLeft;
     const key  = diff;
     if (!bests[key] || used < bests[key]) { bests[key] = used; localStorage.setItem('colorflood_bests', JSON.stringify(bests)); }
@@ -250,6 +291,7 @@ function checkWin() {
 
   if (movesLeft <= 0) {
     gameOver = true;
+    sfx.play('die');
     const captured  = grid.filter(c => c === grid[0]).length;
     const pct       = Math.round(captured / (SIZE * SIZE) * 100);
     showOverlay('OUT OF MOVES', 'You captured ' + pct + '% of the cave.');

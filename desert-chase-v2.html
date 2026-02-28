@@ -27,13 +27,27 @@
     font-family: 'Courier New', monospace;
     touch-action: none;
   }
-  canvas { display: block; cursor: none; touch-action: none; }
+  canvas { display: block; cursor: default; touch-action: none; }
+  @media (pointer: coarse) { canvas { cursor: none; } }
 </style>
 </head>
 <body>
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#1a0f00;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Courier New',monospace;font-size:2rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.12em;">🪨 GAMECAVE</div>
+  <div style="margin-top:0.8rem;font-family:'Courier New',monospace;font-size:0.9rem;color:#9a8870;letter-spacing:0.18em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.2rem;width:120px;height:4px;background:#3a2810;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#e8a020;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width='100%';
+  window.addEventListener('load',()=>{setTimeout(()=>{const ls=document.getElementById('loadingScreen');ls.style.opacity='0';setTimeout(()=>ls.style.display='none',500);},400);});
+</script>
 <a href="index.html" style="position:fixed;top:12px;left:12px;z-index:100;font-family:Cinzel,serif;font-weight:900;font-size:0.85rem;color:#e8a020;text-decoration:none;text-shadow:0 0 10px rgba(232,160,32,0.5);letter-spacing:0.08em;padding:4px 10px;background:rgba(13,10,7,0.8);border:1px solid #4a3820;border-radius:4px;">🪨 GAMECAVE</a>
 <canvas id="c"></canvas>
 <script>
+// ── SOUND ENGINE ──
+const sfx=(()=>{let ac;function en(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac;}function pl(n){try{const c=en(),g=c.createGain();g.connect(c.destination);const o=c.createOscillator();o.connect(g);const t=c.currentTime;if(n==='start'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(880,t+0.15);g.gain.setValueAtTime(0.25,t);g.gain.linearRampToValueAtTime(0,t+0.2);o.start(t);o.stop(t+0.2);}else if(n==='score'||n==='point'){o.frequency.setValueAtTime(660,t);o.frequency.linearRampToValueAtTime(880,t+0.08);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.12);o.start(t);o.stop(t+0.12);}else if(n==='die'||n==='hit'){o.type='sawtooth';o.frequency.setValueAtTime(330,t);o.frequency.linearRampToValueAtTime(110,t+0.3);g.gain.setValueAtTime(0.3,t);g.gain.linearRampToValueAtTime(0,t+0.35);o.start(t);o.stop(t+0.35);}else if(n==='powerup'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(1320,t+0.2);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.25);o.start(t);o.stop(t+0.25);}else if(n==='win'){[440,550,660,880].forEach((f,i)=>{const o2=c.createOscillator();o2.connect(g);o2.frequency.value=f;o2.start(t+i*0.1);o2.stop(t+i*0.1+0.15);});g.gain.setValueAtTime(0.22,t);g.gain.linearRampToValueAtTime(0,t+0.55);o.disconnect();}else if(n==='click'){o.frequency.setValueAtTime(800,t);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.05);o.start(t);o.stop(t+0.05);}}catch(e){}}return{play:pl};})();
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 
@@ -446,42 +460,23 @@ canvas.addEventListener('touchstart', e => {
   const t  = e.changedTouches[0];
   const tx = t.clientX - r.left;
   const ty = t.clientY - r.top;
-  if (state === 'playing') {
-    joystick.active = true;
-    joystick.id     = t.identifier;
-    joystick.ox     = tx;
-    joystick.oy     = ty;
-    joystick.x      = tx;
-    joystick.y      = ty;
-  } else {
-    mouse.x = tx;
-    mouse.y = ty;
-  }
+  mouse.x = tx;
+  mouse.y = ty;
 }, { passive:false });
 
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   const r = canvas.getBoundingClientRect();
-  for (const t of e.changedTouches) {
-    const tx = t.clientX - r.left;
-    const ty = t.clientY - r.top;
-    if (state === 'playing' && t.identifier === joystick.id) {
-      joystick.x = tx;
-      joystick.y = ty;
-    } else if (state !== 'playing') {
-      mouse.x = tx;
-      mouse.y = ty;
-    }
-  }
+  const t = e.changedTouches[0];
+  mouse.x = t.clientX - r.left;
+  mouse.y = t.clientY - r.top;
 }, { passive:false });
 
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
   const r = canvas.getBoundingClientRect();
   for (const t of e.changedTouches) {
-    if (state === 'playing' && t.identifier === joystick.id) {
-      joystick.active = false;
-    } else if (state !== 'playing') {
+    if (state !== 'playing') {
       const tx = t.clientX - r.left;
       const ty = t.clientY - r.top;
       mouse.x = tx;
@@ -1086,6 +1081,7 @@ function startGame() {
   joystick.active=false;
   genScenery();
   state='playing';
+  sfx.play('start');
   gtag('event','game_start',{game:'Desert Chase',level:currentLevel});
 }
 function restart(lvl) { currentLevel=lvl||0; startGame(); }
@@ -1105,21 +1101,8 @@ function loop() {
     const maxSpd = activeEffects.speed>0 ? 8.5 : 5.5;
     const accel=0.18, friction=0.88;
 
-    if (joystick.active) {
-      // Mobile joystick
-      const jdx=joystick.x-joystick.ox, jdy=joystick.y-joystick.oy;
-      const jdist=Math.sqrt(jdx*jdx+jdy*jdy);
-      if (jdist>8) {
-        const jang=Math.atan2(jdy,jdx);
-        const jspd=Math.min(jdist/55,1)*maxSpd;
-        player.angle=jang+Math.PI/2;
-        player.vx+=(Math.cos(jang)*jspd-player.vx)*accel;
-        player.vy+=(Math.sin(jang)*jspd-player.vy)*accel;
-      } else {
-        player.vx*=friction; player.vy*=friction;
-      }
-    } else {
-      // Mouse follow
+    // Mouse / touch follow (finger position acts as target on mobile)
+    {
       const dx=mouse.x-player.x, dy=mouse.y-player.y;
       const dist=Math.sqrt(dx*dx+dy*dy);
       if (dist>6) {
@@ -1165,7 +1148,7 @@ function loop() {
     powerups=powerups.filter(p=>p.life>0);
     powerups=powerups.filter(p=>{
       if (Math.hypot(p.x-player.x,p.y-player.y)<22) {
-        activeEffects[p.type]=p.duration; spawnDust(p.x,p.y,p.glow); return false;
+        activeEffects[p.type]=p.duration; spawnDust(p.x,p.y,p.glow); sfx.play('powerup'); return false;
       }
       return true;
     });
@@ -1188,6 +1171,7 @@ function loop() {
             spawnExplosion(player.x,player.y); spawnExplosion(cop.x,cop.y);
             if (score>highScores[currentLevel]) highScores[currentLevel]=score;
             state='dead';
+            sfx.play('die');
             gtag('event','game_over',{game:'Desert Chase',level:currentLevel,score:score});
             break;
           }
@@ -1204,6 +1188,7 @@ function loop() {
         newUnlockNames = CARS.filter(c=>c.unlockLevel===currentLevel).map(c=>c.name);
       }
       state='win';
+      sfx.play('win');
       gtag('event','game_win',{game:'Desert Chase',level:currentLevel,score:score});
     }
 
@@ -1250,7 +1235,6 @@ function loop() {
   ctx.globalAlpha=1; ctx.shadowBlur=0;
 
   if (state==='playing'||state==='dead'||state==='win') drawHUD();
-  if (isMobile&&state==='playing') drawJoystick();
   if (state==='dead') drawGameOver();
   if (state==='win')  drawWinScreen();
 
@@ -1259,7 +1243,7 @@ function loop() {
     ctx.globalAlpha=Math.min(1,(220-frame)/60);
     ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(W/2-170,H/2+60,340,46);
     ctx.fillStyle='#fff'; ctx.font='13px Courier New'; ctx.textAlign='center';
-    ctx.fillText(isMobile?'Use the joystick to drive!':'Move your mouse to drive!',W/2,H/2+82);
+    ctx.fillText(isMobile?'Touch the screen to drive!':'Move your mouse to drive!',W/2,H/2+82);
     ctx.fillStyle='#aaffcc'; ctx.font='11px Courier New';
     ctx.fillText('Collect glowing orbs for power-ups!',W/2,H/2+99);
     ctx.textAlign='left'; ctx.globalAlpha=1;

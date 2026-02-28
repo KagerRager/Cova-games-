@@ -22,13 +22,67 @@ canvas{display:block;flex:1;touch-action:none;}
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#02080a;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#00ffb4;text-shadow:0 0 20px rgba(0,255,180,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#0a2a20;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#00ffb4;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 <div class="topbar">
   <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
   <a class="back" href="index.html">← Back</a>
 </div>
+<div id="colorPicker" style="flex-shrink:0;display:flex;justify-content:center;align-items:center;gap:0.6rem;padding:0.35rem 0;background:rgba(2,8,10,0.9);border-bottom:1px solid #0a2a20;">
+  <span style="font-size:0.65rem;color:#9a8870;letter-spacing:0.1em;text-transform:uppercase;margin-right:0.3rem;">Snake:</span>
+  <button id="sc0" onclick="snakeColor='#00ffb4';updateSC(0)" style="width:26px;height:26px;border-radius:50%;background:#00ffb4;border:3px solid #fff;cursor:pointer;outline:none;" title="Neon Green"></button>
+  <button id="sc1" onclick="snakeColor='#ff4444';updateSC(1)" style="width:26px;height:26px;border-radius:50%;background:#ff4444;border:3px solid transparent;cursor:pointer;outline:none;" title="Red"></button>
+  <button id="sc2" onclick="snakeColor='#ff9900';updateSC(2)" style="width:26px;height:26px;border-radius:50%;background:#ff9900;border:3px solid transparent;cursor:pointer;outline:none;" title="Orange"></button>
+  <button id="sc3" onclick="snakeColor='#4488ff';updateSC(3)" style="width:26px;height:26px;border-radius:50%;background:#4488ff;border:3px solid transparent;cursor:pointer;outline:none;" title="Blue"></button>
+  <button id="sc4" onclick="snakeColor='#cc44ff';updateSC(4)" style="width:26px;height:26px;border-radius:50%;background:#cc44ff;border:3px solid transparent;cursor:pointer;outline:none;" title="Purple"></button>
+</div>
 <canvas id="c"></canvas>
 <script>
 'use strict';
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
+      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over'||name==='hit') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
+// ── SNAKE COLOR ──
+let snakeColor = '#00ffb4';
+function updateSC(idx) {
+  document.querySelectorAll('#colorPicker button').forEach((b,i) => {
+    b.style.border = i === idx ? '3px solid #fff' : '3px solid transparent';
+  });
+}
 const C = document.getElementById('c');
 const X = C.getContext('2d');
 let W, H;
@@ -119,6 +173,7 @@ C.addEventListener('touchend', e => {
 }, {passive: false});
 
 function startGame() {
+  sfx.play('start');
   init();
 }
 
@@ -155,7 +210,7 @@ function drawSnake() {
       g.addColorStop(1, 'transparent');
       X.fillStyle = g;
       X.fillRect(x - CELL/2, y - CELL/2, CELL * 2, CELL * 2);
-      X.fillStyle = '#00ffb4';
+      X.fillStyle = snakeColor;
     } else {
       X.fillStyle = `rgba(0,${Math.round(180 + 75 * t)},${Math.round(100 + 80 * t)},${0.5 + 0.5 * t})`;
     }
@@ -296,6 +351,7 @@ function update() {
     if (score > hiScore) hiScore = score;
     growCount += 2;
     speed = Math.min(20, 8 + Math.floor(score / 50));
+    sfx.play('score');
     spawnFood();
     gtag('event', 'food_eaten', {game: 'Neon Snake', score});
   } else if (growCount > 0) {
@@ -307,6 +363,7 @@ function update() {
 
 function gameOver() {
   if (score > hiScore) hiScore = score;
+  sfx.play('die');
   gtag('event', 'game_over', {game: 'Neon Snake', score, length: snake.length});
   phase = 'over';
 }
@@ -337,6 +394,7 @@ loop();
 
 // Clicking the canvas starts the game
 C.addEventListener('click', () => {
+  sfx.play('click');
   if (phase === 'menu') startGame();
   else if (phase === 'over') init();
 });
