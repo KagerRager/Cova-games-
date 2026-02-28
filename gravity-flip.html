@@ -105,6 +105,13 @@ let playerColor = PLAYER_COLORS[0];
 let playerColorRGBA = PLAYER_COLORS_RGBA[0];
 let playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[0];
 let playerColorIdx = 0;
+
+// ── TRAIL STYLE ──
+const TRAIL_STYLES = ['Comet', 'Pixel'];
+let trailStyleIdx = 0;
+const PANEL_OFFSET_RATIO = 0.19;   // fraction of W each column is offset from centre
+const TRAIL_BTN_SPACING  = 58;     // px between trail-style button centres
+const PIXEL_TRAIL_SCALE  = 1.5;    // multiplier from radius to pixel-square size
 const C = document.getElementById('c');
 const X = C.getContext('2d');
 let W, H;
@@ -169,8 +176,8 @@ function wallSpacing() {
 }
 
 function gapSize() {
-  // starts at 160px, minimum 90px at high levels
-  return Math.max(90, 165 - level*6);
+  // starts at 210px, minimum 120px at high levels
+  return Math.max(120, 210 - level*5);
 }
 
 function pushWall(wx) {
@@ -216,6 +223,11 @@ function doFlip() {
   flipped = !flipped;
   pvy = flipped ? FLIP_IMPULSE : -FLIP_IMPULSE;
   lastFlipY = py;
+  // Cycle to next player color on each flip
+  playerColorIdx = (playerColorIdx + 1) % PLAYER_COLORS.length;
+  playerColor = PLAYER_COLORS[playerColorIdx];
+  playerColorRGBA = PLAYER_COLORS_RGBA[playerColorIdx];
+  playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[playerColorIdx];
   // visual burst at player center
   const col = playerColor;
   burst(PX+PSZ, py+PSZ, col, 8, 4);
@@ -226,14 +238,16 @@ function update() {
   tick++;
 
   // Level and speed
-  level = 1 + Math.floor(score / 12);
-  speed = 3.0 + (level-1) * 0.32;
+  level = 1 + Math.floor(score / 10);
+  speed = 3.0 + (level-1) * 0.22;
 
   // Level up fanfare
   if(level > lastLevel) {
     lastLevel = level;
     sfx.play('levelup');
-    popTxt(PX+PSZ, py, 'LVL '+level+' ⬆', '#ffcc55', true);
+    const milestones = {5:'Speed Surge! 💨',10:'Expert! 🔥',15:'Master! ⚡',20:'Legend! 👑'};
+    const msg = milestones[level] || 'LVL '+level+' ⬆';
+    popTxt(PX+PSZ, py, msg, '#ffcc55', true);
   }
 
   // Physics
@@ -479,7 +493,13 @@ function drawGame() {
     const r = (i / trail.length) * PSZ * 0.55;
     X.globalAlpha = a;
     X.fillStyle = playerColor;
-    X.beginPath(); X.arc(t.x, t.y, r, 0, Math.PI*2); X.fill();
+    if(trailStyleIdx === 1) {
+      // Pixel style: small squares
+      const sz = Math.max(1, r * PIXEL_TRAIL_SCALE);
+      X.fillRect(t.x - sz/2, t.y - sz/2, sz, sz);
+    } else {
+      X.beginPath(); X.arc(t.x, t.y, r, 0, Math.PI*2); X.fill();
+    }
   });
   X.globalAlpha = 1;
 
@@ -600,21 +620,41 @@ function drawMenu() {
 
   X.font=`${Math.min(15,W*0.038)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
   X.fillText('Tap or press SPACE to flip gravity', W/2, H*0.49);
-  X.fillText('Pass through the gaps without hitting the walls', W/2, H*0.55);
-  X.fillText('💎 Collect crystals for +3 bonus points', W/2, H*0.60);
-  X.fillText('🛡 Blue shields absorb one hit!', W/2, H*0.65);
+  X.fillText('Pass through the gaps without hitting the walls', W/2, H*0.54);
+  X.fillText('💎 Collect crystals for +3 bonus points', W/2, H*0.59);
+  X.fillText('🛡 Blue shields absorb one hit!', W/2, H*0.64);
 
-  // Color picker
-  X.font=`${Math.min(12,W*0.03)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
-  X.fillText('PLAYER COLOR', W/2, H*0.80);
+  // ── CUSTOMIZATION PANEL ──
+  const colL = W/2 - W*PANEL_OFFSET_RATIO, colR = W/2 + W*PANEL_OFFSET_RATIO;
+  X.font=`bold ${Math.min(11,W*0.028)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
+
+  // Left: Starting Color
+  X.textAlign='center';
+  X.fillText('STARTING COLOR', colL, H*0.72);
   PLAYER_COLORS.forEach((col, i) => {
-    const cx = W/2 + (i-2)*36, cy = H*0.87, r=12;
+    const cx = colL + (i-2)*26, cy = H*0.79, r=10;
     X.beginPath(); X.arc(cx, cy, r, 0, Math.PI*2);
     X.fillStyle = col; X.fill();
-    if(i === playerColorIdx) { X.strokeStyle='#fff'; X.lineWidth=3; X.stroke(); }
+    if(i === playerColorIdx) { X.strokeStyle='#fff'; X.lineWidth=2.5; X.stroke(); }
   });
 
-  drawButton(W/2, H*0.73, '⬆⬇  LET\'S GO', '#9b5de5', '#3db8a0');
+  // Right: Trail Style
+  X.fillStyle='#9a8870';
+  X.fillText('TRAIL STYLE', colR, H*0.72);
+  TRAIL_STYLES.forEach((style, i) => {
+    const bx = colR + (i - 0.5) * TRAIL_BTN_SPACING, by = H*0.79;
+    const bw = 50, bh = 22;
+    const sel = i === trailStyleIdx;
+    X.fillStyle = sel ? '#9b5de5' : '#1e1038';
+    X.strokeStyle = sel ? '#fff' : '#9a8870';
+    X.lineWidth = sel ? 2 : 1;
+    X.beginPath(); X.roundRect(bx - bw/2, by - bh/2, bw, bh, 4); X.fill(); X.stroke();
+    X.font=`${Math.min(10,W*0.025)}px Nunito,sans-serif`;
+    X.fillStyle = sel ? '#fff' : '#9a8870';
+    X.fillText(style, bx, by);
+  });
+
+  drawButton(W/2, H*0.89, '⬆⬇  LET\'S GO', '#9b5de5', '#3db8a0');
 }
 
 function drawGameOver() {
@@ -632,7 +672,7 @@ function drawGameOver() {
   X.fillText('Best   ' + hi,    W/2, H*0.50);
 
   X.font=`${Math.min(15,W*0.038)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
-  const msg = score>=50?'Cave Master! 🏆':score>=20?'Solid run! 💎':'The cave won this time...';
+  const msg = score>=100?'Cave Legend! 👑':score>=50?'Cave Master! 🏆':score>=25?'Solid run! 💎':'The cave won this time...';
   X.fillText(msg, W/2, H*0.58);
 
   drawButton(W/2, H*0.71, '⬆⬇  TRY AGAIN', '#9b5de5', '#3db8a0');
@@ -673,14 +713,26 @@ C.addEventListener('pointerdown', e => {
     const scaleY = C.height / rect.height;
     const cx = (e.clientX - rect.left) * scaleX;
     const cy = (e.clientY - rect.top) * scaleY;
-    const pickerY = H * 0.87;
+    const colL = W/2 - W*PANEL_OFFSET_RATIO, colR = W/2 + W*PANEL_OFFSET_RATIO;
+    const pickerY = H * 0.79;
+    // Color circles
     for(let i=0; i<PLAYER_COLORS.length; i++) {
-      const px2 = W/2 + (i-2)*36;
-      if(Math.hypot(cx - px2, cy - pickerY) < 18) {
+      const px2 = colL + (i-2)*26;
+      if(Math.hypot(cx - px2, cy - pickerY) < 16) {
         playerColorIdx = i;
         playerColor = PLAYER_COLORS[i];
         playerColorRGBA = PLAYER_COLORS_RGBA[i];
         playerColorRGBADim = PLAYER_COLORS_RGBA_DIM[i];
+        drawMenu();
+        return;
+      }
+    }
+    // Trail style buttons
+    for(let i=0; i<TRAIL_STYLES.length; i++) {
+      const bx = colR + (i - 0.5) * TRAIL_BTN_SPACING;
+      const by = pickerY;
+      if(Math.abs(cx - bx) < 28 && Math.abs(cy - by) < 14) {
+        trailStyleIdx = i;
         drawMenu();
         return;
       }
