@@ -150,6 +150,16 @@ const RIM_DOT   = 5;    // rim endpoint radius
 const HOOP_L    = { x: 88 };   // P2 scores in left hoop
 const HOOP_R    = { x: 512 };  // P1 scores in right hoop
 
+// ── PLAYER / AI TUNING ──
+const PLAYER_ACCEL          = 0.6;   // horizontal acceleration per frame (keyboard)
+const PLAYER_MAX_SPEED      = 5.5;   // max horizontal speed for players
+const AI_ACCEL              = 0.75;  // AI horizontal acceleration per frame
+const AI_MAX_SPEED          = 5.5;   // max horizontal speed for AI
+const AI_DEADZONE           = 15;    // min x-distance before AI accelerates
+const AI_JUMP_ALIGN         = 52;    // max x-distance for AI to consider jumping
+const STUCK_SPEED_SQ        = 1.2;   // ball speed² below which stuck timer counts
+const STUCK_TIMEOUT_FRAMES  = 300;   // frames before stuck ball is nudged (~5s at 60fps)
+
 // ── COURT THEMES ──
 const THEMES = [
   { bg:'#071320', fl1:'#4a2a08', fl2:'#2a1408', line:'rgba(232,160,32,0.35)', pole:'#8090a8', rim:'#e85020', net:'rgba(255,255,255,0.45)', sky:'rgba(48,80,120,0.2)' },
@@ -179,6 +189,7 @@ let scoreTimer = 0;
 let lastScorer = 0;
 let mode1P = true;
 let animId;
+let stuckTimer = 0;
 
 // Ball
 let ball, prevBallY;
@@ -200,6 +211,7 @@ function resetBall() {
   const r = BALL_R * (mod ? mod.ballScale : 1);
   ball = { x: W/2, y: FLOOR_Y - 100, vx: (Math.random()*3 - 1.5), vy: -6, r, spin: 0 };
   prevBallY = ball.y;
+  stuckTimer = 0;
 }
 
 function makePlayer(startX, color, facing, isAI) {
@@ -249,20 +261,24 @@ function updatePlayer(p) {
 
 function updateAI() {
   const p = p2;
+  const bx = ball.x, by = ball.y;
+
+  // Always move toward ball – faster tracking, no timer gate
+  const dx = bx - p.x;
+  if (Math.abs(dx) > AI_DEADZONE) p.vx += Math.sign(dx) * AI_ACCEL;
+  p.vx = Math.max(-AI_MAX_SPEED, Math.min(AI_MAX_SPEED, p.vx));
+
   updatePlayer(p);
   if (p.aiTimer > 0) { p.aiTimer--; return; }
-  const bx = ball.x, by = ball.y;
-  const nearX = Math.abs(bx - p.x) < 130;
-  const ballHigh = by < FLOOR_Y - 80;
-  const ballInHalf = bx > W * 0.35;
-  if (p.onGround && (nearX || (ballHigh && ballInHalf))) {
+
+  // Only jump when horizontally close AND ball is reachable height
+  const aligned = Math.abs(dx) < AI_JUMP_ALIGN;
+  const ballReachable = by > FLOOR_Y - 200;
+  if (p.onGround && aligned && ballReachable) {
     jump(p);
-    p.aiTimer = 18 + Math.random() * 35;
+    p.aiTimer = 16 + Math.random() * 20;
   } else {
-    if (bx > p.x + 25) p.vx += 0.55;
-    else if (bx < p.x - 25) p.vx -= 0.55;
-    p.vx = Math.max(-4.5, Math.min(4.5, p.vx));
-    p.aiTimer = 4 + Math.random() * 10;
+    p.aiTimer = 3 + Math.random() * 6;
   }
 }
 
@@ -351,6 +367,20 @@ function checkScoring() {
   }
 }
 
+function applyMovementKeys() {
+  if (phase !== 'playing') return;
+  // P1: A/D to move left/right
+  if (keys['KeyA']) p1.vx -= PLAYER_ACCEL;
+  if (keys['KeyD']) p1.vx += PLAYER_ACCEL;
+  p1.vx = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, p1.vx));
+  // P2: ←/→ to move left/right (2P mode only)
+  if (!mode1P) {
+    if (keys['ArrowLeft'])  p2.vx -= PLAYER_ACCEL;
+    if (keys['ArrowRight']) p2.vx += PLAYER_ACCEL;
+    p2.vx = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, p2.vx));
+  }
+}
+
 function update() {
   if (phase === 'scoring') {
     scoreTimer--;
@@ -370,6 +400,9 @@ function update() {
   }
   if (phase !== 'playing') return;
 
+  // Apply held movement keys
+  applyMovementKeys();
+
   // Ball physics
   prevBallY = ball.y;
   ball.vy += getGravity();
@@ -388,6 +421,19 @@ function update() {
   if (ball.y - ball.r < 0)    { ball.y = ball.r;   ball.vy *= -0.6; }
   if (ball.x - ball.r < 0)    { ball.x = ball.r;   ball.vx = Math.abs(ball.vx)*0.7; sfx.play('bounce'); }
   if (ball.x + ball.r > W)    { ball.x = W-ball.r; ball.vx = -Math.abs(ball.vx)*0.7; sfx.play('bounce'); }
+
+  // Stuck-ball detection: nudge if ball barely moving for ~5 seconds
+  const speedSq = ball.vx * ball.vx + ball.vy * ball.vy;
+  if (speedSq < STUCK_SPEED_SQ && ball.y > FLOOR_Y - ball.r * 3) {
+    stuckTimer++;
+    if (stuckTimer > STUCK_TIMEOUT_FRAMES) {
+      ball.vx = (Math.random() - 0.5) * 9;
+      ball.vy = -(7 + Math.random() * 4);
+      stuckTimer = 0;
+    }
+  } else {
+    stuckTimer = 0;
+  }
 
   // Rim collisions
   rimCollision(HOOP_L.x);
@@ -444,6 +490,17 @@ function drawHoop(hx) {
     const t = r/3, ly = nt + (nb-nt)*t;
     const ll = nl + (hx-nl)*0.5*t, lr = nr + (hx-nr)*0.5*t;
     ctx.beginPath(); ctx.moveTo(ll, ly); ctx.lineTo(lr, ly); ctx.stroke();
+  }
+
+  // Hoop label (P1 aim left, P2 aim right)
+  if (phase === 'playing' || phase === 'scoring') {
+    const isLeft = hx < W / 2;
+    const label = isLeft ? '← P2' : 'P1 →';
+    const col   = isLeft ? 'rgba(224,48,48,0.55)' : 'rgba(40,96,224,0.55)';
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 9px Nunito, sans-serif';
+    ctx.fillStyle = col;
+    ctx.fillText(label, hx, RIM_Y - 14);
   }
 }
 
@@ -631,9 +688,9 @@ function drawHUD() {
     ctx.font = '10px Nunito, sans-serif';
     ctx.fillStyle = 'rgba(154,136,112,0.5)';
     ctx.textAlign = 'left';
-    ctx.fillText('[W] jump', 10, H - 6);
+    ctx.fillText('[W] Jump  [A][D] Move', 10, H - 6);
     ctx.textAlign = 'right';
-    ctx.fillText(mode1P ? '🤖 AI' : '[↑] jump', W - 10, H - 6);
+    ctx.fillText(mode1P ? '🤖 AI' : '[↑] Jump  [←][→] Move', W - 10, H - 6);
   }
 }
 
@@ -667,7 +724,7 @@ function drawTitleScreen() {
 
   ctx.font = '12px Nunito, sans-serif';
   ctx.fillStyle = 'rgba(154,136,112,0.7)';
-  ctx.fillText('W = P1 Jump   ·   ↑ = P2 Jump   ·   Space = Start', W/2, H/2 + 50);
+  ctx.fillText('W = Jump  A/D = Move   ·   ↑ = P2 Jump  ←/→ = P2 Move   ·   Space = Start', W/2, H/2 + 50);
 
   ctx.font = 'bold 16px Nunito, sans-serif';
   ctx.fillStyle = '#e8a020';
@@ -771,15 +828,18 @@ resetPlayers();
 loop();
 
 // ── INPUT ──
+const keys = {};
+window.addEventListener('keyup', e => { keys[e.code] = false; });
 window.addEventListener('keydown', e => {
+  keys[e.code] = true;
   if (e.code === 'Space' || e.code === 'Enter') {
     if (phase === 'title' || phase === 'over') { startGame(); return; }
   }
   if (e.code === 'Digit1') { mode1P = true;  return; }
   if (e.code === 'Digit2') { mode1P = false; return; }
   if (phase !== 'playing') return;
-  if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyD') jump(p1);
-  if ((e.code === 'ArrowUp' || e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !mode1P) jump(p2);
+  if (e.code === 'KeyW') jump(p1);
+  if (e.code === 'ArrowUp' && !mode1P) jump(p2);
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
 
