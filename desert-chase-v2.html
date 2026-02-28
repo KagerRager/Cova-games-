@@ -47,7 +47,38 @@
 <canvas id="c"></canvas>
 <script>
 // ── SOUND ENGINE ──
-const sfx=(()=>{let ac;function en(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac;}function pl(n){try{const c=en(),g=c.createGain();g.connect(c.destination);const o=c.createOscillator();o.connect(g);const t=c.currentTime;if(n==='start'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(880,t+0.15);g.gain.setValueAtTime(0.25,t);g.gain.linearRampToValueAtTime(0,t+0.2);o.start(t);o.stop(t+0.2);}else if(n==='score'||n==='point'){o.frequency.setValueAtTime(660,t);o.frequency.linearRampToValueAtTime(880,t+0.08);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.12);o.start(t);o.stop(t+0.12);}else if(n==='die'||n==='hit'){o.type='sawtooth';o.frequency.setValueAtTime(330,t);o.frequency.linearRampToValueAtTime(110,t+0.3);g.gain.setValueAtTime(0.3,t);g.gain.linearRampToValueAtTime(0,t+0.35);o.start(t);o.stop(t+0.35);}else if(n==='powerup'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(1320,t+0.2);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.25);o.start(t);o.stop(t+0.25);}else if(n==='win'){[440,550,660,880].forEach((f,i)=>{const o2=c.createOscillator();o2.connect(g);o2.frequency.value=f;o2.start(t+i*0.1);o2.stop(t+i*0.1+0.15);});g.gain.setValueAtTime(0.22,t);g.gain.linearRampToValueAtTime(0,t+0.55);o.disconnect();}else if(n==='click'){o.frequency.setValueAtTime(800,t);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.05);o.start(t);o.stop(t+0.05);}}catch(e){}}return{play:pl};})();
+const sfx=(()=>{
+  let ac;
+  let engineOsc=null,engineGain=null,engineRunning=false;
+  function en(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac;}
+  function pl(n){try{
+    const c=en(),g=c.createGain();g.connect(c.destination);
+    const o=c.createOscillator();o.connect(g);const t=c.currentTime;
+    if(n==='start'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(880,t+0.15);g.gain.setValueAtTime(0.25,t);g.gain.linearRampToValueAtTime(0,t+0.2);o.start(t);o.stop(t+0.2);}
+    else if(n==='score'||n==='point'){o.frequency.setValueAtTime(660,t);o.frequency.linearRampToValueAtTime(880,t+0.08);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.12);o.start(t);o.stop(t+0.12);}
+    else if(n==='die'||n==='hit'){o.type='sawtooth';o.frequency.setValueAtTime(330,t);o.frequency.linearRampToValueAtTime(110,t+0.3);g.gain.setValueAtTime(0.3,t);g.gain.linearRampToValueAtTime(0,t+0.35);o.start(t);o.stop(t+0.35);}
+    else if(n==='powerup'){o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(1320,t+0.2);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.25);o.start(t);o.stop(t+0.25);}
+    else if(n==='win'){[440,550,660,880].forEach((f,i)=>{const o2=c.createOscillator();o2.connect(g);o2.frequency.value=f;o2.start(t+i*0.1);o2.stop(t+i*0.1+0.15);});g.gain.setValueAtTime(0.22,t);g.gain.linearRampToValueAtTime(0,t+0.55);o.disconnect();}
+    else if(n==='click'){o.frequency.setValueAtTime(800,t);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.05);o.start(t);o.stop(t+0.05);}
+    else if(n==='siren'){o.type='sine';o.frequency.setValueAtTime(960,t);o.frequency.linearRampToValueAtTime(700,t+0.28);g.gain.setValueAtTime(0.07,t);g.gain.linearRampToValueAtTime(0,t+0.38);o.start(t);o.stop(t+0.38);}
+    else if(n==='screech'){o.type='sawtooth';o.frequency.setValueAtTime(260,t);o.frequency.linearRampToValueAtTime(160,t+0.2);g.gain.setValueAtTime(0.11,t);g.gain.linearRampToValueAtTime(0,t+0.24);o.start(t);o.stop(t+0.24);}
+    else if(n==='levelup'){[523,659,784,1047].forEach((f,i)=>{const o2=c.createOscillator();o2.connect(g);o2.frequency.value=f;o2.start(t+i*0.12);o2.stop(t+i*0.12+0.18);});g.gain.setValueAtTime(0.22,t);g.gain.linearRampToValueAtTime(0,t+0.7);o.disconnect();}
+  }catch(e){}}
+  function startEngine(){
+    if(engineRunning)return;
+    try{const c=en();engineGain=c.createGain();engineGain.gain.value=0.025;engineGain.connect(c.destination);engineOsc=c.createOscillator();engineOsc.type='sawtooth';engineOsc.frequency.value=75;engineOsc.connect(engineGain);engineOsc.start();engineRunning=true;}catch(e){}
+  }
+  function updateEngine(spd){
+    if(!engineRunning||!engineOsc)return;
+    try{engineOsc.frequency.value=68+spd*30;engineGain.gain.value=spd>0.4?0.025:0.008;}catch(e){}
+  }
+  function stopEngine(){
+    if(!engineRunning)return;
+    try{if(engineOsc)engineOsc.stop();}catch(e){}
+    engineOsc=null;engineGain=null;engineRunning=false;
+  }
+  return{play:pl,startEngine,updateEngine,stopEngine};
+})();
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 
@@ -74,10 +105,13 @@ function lighten(hex, amt) {
 
 // ── LEVELS ───────────────────────────────────────────────
 const LEVELS = [
-  { name:'ROOKIE',   goal:20, spawnRate:120, copSpeedMult:0.8, maxCops:4,  copLifetime:1200, description:'Survive 20s' },
-  { name:'WANTED',   goal:35, spawnRate:90,  copSpeedMult:1.0, maxCops:6,  copLifetime:1000, description:'Survive 35s' },
-  { name:'FUGITIVE', goal:50, spawnRate:70,  copSpeedMult:1.2, maxCops:8,  copLifetime:900,  description:'Survive 50s' },
-  { name:'OUTLAW',   goal:75, spawnRate:50,  copSpeedMult:1.5, maxCops:10, copLifetime:750,  description:'Survive 75s' },
+  { name:'ROOKIE',   goal:20,  spawnRate:120, copSpeedMult:0.8, maxCops:4,  copLifetime:1200, description:'Survive 20s',  mapTheme:'desert'    },
+  { name:'WANTED',   goal:35,  spawnRate:90,  copSpeedMult:1.0, maxCops:6,  copLifetime:1000, description:'Survive 35s',  mapTheme:'desert'    },
+  { name:'FUGITIVE', goal:50,  spawnRate:70,  copSpeedMult:1.2, maxCops:8,  copLifetime:900,  description:'Survive 50s',  mapTheme:'night'     },
+  { name:'OUTLAW',   goal:75,  spawnRate:50,  copSpeedMult:1.5, maxCops:10, copLifetime:750,  description:'Survive 75s',  mapTheme:'night'     },
+  { name:'BANDIT',   goal:100, spawnRate:38,  copSpeedMult:1.8, maxCops:12, copLifetime:650,  description:'Survive 100s', mapTheme:'city'      },
+  { name:'LEGEND',   goal:135, spawnRate:28,  copSpeedMult:2.1, maxCops:14, copLifetime:550,  description:'Survive 135s', mapTheme:'city'      },
+  { name:'NEMESIS',  goal:180, spawnRate:20,  copSpeedMult:2.5, maxCops:16, copLifetime:450,  description:'Survive 180s', mapTheme:'wasteland' },
 ];
 
 // ── CAR COLORS ──────────────────────────────────────────
@@ -414,14 +448,135 @@ const CARS = [
       }
     }
   },
+  {
+    id:'suv', name:'SUV', unlockLevel:4, w:22, h:32,
+    desc:'Command the road. Built for pursuit.\nBeat Level 5 to unlock.',
+    draw(ctx, color) {
+      // main body
+      ctx.fillStyle = color;
+      ctx.fillRect(-10,-16,20,32);
+      // sloped hood
+      ctx.fillStyle = darken(color, 0.1);
+      ctx.fillRect(-9,-16,18,6);
+      // tall roof
+      ctx.fillStyle = darken(color, 0.15);
+      ctx.fillRect(-9,-14,18,16);
+      // big windshield
+      ctx.fillStyle = 'rgba(150,220,255,0.82)';
+      ctx.fillRect(-8,-13,16,8);
+      // rear window
+      ctx.fillRect(-7, 3,14,5);
+      // side windows (two)
+      ctx.fillRect(-8,-3,6,5); ctx.fillRect(2,-3,6,5);
+      // roof rail
+      ctx.fillStyle = darken(color, 0.4);
+      ctx.fillRect(-8,-15,16,2);
+      // headlights
+      ctx.fillStyle = '#ffffaa';
+      ctx.fillRect(-9,-15,5,3); ctx.fillRect(4,-15,5,3);
+      // taillights
+      ctx.fillStyle = '#ff2200';
+      ctx.fillRect(-9,13,5,3); ctx.fillRect(4,13,5,3);
+      // big wheels
+      ctx.fillStyle = '#111';
+      ctx.fillRect(-13,-12,5,9); ctx.fillRect(8,-12,5,9);
+      ctx.fillRect(-13,  4,5,9); ctx.fillRect(8,  4,5,9);
+      ctx.fillStyle = '#444';
+      ctx.fillRect(-12,-11,3,7); ctx.fillRect(9,-11,3,7);
+      ctx.fillRect(-12,  5,3,7); ctx.fillRect(9,  5,3,7);
+    }
+  },
+  {
+    id:'roadster', name:'ROADSTER', unlockLevel:5, w:16, h:24,
+    desc:'Open top. Zero drag. Lightning fast.\nBeat Level 6 to unlock.',
+    draw(ctx, color) {
+      // low body
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(-8,12); ctx.lineTo(-8,-6);
+      ctx.lineTo(-6,-12); ctx.lineTo(6,-12);
+      ctx.lineTo(8,-6); ctx.lineTo(8,12);
+      ctx.closePath(); ctx.fill();
+      // open cockpit
+      ctx.fillStyle = 'rgba(20,15,10,0.92)';
+      ctx.beginPath();
+      ctx.moveTo(-5,8); ctx.lineTo(-5,-1);
+      ctx.lineTo(-3,-8); ctx.lineTo(3,-8);
+      ctx.lineTo(5,-1); ctx.lineTo(5,8);
+      ctx.closePath(); ctx.fill();
+      // mini windscreen
+      ctx.fillStyle = 'rgba(150,220,255,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(-5,-1); ctx.lineTo(-3,-8); ctx.lineTo(3,-8); ctx.lineTo(5,-1);
+      ctx.closePath(); ctx.fill();
+      // rear spoiler
+      ctx.fillStyle = darken(color, 0.3);
+      ctx.fillRect(-9,10,18,3);
+      ctx.fillRect(-10,9,3,5); ctx.fillRect(7,9,3,5);
+      // LED headlights
+      ctx.fillStyle = '#ffffcc';
+      ctx.fillRect(-7,-11,4,2); ctx.fillRect(3,-11,4,2);
+      // LED taillight strip
+      ctx.fillStyle = '#ff1100';
+      ctx.fillRect(-7,11,14,2);
+      // low profile wheels
+      ctx.fillStyle = '#111';
+      ctx.fillRect(-11,-8,5,6); ctx.fillRect(6,-8,5,6);
+      ctx.fillRect(-11, 3,5,6); ctx.fillRect(6,  3,5,6);
+      ctx.fillStyle = '#777';
+      ctx.fillRect(-10,-7,3,4); ctx.fillRect(7,-7,3,4);
+      ctx.fillRect(-10, 4,3,4); ctx.fillRect(7,  4,3,4);
+    }
+  },
+  {
+    id:'tank', name:'TANK', unlockLevel:6, w:30, h:36,
+    desc:'Military might. Crush all opposition.\nBeat Level 7 to unlock.',
+    draw(ctx, color) {
+      // tracks
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(-15,-18,8,36); ctx.fillRect(7,-18,8,36);
+      // track link texture
+      ctx.fillStyle = '#2e2e2e';
+      for (let ty=-16; ty<16; ty+=4) {
+        ctx.fillRect(-15,ty,8,2); ctx.fillRect(7,ty,8,2);
+      }
+      // hull
+      ctx.fillStyle = color;
+      ctx.fillRect(-7,-16,14,32);
+      // sloped glacis plate
+      ctx.beginPath();
+      ctx.moveTo(-7,-16); ctx.lineTo(7,-16);
+      ctx.lineTo(5,-20); ctx.lineTo(-5,-20);
+      ctx.closePath(); ctx.fill();
+      // turret base ring
+      ctx.fillStyle = darken(color, 0.18);
+      ctx.beginPath(); ctx.ellipse(0,-2,9,7,0,0,Math.PI*2); ctx.fill();
+      // gun barrel
+      ctx.fillStyle = darken(color, 0.38);
+      ctx.fillRect(-2,-22,4,14);
+      ctx.fillRect(-1.5,-24,3,5);
+      // hatch
+      ctx.fillStyle = darken(color, 0.52);
+      ctx.beginPath(); ctx.ellipse(0,-2,4,3,0,0,Math.PI*2); ctx.fill();
+      // headlights
+      ctx.fillStyle = '#ffffaa';
+      ctx.fillRect(-6,-19,3,3); ctx.fillRect(3,-19,3,3);
+      // taillights
+      ctx.fillStyle = '#ff2200';
+      ctx.fillRect(-6,14,3,3); ctx.fillRect(3,14,3,3);
+      // hull detail line
+      ctx.strokeStyle = darken(color, 0.3); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(-7,0); ctx.lineTo(7,0); ctx.stroke();
+    }
+  },
 ];
 
 // ── GAME STATE ──────────────────────────────────────────
 let state          = 'home'; // home|garage|playing|dead|win
 let currentLevel   = 0;
 let score          = 0;
-let highScores     = [0,0,0,0];
-let levelsBeaten   = JSON.parse(localStorage.getItem('desertchase_beaten') || '[false,false,false,false]');
+let highScores     = [0,0,0,0,0,0,0];
+let levelsBeaten   = JSON.parse(localStorage.getItem('desertchase_beaten') || '[false,false,false,false,false,false,false]');
 let frame          = 0;
 let newUnlockNames = [];
 
@@ -440,6 +595,7 @@ let copTimer=0, powerupTimer=0;
 let activeEffects = { shield:0, speed:0, freeze:0, ghost:0 };
 let shieldHit = false;
 let homePulse = 0;
+let prevPlayerSpeed = 0;
 
 // ── PLAYER ──────────────────────────────────────────────
 const player = { x:W/2, y:H/2, vx:0, vy:0, angle:0, w:18, h:30 };
@@ -500,10 +656,10 @@ document.addEventListener('keydown', e => {
   const key = e.key;
 
   if (state === 'home') {
-    if (key==='ArrowDown'||key==='s'||key==='S')  homeKeyFocus = Math.min(4, homeKeyFocus+1);
+    if (key==='ArrowDown'||key==='s'||key==='S')  homeKeyFocus = Math.min(LEVELS.length, homeKeyFocus+1);
     if (key==='ArrowUp'  ||key==='w'||key==='W')  homeKeyFocus = Math.max(0, homeKeyFocus-1);
     if (key==='Enter'||key===' ') {
-      if (homeKeyFocus < 4) { currentLevel=homeKeyFocus; startGame(); }
+      if (homeKeyFocus < LEVELS.length) { currentLevel=homeKeyFocus; startGame(); }
       else { state='garage'; garageIdx=selectedCarIdx; garageKeyFocus='car'; }
     }
   }
@@ -591,7 +747,7 @@ function levelBtnRect(i) {
   return {bx,by,bw,bh};
 }
 function garageBtnRect() {
-  const bw=200, bh=52, bx=W/2-100, by=190+4*62;
+  const bw=200, bh=52, bx=W/2-100, by=190+LEVELS.length*62;
   return {bx,by,bw,bh};
 }
 function garageColorY() { return H-120; }
@@ -603,11 +759,20 @@ function garageBackRect() {
 }
 
 // ── SCENERY ──────────────────────────────────────────────
-let ROCKS=[], CACTI=[], TRACKS=[];
+let ROCKS=[], CACTI=[], TRACKS=[], STARS=[], BUILDINGS=[], DEBRIS=[];
 function genScenery() {
+  const theme = LEVELS[currentLevel]?.mapTheme || 'desert';
   ROCKS  = Array.from({length:35},()=>({x:Math.random()*W,y:Math.random()*H,r:3+Math.random()*9,shade:Math.random()}));
   CACTI  = Array.from({length:15},()=>({x:Math.random()*W,y:Math.random()*H,h:14+Math.random()*20}));
   TRACKS = Array.from({length:6}, ()=>({x:Math.random()*W,y:Math.random()*H,angle:Math.random()*Math.PI*2,len:40+Math.random()*90}));
+  STARS  = (theme==='night') ? Array.from({length:90},()=>({x:Math.random()*W,y:Math.random()*H,r:0.5+Math.random()*1.8,bright:Math.random()})) : [];
+  BUILDINGS = (theme==='city') ? Array.from({length:14},()=>{
+    const bw=18+Math.random()*38, bh=35+Math.random()*85, bx=Math.random()*W, by=Math.random()*H, shade=Math.random();
+    const windows=[];
+    for (let wx=3; wx<bw-8; wx+=8) for (let wy=5; wy<bh-5; wy+=10) if (Math.random()<0.6) windows.push({wx,wy});
+    return {x:bx,y:by,w:bw,h:bh,shade,windows};
+  }) : [];
+  DEBRIS = (theme==='wasteland') ? Array.from({length:22},()=>({x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*14,angle:Math.random()*Math.PI*2})) : [];
 }
 genScenery();
 
@@ -730,25 +895,122 @@ function drawShield(x,y,r) {
 }
 
 function drawDesert() {
-  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
-  g.addColorStop(0,'#e8c97a'); g.addColorStop(0.6,'#d4a84b'); g.addColorStop(1,'#b8882a');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  TRACKS.forEach(t=>{
-    ctx.save(); ctx.translate(t.x,t.y); ctx.rotate(t.angle);
-    ctx.strokeStyle='rgba(100,60,0,0.2)'; ctx.lineWidth=3; ctx.setLineDash([6,8]);
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,t.len); ctx.stroke();
-    ctx.setLineDash([]); ctx.restore();
-  });
-  ROCKS.forEach(rock=>{
-    ctx.fillStyle=`rgba(${120+rock.shade*40},${90+rock.shade*20},50,0.7)`;
-    ctx.beginPath(); ctx.ellipse(rock.x,rock.y,rock.r*1.4,rock.r,0,0,Math.PI*2); ctx.fill();
-  });
-  CACTI.forEach(c=>{
-    ctx.fillStyle='#4a7c3f';
-    ctx.fillRect(c.x-3,c.y-c.h,6,c.h);
-    ctx.fillRect(c.x-10,c.y-c.h*0.6,8,4); ctx.fillRect(c.x-10,c.y-c.h*0.8,4,c.h*0.2);
-    ctx.fillRect(c.x+2,c.y-c.h*0.5,8,4);  ctx.fillRect(c.x+6, c.y-c.h*0.7,4,c.h*0.2);
-  });
+  const theme = LEVELS[currentLevel]?.mapTheme || 'desert';
+  if (theme === 'night') {
+    // Night sky
+    ctx.fillStyle='#06091a'; ctx.fillRect(0,0,W,H);
+    // Stars
+    STARS.forEach(s=>{
+      ctx.fillStyle=`rgba(255,255,255,${s.bright*0.75+0.2})`;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    });
+    // Moon glow
+    ctx.save(); ctx.shadowBlur=40; ctx.shadowColor='rgba(200,220,255,0.5)';
+    ctx.fillStyle='rgba(230,235,255,0.9)';
+    ctx.beginPath(); ctx.arc(W*0.8,H*0.12,18,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    // Dark sand overlay
+    const ng=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
+    ng.addColorStop(0,'rgba(42,34,18,0.88)'); ng.addColorStop(1,'rgba(18,12,5,0.92)');
+    ctx.fillStyle=ng; ctx.fillRect(0,0,W,H);
+    // Night tracks (moonlit)
+    TRACKS.forEach(t=>{
+      ctx.save(); ctx.translate(t.x,t.y); ctx.rotate(t.angle);
+      ctx.strokeStyle='rgba(80,70,30,0.25)'; ctx.lineWidth=3; ctx.setLineDash([6,8]);
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,t.len); ctx.stroke();
+      ctx.setLineDash([]); ctx.restore();
+    });
+    // Dark rocks
+    ROCKS.forEach(rock=>{
+      ctx.fillStyle=`rgba(${30+rock.shade*18},${22+rock.shade*10},8,0.6)`;
+      ctx.beginPath(); ctx.ellipse(rock.x,rock.y,rock.r*1.4,rock.r,0,0,Math.PI*2); ctx.fill();
+    });
+    // Dark cacti with moonlit edge
+    CACTI.forEach(c=>{
+      ctx.fillStyle='#1a3a18';
+      ctx.fillRect(c.x-3,c.y-c.h,6,c.h);
+      ctx.fillRect(c.x-10,c.y-c.h*0.6,8,4); ctx.fillRect(c.x-10,c.y-c.h*0.8,4,c.h*0.2);
+      ctx.fillRect(c.x+2,c.y-c.h*0.5,8,4);  ctx.fillRect(c.x+6, c.y-c.h*0.7,4,c.h*0.2);
+    });
+  } else if (theme === 'city') {
+    // Asphalt road
+    ctx.fillStyle='#2a2a2a'; ctx.fillRect(0,0,W,H);
+    // Road lane markings
+    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=3; ctx.setLineDash([22,22]);
+    for (let x=80;x<W;x+=160) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y=80;y<H;y+=160) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    ctx.setLineDash([]);
+    // Building silhouettes (pre-generated to avoid flicker)
+    BUILDINGS.forEach(b=>{
+      const lum = 18+b.shade*18;
+      ctx.fillStyle=`rgb(${lum},${lum},${lum+8})`;
+      ctx.fillRect(b.x-b.w/2,b.y-b.h,b.w,b.h);
+      ctx.fillStyle='rgba(255,215,80,0.28)';
+      b.windows.forEach(({wx,wy})=>ctx.fillRect(b.x-b.w/2+wx,b.y-b.h+wy,5,6));
+    });
+    // Street lights glow
+    TRACKS.forEach((t,i)=>{
+      if (i%2===0) {
+        ctx.save(); ctx.shadowBlur=22; ctx.shadowColor='rgba(255,220,100,0.4)';
+        ctx.fillStyle='rgba(255,220,100,0.18)';
+        ctx.beginPath(); ctx.arc(t.x,t.y,16,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+    });
+    // Curb lines
+    ctx.fillStyle='rgba(200,200,200,0.08)';
+    ctx.fillRect(0,0,24,H); ctx.fillRect(W-24,0,24,H);
+    ctx.fillRect(0,0,W,24); ctx.fillRect(0,H-24,W,24);
+  } else if (theme === 'wasteland') {
+    // Cracked red earth
+    const wg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
+    wg.addColorStop(0,'#6e3212'); wg.addColorStop(0.55,'#5a2208'); wg.addColorStop(1,'#3a1204');
+    ctx.fillStyle=wg; ctx.fillRect(0,0,W,H);
+    // Crack lines
+    TRACKS.forEach(t=>{
+      ctx.save(); ctx.translate(t.x,t.y); ctx.rotate(t.angle);
+      ctx.strokeStyle='rgba(20,5,0,0.45)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,t.len); ctx.stroke();
+      ctx.restore();
+    });
+    // Scattered debris
+    DEBRIS.forEach(d=>{
+      ctx.save(); ctx.translate(d.x,d.y); ctx.rotate(d.angle);
+      ctx.fillStyle='rgba(90,45,20,0.65)';
+      ctx.fillRect(-d.r/2,-d.r/4,d.r,d.r/2);
+      ctx.fillStyle='rgba(55,28,10,0.5)';
+      ctx.fillRect(-d.r/3,d.r/4,d.r*0.7,d.r/3);
+      ctx.restore();
+    });
+    // Dark rocks (burnt)
+    ROCKS.forEach(rock=>{
+      ctx.fillStyle=`rgba(${55+rock.shade*25},${22+rock.shade*10},5,0.7)`;
+      ctx.beginPath(); ctx.ellipse(rock.x,rock.y,rock.r*1.4,rock.r,0,0,Math.PI*2); ctx.fill();
+    });
+    // Heat haze tint
+    ctx.fillStyle='rgba(80,20,0,0.07)'; ctx.fillRect(0,0,W,H);
+  } else {
+    // Classic desert
+    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
+    g.addColorStop(0,'#e8c97a'); g.addColorStop(0.6,'#d4a84b'); g.addColorStop(1,'#b8882a');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    TRACKS.forEach(t=>{
+      ctx.save(); ctx.translate(t.x,t.y); ctx.rotate(t.angle);
+      ctx.strokeStyle='rgba(100,60,0,0.2)'; ctx.lineWidth=3; ctx.setLineDash([6,8]);
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,t.len); ctx.stroke();
+      ctx.setLineDash([]); ctx.restore();
+    });
+    ROCKS.forEach(rock=>{
+      ctx.fillStyle=`rgba(${120+rock.shade*40},${90+rock.shade*20},50,0.7)`;
+      ctx.beginPath(); ctx.ellipse(rock.x,rock.y,rock.r*1.4,rock.r,0,0,Math.PI*2); ctx.fill();
+    });
+    CACTI.forEach(c=>{
+      ctx.fillStyle='#4a7c3f';
+      ctx.fillRect(c.x-3,c.y-c.h,6,c.h);
+      ctx.fillRect(c.x-10,c.y-c.h*0.6,8,4); ctx.fillRect(c.x-10,c.y-c.h*0.8,4,c.h*0.2);
+      ctx.fillRect(c.x+2,c.y-c.h*0.5,8,4);  ctx.fillRect(c.x+6, c.y-c.h*0.7,4,c.h*0.2);
+    });
+  }
 }
 
 function drawPowerups() {
@@ -862,7 +1124,8 @@ function drawHomeScreen() {
     }
     ctx.fillStyle=(hovered||focused)?'#ff9944':'#ffcc44';
     ctx.font=`bold ${W>500?17:14}px Courier New`; ctx.textAlign='center';
-    ctx.fillText(`LEVEL ${i+1}: ${LEVELS[i].name}`,W/2,by+22);
+    const themeIcon = {desert:'🏜️',night:'🌙',city:'🏙️',wasteland:'🔥'}[LEVELS[i].mapTheme]||'';
+    ctx.fillText(`${themeIcon} LEVEL ${i+1}: ${LEVELS[i].name}`,W/2,by+22);
     ctx.fillStyle='#999'; ctx.font='11px Courier New';
     ctx.fillText(LEVELS[i].description,W/2,by+38);
     if (highScores[i]>0) {
@@ -874,7 +1137,7 @@ function drawHomeScreen() {
   // Garage button
   const g=garageBtnRect();
   const ghov=mouse.x>=g.bx&&mouse.x<=g.bx+g.bw&&mouse.y>=g.by&&mouse.y<=g.by+g.bh;
-  const gfoc=(homeKeyFocus===4);
+  const gfoc=(homeKeyFocus===LEVELS.length);
   ctx.fillStyle=(ghov||gfoc)?'rgba(0,180,100,0.28)':'rgba(0,0,0,0.5)';
   ctx.fillRect(g.bx,g.by,g.bw,g.bh);
   ctx.strokeStyle=(ghov||gfoc)?'#00cc66':'#336633';
@@ -1075,13 +1338,14 @@ function startGame() {
   player.x=W/2; player.y=H/2; player.vx=0; player.vy=0; player.angle=0;
   player.w=CARS[selectedCarIdx].w; player.h=CARS[selectedCarIdx].h;
   cops=[]; dustParticles=[]; explosions=[]; powerups=[];
-  score=0; frame=0; copTimer=0; powerupTimer=0;
+  score=0; frame=0; copTimer=0; powerupTimer=0; prevPlayerSpeed=0;
   activeEffects={shield:0,speed:0,freeze:0,ghost:0};
   shieldHit=false; newUnlockNames=[];
   joystick.active=false;
   genScenery();
   state='playing';
   sfx.play('start');
+  sfx.startEngine();
   gtag('event','game_start',{game:'Desert Chase',level:currentLevel});
 }
 function restart(lvl) { currentLevel=lvl||0; startGame(); }
@@ -1118,7 +1382,12 @@ function loop() {
     player.x=Math.max(player.w/2,Math.min(W-player.w/2,player.x+player.vx));
     player.y=Math.max(player.h/2,Math.min(H-player.h/2,player.y+player.vy));
     const spd2=Math.sqrt(player.vx*player.vx+player.vy*player.vy);
-    if (frame%4===0&&spd2>1) spawnDust(player.x,player.y+10);
+    const dustColor = {desert:'#c4a257',night:'#443820',city:'#888',wasteland:'#6a3010'}[LEVELS[currentLevel]?.mapTheme]||'#c4a257';
+    if (frame%4===0&&spd2>1) spawnDust(player.x,player.y+10,dustColor);
+    // Engine sound update + screech on sudden deceleration
+    sfx.updateEngine(spd2/8.5);
+    if (prevPlayerSpeed>3.5&&spd2<1.2&&frame%25===0) sfx.play('screech');
+    prevPlayerSpeed=spd2;
 
     // ── Spawning ──
     if (++copTimer>=lvl.spawnRate) { spawnCop(); copTimer=0; }
@@ -1138,10 +1407,15 @@ function loop() {
         cop.vy+=(Math.sin(ca)*cop.speed*freezeMult-cop.vy)*0.15;
       }
       cop.x+=cop.vx; cop.y+=cop.vy; cop.lt++;
-      if (frame%7===0) spawnDust(cop.x,cop.y+10,'#b09040');
+      if (frame%7===0) spawnDust(cop.x,cop.y+10,dustColor);
     });
     cops=cops.filter(c=>c.age<c.lifetime);
     for (let i=0;i<cops.length;i++) for (let j=i+1;j<cops.length;j++) separateCops(cops[i],cops[j]);
+    // Siren sound when cops are nearby
+    if (frame%110===0&&cops.length>0) {
+      const nearCop=cops.some(c=>Math.hypot(c.x-player.x,c.y-player.y)<220);
+      if (nearCop) sfx.play('siren');
+    }
 
     // ── Powerup tick ──
     powerups.forEach(p=>p.life--);
@@ -1171,7 +1445,7 @@ function loop() {
             spawnExplosion(player.x,player.y); spawnExplosion(cop.x,cop.y);
             if (score>highScores[currentLevel]) highScores[currentLevel]=score;
             state='dead';
-            sfx.play('die');
+            sfx.play('die'); sfx.stopEngine();
             gtag('event','game_over',{game:'Desert Chase',level:currentLevel,score:score});
             break;
           }
@@ -1188,7 +1462,7 @@ function loop() {
         newUnlockNames = CARS.filter(c=>c.unlockLevel===currentLevel).map(c=>c.name);
       }
       state='win';
-      sfx.play('win');
+      sfx.play('win'); sfx.stopEngine();
       gtag('event','game_win',{game:'Desert Chase',level:currentLevel,score:score});
     }
 
