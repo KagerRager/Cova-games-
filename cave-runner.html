@@ -113,11 +113,37 @@ const sfx = (() => {
       const o = c.createOscillator();
       o.connect(g);
       const t = c.currentTime;
-      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
-      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
-      else if (name==='die'||name==='over'||name==='hit') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
-      else if (name==='jump') { o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1); g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
-      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
+      if (name==='start') {
+        o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15);
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2);
+      } else if (name==='score'||name==='point') {
+        o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08);
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='coin') {
+        // bright ding for coin collect
+        o.type='triangle'; o.frequency.setValueAtTime(1047,t); o.frequency.linearRampToValueAtTime(1319,t+0.07);
+        g.gain.setValueAtTime(0.22,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='die'||name==='over'||name==='hit') {
+        o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3);
+        g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35);
+      } else if (name==='jump') {
+        o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1);
+        g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='land') {
+        // thud when landing
+        o.type='triangle'; o.frequency.setValueAtTime(180,t); o.frequency.linearRampToValueAtTime(80,t+0.08);
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.1); o.start(t); o.stop(t+0.1);
+      } else if (name==='nearMiss') {
+        // whoosh near-miss
+        o.type='sine'; o.frequency.setValueAtTime(600,t); o.frequency.linearRampToValueAtTime(200,t+0.12);
+        g.gain.setValueAtTime(0.08,t); g.gain.linearRampToValueAtTime(0,t+0.15); o.start(t); o.stop(t+0.15);
+      } else if (name==='levelup') {
+        // ascending fanfare
+        [523,659,784,1047].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='triangle'; o2.frequency.value=f; o2.start(t+i*0.08); o2.stop(t+i*0.08+0.1); });
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.45); o.disconnect();
+      } else if (name==='click') {
+        o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05);
+      }
     } catch(e) {}
   }
   return { play };
@@ -143,18 +169,22 @@ const GRAVITY    = 0.6;
 const JUMP_FORCE = -13;
 
 // ── STATE ──
-let player, obstacles, particles, score, hi, level, speed, frameCount, running, animId, spawnTimer;
+let player, obstacles, particles, coins, score, coinScore, hi, level, lastLevel, speed, frameCount, running, animId, spawnTimer, coinTimer;
 hi = parseInt(localStorage.getItem('caverunner_hi')) || 0;
 
 function initState() {
   player    = { y: GROUND_Y - PLAYER_H, vy: 0, onGround: true, jumpCount: 0 };
   obstacles = [];
   particles = [];
+  coins     = [];
   score     = 0;
+  coinScore = 0;
   level     = 1;
   speed     = 4;
   frameCount = 0;
   spawnTimer = 0;
+  coinTimer  = 0;
+  lastLevel  = 1;
 }
 
 // ── PARTICLES ──
@@ -329,9 +359,50 @@ function drawObstacles() {
   });
 }
 
+// ── COINS ──
+function spawnCoin() {
+  // Coins float at mid-air height
+  const coinY = GROUND_Y - PLAYER_H - 20 - Math.floor(Math.random() * 50);
+  coins.push({ x: W + 20, y: coinY, r: 8, alive: true, pulse: Math.random() * Math.PI * 2 });
+}
+
+function drawCoins() {
+  coins.forEach(cn => {
+    if (!cn.alive) return;
+    cn.pulse += 0.1;
+    const sc = 0.85 + Math.sin(cn.pulse) * 0.15;
+    const x = cn.x, y = cn.y;
+    // Glow
+    const cg = ctx.createRadialGradient(x, y, 0, x, y, cn.r * 2.5 * sc);
+    cg.addColorStop(0, 'rgba(255,204,0,0.55)');
+    cg.addColorStop(1, 'transparent');
+    ctx.fillStyle = cg;
+    ctx.beginPath(); ctx.arc(x, y, cn.r * 2.5 * sc, 0, Math.PI*2); ctx.fill();
+    // Coin body
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath(); ctx.arc(x, y, cn.r * sc, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffe066';
+    ctx.beginPath(); ctx.arc(x - 2, y - 2, cn.r * 0.38 * sc, 0, Math.PI*2); ctx.fill();
+    // Rim
+    ctx.strokeStyle = '#e8a020';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, cn.r * sc, 0, Math.PI*2); ctx.stroke();
+  });
+}
+
 // ── COLLISION ──
 function checkCollision() {
   const px = PLAYER_X + 6, py = player.y + 2, pw = PLAYER_W - 10, ph = PLAYER_H - 4;
+
+  // Near-miss detection (obstacle passed very close without hitting; ~5-20 px window behind player)
+  const NEAR_MISS_NEAR = 5, NEAR_MISS_FAR = 20;
+  obstacles.forEach(ob => {
+    if (!ob.nearMissChecked && ob.x + ob.w < PLAYER_X - NEAR_MISS_NEAR && ob.x + ob.w > PLAYER_X - NEAR_MISS_FAR) {
+      ob.nearMissChecked = true;
+      sfx.play('nearMiss');
+    }
+  });
+
   return obstacles.some(ob => {
     if (ob.type === 'rock') {
       return px < ob.x + ob.w && px + pw > ob.x && py + ph > ob.y && py < ob.y + ob.h;
@@ -349,6 +420,11 @@ function drawHUD() {
   ctx.font = 'bold 14px Cinzel, serif';
   ctx.textAlign = 'right';
   ctx.fillText('LVL ' + level, W - 10, 22);
+  if (coinScore > 0) {
+    ctx.fillStyle = 'rgba(255,204,0,0.85)';
+    ctx.font = 'bold 13px Nunito, sans-serif';
+    ctx.fillText('🪙 ' + coinScore, W - 10, 42);
+  }
   ctx.textAlign = 'left';
 }
 
@@ -360,15 +436,15 @@ function drawGameOver() {
   ctx.font = 'bold 28px Cinzel, serif';
   ctx.textAlign = 'center';
   ctx.fillStyle = '#e8a020';
-  ctx.fillText('GAME OVER', W/2, H/2 - 25);
+  ctx.fillText('GAME OVER', W/2, H/2 - 30);
 
   ctx.font = '14px Nunito, sans-serif';
   ctx.fillStyle = '#f0e6d0';
-  ctx.fillText('Score: ' + score, W/2, H/2 + 5);
+  ctx.fillText('Score: ' + score + (coinScore > 0 ? '  🪙 ' + coinScore + ' coins' : ''), W/2, H/2 + 2);
 
   ctx.font = '12px Nunito, sans-serif';
   ctx.fillStyle = '#9a8870';
-  ctx.fillText('Press Start to try again', W/2, H/2 + 28);
+  ctx.fillText('Press Start to try again', W/2, H/2 + 26);
   ctx.textAlign = 'left';
 }
 
@@ -391,7 +467,12 @@ function loop() {
 
   // Increase speed & level
   speed = 4 + Math.floor(score / 15) * 0.5;
-  level = Math.floor(score / 15) + 1;
+  const newLevel = Math.floor(score / 15) + 1;
+  if (newLevel > lastLevel) {
+    lastLevel = newLevel;
+    sfx.play('levelup');
+  }
+  level = newLevel;
   document.getElementById('levelVal').textContent = level;
 
   // Spawn obstacles
@@ -402,9 +483,31 @@ function loop() {
     spawnTimer = 0;
   }
 
-  // Move obstacles
+  // Spawn coins (every 90-120 frames)
+  coinTimer++;
+  if (coinTimer > 90 + Math.floor(Math.random() * 30)) {
+    spawnCoin();
+    coinTimer = 0;
+  }
+
+  // Move obstacles & coins
   obstacles.forEach(ob => ob.x -= speed);
   obstacles = obstacles.filter(ob => ob.x > -60);
+  coins.forEach(cn => cn.x -= speed);
+  coins = coins.filter(cn => cn.x > -20);
+
+  // Coin collection
+  const px = PLAYER_X + 6, py2 = player.y + 2, pw = PLAYER_W - 10, ph = PLAYER_H - 4;
+  coins.forEach(cn => {
+    if (!cn.alive) return;
+    const dist = Math.hypot(PLAYER_X + PLAYER_W/2 - cn.x, player.y + PLAYER_H/2 - cn.y);
+    if (dist < cn.r + PLAYER_W * 0.55) {
+      cn.alive = false;
+      coinScore++;
+      sfx.play('coin');
+      spawnParticles(cn.x, cn.y, '#ffcc00', 8);
+    }
+  });
 
   // Score
   obstacles.forEach(ob => {
@@ -422,6 +525,7 @@ function loop() {
   });
 
   // Physics
+  const wasOnGround = player.onGround;
   if (!player.onGround) {
     player.vy += GRAVITY;
     player.y  += player.vy;
@@ -431,6 +535,7 @@ function loop() {
       player.onGround = true;
       player.jumpCount = 0;
       spawnParticles(PLAYER_X + 16, GROUND_Y, '#c87832', 5);
+      if (!wasOnGround) sfx.play('land');
     }
   }
 
@@ -447,6 +552,7 @@ function loop() {
   // Draw
   drawBg();
   drawObstacles();
+  drawCoins();
   drawParticles();
   drawPlayer();
   drawHUD();

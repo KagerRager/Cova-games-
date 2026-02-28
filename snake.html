@@ -67,10 +67,30 @@ const sfx = (() => {
       const o = c.createOscillator();
       o.connect(g);
       const t = c.currentTime;
-      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
-      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
-      else if (name==='die'||name==='over'||name==='hit') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
-      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
+      if (name==='start') {
+        o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15);
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2);
+      } else if (name==='score'||name==='point') {
+        o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08);
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='golden') {
+        // golden food fanfare
+        [784,1047,1319].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='triangle'; o2.frequency.value=f; o2.start(t+i*0.07); o2.stop(t+i*0.07+0.1); });
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.disconnect();
+      } else if (name==='milestone') {
+        // milestone every 5 foods
+        [523,659,784,659,784].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='square'; o2.frequency.value=f; o2.start(t+i*0.07); o2.stop(t+i*0.07+0.09); });
+        g.gain.setValueAtTime(0.15,t); g.gain.linearRampToValueAtTime(0,t+0.5); o.disconnect();
+      } else if (name==='speedup') {
+        // speed up whoosh
+        o.type='sawtooth'; o.frequency.setValueAtTime(150,t); o.frequency.linearRampToValueAtTime(600,t+0.12);
+        g.gain.setValueAtTime(0.12,t); g.gain.linearRampToValueAtTime(0,t+0.15); o.start(t); o.stop(t+0.15);
+      } else if (name==='die'||name==='over'||name==='hit') {
+        o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3);
+        g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35);
+      } else if (name==='click') {
+        o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05);
+      }
     } catch(e) {}
   }
   return { play };
@@ -108,7 +128,7 @@ function setupGrid() {
 }
 
 /* ─── STATE ─── */
-let snake, dir, nextDir, food, score, hiScore, speed, phase, frameCount, growCount;
+let snake, dir, nextDir, food, goldenFood, score, hiScore, speed, phase, frameCount, growCount, foodEaten;
 
 hiScore = 0;
 
@@ -123,6 +143,8 @@ function init() {
   speed = 8;
   frameCount = 0;
   growCount = 0;
+  foodEaten = 0;
+  goldenFood = null;
   spawnFood();
   phase = 'play';
   gtag('event', 'game_start', {game: 'Neon Snake'});
@@ -134,6 +156,14 @@ function spawnFood() {
     pos = {x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)};
   } while (snake.some(s => s.x === pos.x && s.y === pos.y));
   food = pos;
+  // Every 5 foods, spawn a golden food worth 30 pts
+  if (foodEaten > 0 && foodEaten % 5 === 0 && !goldenFood) {
+    let gpos;
+    do {
+      gpos = {x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)};
+    } while (snake.some(s => s.x === gpos.x && s.y === gpos.y) || (gpos.x === food.x && gpos.y === food.y));
+    goldenFood = {x: gpos.x, y: gpos.y, timer: 120}; // ~2s at 60 FPS; disappears if not eaten
+  }
 }
 
 /* ─── INPUT ─── */
@@ -242,6 +272,35 @@ function drawFood() {
   X.beginPath(); X.moveTo(x, y - CELL * 0.38 * pulse); X.lineTo(x + 3, y - CELL * 0.5 * pulse); X.stroke();
 }
 
+function drawGoldenFood() {
+  if (!goldenFood) return;
+  const x = gx(goldenFood.x) + CELL / 2;
+  const y = gy(goldenFood.y) + CELL / 2;
+  const pulse = 0.8 + 0.25 * Math.sin(frameCount * 0.18);
+  const fade = Math.min(1, goldenFood.timer / 30); // fades out last 30 frames
+  X.globalAlpha = fade;
+  // outer glow
+  const g = X.createRadialGradient(x, y, 0, x, y, CELL * 1.2 * pulse);
+  g.addColorStop(0, 'rgba(255,220,0,0.7)');
+  g.addColorStop(1, 'transparent');
+  X.fillStyle = g;
+  X.beginPath(); X.arc(x, y, CELL * 1.2 * pulse, 0, Math.PI * 2); X.fill();
+  // star shape
+  X.fillStyle = '#ffdd00';
+  X.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const a1 = (i * 2 * Math.PI / 5) - Math.PI / 2;
+    const a2 = a1 + Math.PI / 5;
+    const r1 = CELL * 0.4 * pulse, r2 = CELL * 0.17 * pulse;
+    if (i === 0) X.moveTo(x + Math.cos(a1) * r1, y + Math.sin(a1) * r1);
+    else X.lineTo(x + Math.cos(a1) * r1, y + Math.sin(a1) * r1);
+    X.lineTo(x + Math.cos(a2) * r2, y + Math.sin(a2) * r2);
+  }
+  X.closePath(); X.fill();
+  X.strokeStyle = '#fff8aa'; X.lineWidth = 1.5; X.stroke();
+  X.globalAlpha = 1;
+}
+
 function drawHUD() {
   X.font = 'bold 18px Nunito, sans-serif';
   X.fillStyle = '#3db8a0';
@@ -250,6 +309,13 @@ function drawHUD() {
   X.textAlign = 'right';
   X.fillStyle = '#e8a020';
   X.fillText('BEST  ' + hiScore, ox + cols * CELL, oy - 14);
+  // Show golden food hint
+  if (goldenFood) {
+    X.font = 'bold 13px Nunito, sans-serif';
+    X.fillStyle = '#ffdd00';
+    X.textAlign = 'center';
+    X.fillText('⭐ GOLDEN +30', ox + cols * CELL / 2, oy - 14);
+  }
 }
 
 function drawMenu() {
@@ -346,14 +412,32 @@ function update() {
 
   snake.unshift(head);
 
+  // Tick down golden food timer
+  if (goldenFood) {
+    goldenFood.timer--;
+    if (goldenFood.timer <= 0) goldenFood = null;
+  }
+
   if (head.x === food.x && head.y === food.y) {
     score += 10;
+    foodEaten++;
     if (score > hiScore) hiScore = score;
     growCount += 2;
+    const prevSpeed = speed;
     speed = Math.min(20, 8 + Math.floor(score / 50));
-    sfx.play('score');
+    if (speed > prevSpeed) sfx.play('speedup');
+    else sfx.play('score');
+    // Milestone every 5 foods
+    if (foodEaten % 5 === 0) setTimeout(() => sfx.play('milestone'), 150);
     spawnFood();
     gtag('event', 'food_eaten', {game: 'Neon Snake', score});
+  } else if (goldenFood && head.x === goldenFood.x && head.y === goldenFood.y) {
+    score += 30;
+    if (score > hiScore) hiScore = score;
+    growCount += 4;
+    sfx.play('golden');
+    goldenFood = null;
+    gtag('event', 'golden_food_eaten', {game: 'Neon Snake', score});
   } else if (growCount > 0) {
     growCount--;
   } else {
@@ -377,11 +461,13 @@ function loop() {
     update();
     drawBg();
     drawFood();
+    drawGoldenFood();
     drawSnake();
     drawHUD();
   } else if (phase === 'over') {
     drawBg();
     drawFood();
+    drawGoldenFood();
     drawSnake();
     drawHUD();
     drawGameOver();

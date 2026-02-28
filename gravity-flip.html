@@ -59,10 +59,39 @@ const sfx = (() => {
       const o = c.createOscillator();
       o.connect(g);
       const t = c.currentTime;
-      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
-      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
-      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
-      else if (name==='jump'||name==='click') { o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1); g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      if (name==='start') {
+        o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15);
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2);
+      } else if (name==='score'||name==='point') {
+        o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08);
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='die'||name==='over') {
+        o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3);
+        g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35);
+      } else if (name==='jump'||name==='click') {
+        o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1);
+        g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12);
+      } else if (name==='nearMiss') {
+        // whoosh for a close call
+        o.type='sine'; o.frequency.setValueAtTime(800,t); o.frequency.linearRampToValueAtTime(200,t+0.15);
+        g.gain.setValueAtTime(0.08,t); g.gain.linearRampToValueAtTime(0,t+0.18); o.start(t); o.stop(t+0.18);
+      } else if (name==='levelup') {
+        // ascending fanfare on level up
+        [392,494,587,784].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='triangle'; o2.frequency.value=f; o2.start(t+i*0.09); o2.stop(t+i*0.09+0.12); });
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.48); o.disconnect();
+      } else if (name==='shield') {
+        // shield pickup
+        o.type='triangle'; o.frequency.setValueAtTime(600,t); o.frequency.linearRampToValueAtTime(900,t+0.08); o.frequency.linearRampToValueAtTime(700,t+0.15);
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2);
+      } else if (name==='shieldHit') {
+        // shield absorbs hit
+        o.type='square'; o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(200,t+0.15);
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2);
+      } else if (name==='gemChain') {
+        // collecting multiple gems in a row
+        [784,880,988].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='sine'; o2.frequency.value=f; o2.start(t+i*0.06); o2.stop(t+i*0.06+0.09); });
+        g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.28); o.disconnect();
+      }
     } catch(e) {}
   }
   return { play };
@@ -97,12 +126,13 @@ const FLIP_IMPULSE = 7.8;
 
 /* ─── STATE ─── */
 let py, pvy, flipped;
-let walls, gems, trail, parts;
+let walls, gems, shields, trail, parts;
 let score, hi=parseInt(localStorage.getItem('gravityflip_hi'))||0, level, speed;
-let tick, spawnTimer;
+let tick, spawnTimer, lastLevel;
 let running=false, phase='menu', raf=0;
 let shake=0, invTimer=0, lastFlipY=0;
 let deathParts=[];
+let hasShield=false, gemStreak=0;
 
 function resetGame() {
   py = H/2 - PSZ;
@@ -110,16 +140,20 @@ function resetGame() {
   flipped = false;
   walls = [];
   gems = [];
+  shields = [];
   trail = [];
   parts = [];
   deathParts = [];
   score = 0;
   level = 1;
+  lastLevel = 1;
   speed = 3.0;
   tick = 0;
   spawnTimer = 0;
   shake = 0;
   invTimer = 0;
+  hasShield = false;
+  gemStreak = 0;
   // Pre-fill walls so screen isn't empty at start
   let wx = W + 60;
   for(let i = 0; i < 12; i++) {
@@ -143,13 +177,21 @@ function pushWall(wx) {
   const gap = gapSize();
   const topMax = H - gap - 40;
   const topH = 40 + Math.random() * topMax;
-  walls.push({ x: wx, topH, botH: H - topH - gap, gap, w: WALL_W, scored: false });
+  walls.push({ x: wx, topH, botH: H - topH - gap, gap, w: WALL_W, scored: false, nearMissed: false });
   // crystal chance
   if(Math.random() < 0.5) {
     gems.push({
       x: wx + WALL_W/2,
       y: topH + gap/2 + (Math.random()-0.5)*gap*0.3,
       r: 8, alive: true, pulse: Math.random()*Math.PI*2
+    });
+  }
+  // Shield pickup chance: 15%, only if player doesn't already have one
+  if(!hasShield && Math.random() < 0.15) {
+    shields.push({
+      x: wx + WALL_W/2 + 60,
+      y: topH + gap/2,
+      r: 10, alive: true, pulse: Math.random()*Math.PI*2
     });
   }
 }
@@ -187,6 +229,13 @@ function update() {
   level = 1 + Math.floor(score / 12);
   speed = 3.0 + (level-1) * 0.32;
 
+  // Level up fanfare
+  if(level > lastLevel) {
+    lastLevel = level;
+    sfx.play('levelup');
+    popTxt(PX+PSZ, py, 'LVL '+level+' ⬆', '#ffcc55', true);
+  }
+
   // Physics
   const gDir = flipped ? -1 : 1;
   pvy += GRAV * gDir;
@@ -198,26 +247,39 @@ function update() {
   trail.push({x: PX+PSZ, y: py+PSZ});
   if(trail.length > 20) trail.shift();
 
-  // Scroll walls + gems
+  // Scroll walls + gems + shields
   walls.forEach(w => w.x -= speed);
   gems.forEach(g => g.x -= speed);
+  shields.forEach(s => s.x -= speed);
 
   // Cull
-  walls = walls.filter(w => w.x > -WALL_W-10);
-  gems  = gems.filter(g  => g.x > -20);
+  walls   = walls.filter(w => w.x > -WALL_W-10);
+  gems    = gems.filter(g  => g.x > -20);
+  shields = shields.filter(s => s.x > -20);
 
   // Spawn
   const lastX = walls.length ? walls[walls.length-1].x : W;
   if(lastX < W + 80) pushWall(lastX + wallSpacing());
 
-  // Score
+  // Score + near-miss detection
   walls.forEach(w => {
     if(!w.scored && w.x + w.w < PX) {
       w.scored = true;
       score++;
+      sfx.play('score');
       if(score > hi) { hi = score; localStorage.setItem('gravityflip_hi', hi); }
-      // level-up flash
-      if(score % 12 === 0) popTxt(PX+PSZ, py, 'LVL '+level, '#ffcc55', true);
+    }
+    // Near-miss: wall just passed, player was within gap but close to an edge
+    if(!w.nearMissed && w.x + w.w < PX && w.x + w.w > PX - speed * 2) {
+      const playerCy = py + PSZ;
+      const gapTop = w.topH, gapBot = H - w.botH;
+      const NEAR_MISS_MARGIN = 28; // px from gap edge counts as a near-miss
+      if(playerCy >= gapTop && playerCy <= gapBot &&
+         (playerCy < gapTop + NEAR_MISS_MARGIN || playerCy > gapBot - NEAR_MISS_MARGIN)) {
+        w.nearMissed = true;
+        sfx.play('nearMiss');
+        popTxt(PX+PSZ, py, 'CLOSE! 😬', '#ff9900');
+      }
     }
   });
 
@@ -229,10 +291,30 @@ function update() {
     if(dist < g.r + PSZ*0.8) {
       g.alive = false;
       score += 3;
-      sfx.play('score');
+      gemStreak++;
+      if(gemStreak >= 3) {
+        sfx.play('gemChain');
+        popTxt(g.x, g.y-20, '💎 CHAIN x'+gemStreak+'!', '#3db8a0', true);
+      } else {
+        sfx.play('score');
+        popTxt(g.x, g.y-16, '+3 💎', '#3db8a0');
+      }
       if(score > hi) { hi = score; localStorage.setItem('gravityflip_hi', hi); }
       burst(g.x, g.y, '#3db8a0', 14, 5);
-      popTxt(g.x, g.y-16, '+3 💎', '#3db8a0');
+    }
+  });
+
+  // Shield collection
+  shields.forEach(s => {
+    if(!s.alive) return;
+    s.pulse += 0.08;
+    const dist = Math.hypot(PX+PSZ - s.x, py+PSZ - s.y);
+    if(dist < s.r + PSZ*0.8) {
+      s.alive = false;
+      hasShield = true;
+      sfx.play('shield');
+      burst(s.x, s.y, '#4488ff', 16, 5);
+      popTxt(s.x, s.y-16, '🛡 SHIELD!', '#4488ff', true);
     }
   });
 
@@ -265,6 +347,16 @@ function update() {
 }
 
 function die() {
+  if(hasShield) {
+    // Shield absorbs the hit
+    hasShield = false;
+    shake = 10;
+    invTimer = 60; // ~1s of post-shield invincibility at 60 FPS
+    sfx.play('shieldHit');
+    burst(PX+PSZ, py+PSZ, '#4488ff', 20, 7);
+    popTxt(PX+PSZ, py, '🛡 SAVED!', '#4488ff', true);
+    return;
+  }
   shake = 18;
   sfx.play('die');
   burst(PX+PSZ, py+PSZ, '#e8a020', 30, 9);
@@ -360,6 +452,27 @@ function drawGame() {
     X.restore();
   });
 
+  // ── SHIELDS ──
+  shields.forEach(s => {
+    if(!s.alive) return;
+    s.pulse += 0.09;
+    const sc = 0.85 + Math.sin(s.pulse)*0.15;
+    X.save(); X.translate(s.x, s.y); X.scale(sc, sc);
+    // Glow
+    const sg = X.createRadialGradient(0,0,0,0,0,s.r*2.5);
+    sg.addColorStop(0,'rgba(68,136,255,0.6)'); sg.addColorStop(1,'transparent');
+    X.fillStyle = sg; X.beginPath(); X.arc(0,0,s.r*2.5,0,Math.PI*2); X.fill();
+    // Shield icon
+    X.fillStyle = '#4488ff';
+    X.beginPath();
+    X.moveTo(0, -s.r); X.lineTo(s.r*0.7, -s.r*0.4);
+    X.lineTo(s.r*0.7, s.r*0.2); X.lineTo(0, s.r);
+    X.lineTo(-s.r*0.7, s.r*0.2); X.lineTo(-s.r*0.7, -s.r*0.4);
+    X.closePath(); X.fill();
+    X.strokeStyle = '#aaccff'; X.lineWidth = 1.5; X.stroke();
+    X.restore();
+  });
+
   // ── TRAIL ──
   trail.forEach((t, i) => {
     const a = (i / trail.length) * 0.4;
@@ -420,6 +533,19 @@ function drawGame() {
 
   X.restore();
 
+  // Shield aura on player
+  if(hasShield) {
+    const shieldPulse = 0.7 + 0.3 * Math.sin(tick * 0.15);
+    X.globalAlpha = shieldPulse * 0.6;
+    X.strokeStyle = '#4488ff';
+    X.lineWidth = 3;
+    X.beginPath(); X.arc(PX+PSZ, py+PSZ, PSZ*1.6, 0, Math.PI*2); X.stroke();
+    X.globalAlpha = shieldPulse * 0.15;
+    X.fillStyle = '#4488ff';
+    X.beginPath(); X.arc(PX+PSZ, py+PSZ, PSZ*1.6, 0, Math.PI*2); X.fill();
+    X.globalAlpha = 1;
+  }
+
   // ── HUD ──
   const HH = 68;
   X.fillStyle = 'rgba(4,2,12,0.92)'; X.fillRect(0,0,W,HH);
@@ -442,9 +568,11 @@ function drawGame() {
   X.font='bold 20px Cinzel,serif'; X.fillStyle='#3db8a0'; X.fillText(level,W*0.74,p+13);
 
   X.textAlign='right';
-  X.font='bold 10px Nunito,sans-serif'; X.fillStyle='#9a8870'; X.fillText(flipped?'↑ FLIPPED':'↓ NORMAL',W-p,p);
-  const arrowCol = flipped ? '#3db8a0' : '#9b5de5';
-  X.font='bold 20px Cinzel,serif'; X.fillStyle=arrowCol; X.fillText(flipped?'⬆':'⬇',W-p,p+13);
+  X.font='bold 10px Nunito,sans-serif'; X.fillStyle='#9a8870';
+  X.fillText(hasShield ? '🛡 SHIELD' : (flipped?'↑ FLIPPED':'↓ NORMAL'), W-p, p);
+  const arrowCol = hasShield ? '#4488ff' : (flipped ? '#3db8a0' : '#9b5de5');
+  X.font='bold 20px Cinzel,serif'; X.fillStyle=arrowCol;
+  X.fillText(hasShield ? '🛡' : (flipped?'⬆':'⬇'), W-p, p+13);
 
   X.restore();
 }
@@ -473,7 +601,8 @@ function drawMenu() {
   X.font=`${Math.min(15,W*0.038)}px Nunito,sans-serif`; X.fillStyle='#9a8870';
   X.fillText('Tap or press SPACE to flip gravity', W/2, H*0.49);
   X.fillText('Pass through the gaps without hitting the walls', W/2, H*0.55);
-  X.fillText('💎 Collect crystals for +3 bonus points', W/2, H*0.61);
+  X.fillText('💎 Collect crystals for +3 bonus points', W/2, H*0.60);
+  X.fillText('🛡 Blue shields absorb one hit!', W/2, H*0.65);
 
   // Color picker
   X.font=`${Math.min(12,W*0.03)}px Nunito,sans-serif`; X.fillStyle='#9a8870';

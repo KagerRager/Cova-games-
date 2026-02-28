@@ -129,10 +129,45 @@ const sfx = (() => {
       const o = c.createOscillator();
       o.connect(g);
       const t = c.currentTime;
-      if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
-      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
-      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
-      else if (name==='win') { [440,550,660,880].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.frequency.value=f; o2.start(t+i*0.1); o2.stop(t+i*0.1+0.15); }); g.gain.setValueAtTime(0.22,t); g.gain.linearRampToValueAtTime(0,t+0.55); o.disconnect(); }
+      if (name==='click') {
+        o.frequency.setValueAtTime(520,t); o.frequency.linearRampToValueAtTime(700,t+0.06);
+        g.gain.setValueAtTime(0.12,t); g.gain.linearRampToValueAtTime(0,t+0.08);
+        o.start(t); o.stop(t+0.08);
+      } else if (name==='flood') {
+        // satisfying flood expand
+        o.type='sine'; o.frequency.setValueAtTime(400,t); o.frequency.linearRampToValueAtTime(600,t+0.1);
+        g.gain.setValueAtTime(0.15,t); g.gain.linearRampToValueAtTime(0,t+0.15);
+        o.start(t); o.stop(t+0.15);
+      } else if (name==='combo') {
+        // combo pop - ascending notes
+        [500,650,800].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='triangle'; o2.frequency.value=f; o2.start(t+i*0.07); o2.stop(t+i*0.07+0.1); });
+        g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.32); o.disconnect();
+      } else if (name==='milestone') {
+        // milestone hit (25%, 50%, 75%)
+        [330,440,550,440].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='square'; o2.frequency.value=f; o2.start(t+i*0.08); o2.stop(t+i*0.08+0.09); });
+        g.gain.setValueAtTime(0.14,t); g.gain.linearRampToValueAtTime(0,t+0.42); o.disconnect();
+      } else if (name==='nearwin') {
+        // urgent pulsing warning when close to winning
+        o.type='triangle'; o.frequency.setValueAtTime(880,t); o.frequency.linearRampToValueAtTime(1100,t+0.05);
+        g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.07);
+        o.start(t); o.stop(t+0.07);
+      } else if (name==='danger') {
+        // low moves warning
+        o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.linearRampToValueAtTime(150,t+0.08);
+        g.gain.setValueAtTime(0.12,t); g.gain.linearRampToValueAtTime(0,t+0.1);
+        o.start(t); o.stop(t+0.1);
+      } else if (name==='die'||name==='over') {
+        o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.4);
+        g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.45);
+        o.start(t); o.stop(t+0.45);
+      } else if (name==='win') {
+        [440,550,660,770,880].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='triangle'; o2.frequency.value=f; o2.start(t+i*0.1); o2.stop(t+i*0.1+0.18); });
+        g.gain.setValueAtTime(0.22,t); g.gain.linearRampToValueAtTime(0,t+0.65); o.disconnect();
+      } else if (name==='perfect') {
+        // perfect clear (won with moves to spare)
+        [523,659,784,1047,784,659,523].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.type='sine'; o2.frequency.value=f; o2.start(t+i*0.09); o2.stop(t+i*0.09+0.12); });
+        g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.8); o.disconnect();
+      }
     } catch(e) {}
   }
   return { play };
@@ -162,6 +197,7 @@ let NCOLORS = DIFFS[diff].colors;
 
 let grid    = [];
 let movesLeft, gameOver, bests = JSON.parse(localStorage.getItem('colorflood_bests') || '{}');
+let lastPct = 0, milestones = new Set();
 
 function setDiff(d) {
   diff    = d;
@@ -170,12 +206,15 @@ function setDiff(d) {
   NCOLORS = DIFFS[d].colors;
   document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('d-' + d).classList.add('active');
+  sfx.play('click');
   newGame();
 }
 
 // ─── INIT GRID ───
 function newGame() {
   gameOver = false;
+  lastPct = 0;
+  milestones = new Set();
   const savedBest = bests[diff];
   document.getElementById('bestVal').textContent = savedBest ? savedBest + ' moves' : '–';
   movesLeft = MOVES;
@@ -226,7 +265,8 @@ function flood(targetColor) {
   if (gameOver) return;
   const originColor = grid[0];
   if (targetColor === originColor) return;
-  sfx.play('click');
+
+  const prevCaptured = grid.filter(c => c === grid[0]).length;
 
   // BFS from top-left
   const visited = new Array(SIZE * SIZE).fill(false);
@@ -255,6 +295,39 @@ function flood(targetColor) {
 
   movesLeft--;
   updateBoard();
+
+  const newCaptured = grid.filter(c => c === grid[0]).length;
+  const gained = newCaptured - prevCaptured;
+  const pct = Math.round(newCaptured / (SIZE * SIZE) * 100);
+
+  // Sound based on flood size
+  if (gained >= SIZE * 3) {
+    sfx.play('combo');
+  } else if (gained > 0) {
+    sfx.play('flood');
+  } else {
+    sfx.play('click');
+  }
+
+  // Milestone sounds at 25%, 50%, 75%
+  [25, 50, 75].forEach(m => {
+    if (pct >= m && !milestones.has(m)) {
+      milestones.add(m);
+      setTimeout(() => sfx.play('milestone'), 150);
+    }
+  });
+
+  // Near-win sound
+  if (pct >= 90 && !milestones.has(90)) {
+    milestones.add(90);
+    setTimeout(() => sfx.play('nearwin'), 200);
+  }
+
+  // Low moves warning
+  if (movesLeft === 5) {
+    setTimeout(() => sfx.play('danger'), 100);
+  }
+
   updateHUD();
   checkWin();
 }
@@ -279,12 +352,18 @@ function checkWin() {
 
   if (allSame) {
     gameOver = true;
-    sfx.play('win');
     const used = MOVES - movesLeft;
     const key  = diff;
     if (!bests[key] || used < bests[key]) { bests[key] = used; localStorage.setItem('colorflood_bests', JSON.stringify(bests)); }
     document.getElementById('bestVal').textContent = bests[key] + ' moves';
-    showOverlay('⛏ CLEARED!', 'Solved in ' + used + ' moves! Best: ' + bests[key]);
+    // Perfect clear if at least 8 moves remaining
+    if (movesLeft >= 8) {
+      sfx.play('perfect');
+      showOverlay('✨ PERFECT!', 'Solved in ' + used + ' moves! Best: ' + bests[key]);
+    } else {
+      sfx.play('win');
+      showOverlay('⛏ CLEARED!', 'Solved in ' + used + ' moves! Best: ' + bests[key]);
+    }
     gtag('event','game_win',{game:'Color Flood',moves_used:used,difficulty:diff});
     return;
   }
