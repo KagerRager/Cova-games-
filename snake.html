@@ -162,7 +162,7 @@ function spawnFood() {
     do {
       gpos = {x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)};
     } while (snake.some(s => s.x === gpos.x && s.y === gpos.y) || (gpos.x === food.x && gpos.y === food.y));
-    goldenFood = {x: gpos.x, y: gpos.y, timer: 120}; // disappears after 120 frames
+    goldenFood = {x: gpos.x, y: gpos.y, timer: 120}; // ~2s at 60 FPS; disappears if not eaten
   }
 }
 

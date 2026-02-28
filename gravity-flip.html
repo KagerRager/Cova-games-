@@ -269,14 +269,13 @@ function update() {
       sfx.play('score');
       if(score > hi) { hi = score; localStorage.setItem('gravityflip_hi', hi); }
     }
-    // Near-miss: wall just passed player and player is within 28px of gap edge
+    // Near-miss: wall just passed, player was within gap but close to an edge
     if(!w.nearMissed && w.x + w.w < PX && w.x + w.w > PX - speed * 2) {
       const playerCy = py + PSZ;
       const gapTop = w.topH, gapBot = H - w.botH;
-      const margin = 28;
-      if(playerCy > gapTop + margin && playerCy < gapBot - margin) {
-        // Not that close to edge
-      } else if(playerCy >= gapTop && playerCy <= gapBot) {
+      const NEAR_MISS_MARGIN = 28; // px from gap edge counts as a near-miss
+      if(playerCy >= gapTop && playerCy <= gapBot &&
+         (playerCy < gapTop + NEAR_MISS_MARGIN || playerCy > gapBot - NEAR_MISS_MARGIN)) {
         w.nearMissed = true;
         sfx.play('nearMiss');
         popTxt(PX+PSZ, py, 'CLOSE! 😬', '#ff9900');
@@ -352,7 +351,7 @@ function die() {
     // Shield absorbs the hit
     hasShield = false;
     shake = 10;
-    invTimer = 60; // 1 second of invincibility
+    invTimer = 60; // ~1s of post-shield invincibility at 60 FPS
     sfx.play('shieldHit');
     burst(PX+PSZ, py+PSZ, '#4488ff', 20, 7);
     popTxt(PX+PSZ, py, '🛡 SAVED!', '#4488ff', true);

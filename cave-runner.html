@@ -394,9 +394,10 @@ function drawCoins() {
 function checkCollision() {
   const px = PLAYER_X + 6, py = player.y + 2, pw = PLAYER_W - 10, ph = PLAYER_H - 4;
 
-  // Near-miss detection (obstacle passed very close without hitting)
+  // Near-miss detection (obstacle passed very close without hitting; ~5-20 px window behind player)
+  const NEAR_MISS_NEAR = 5, NEAR_MISS_FAR = 20;
   obstacles.forEach(ob => {
-    if (!ob.nearMissChecked && ob.x + ob.w < PLAYER_X - 5 && ob.x + ob.w > PLAYER_X - 20) {
+    if (!ob.nearMissChecked && ob.x + ob.w < PLAYER_X - NEAR_MISS_NEAR && ob.x + ob.w > PLAYER_X - NEAR_MISS_FAR) {
       ob.nearMissChecked = true;
       sfx.play('nearMiss');
     }
