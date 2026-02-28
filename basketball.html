@@ -47,6 +47,24 @@
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#0d0a07;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#211a12;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#e8a020;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 
 <div class="topbar">
   <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
@@ -66,13 +84,57 @@
     <button class="btn btn-gold" id="startBtn" onclick="startGame()">▶ Start Game</button>
     <button class="btn btn-ghost" onclick="window.location.href='index.html'">🏠 Home</button>
   </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:0.2rem;">
+    <span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Ball:</span>
+    <button id="bc0" onclick="ballColor='#e87030';updateBC(0)" style="width:26px;height:26px;border-radius:50%;background:#e87030;border:3px solid #fff;cursor:pointer;outline:none;" title="Orange"></button>
+    <button id="bc1" onclick="ballColor='#3070e8';updateBC(1)" style="width:26px;height:26px;border-radius:50%;background:#3070e8;border:3px solid transparent;cursor:pointer;outline:none;" title="Blue"></button>
+    <button id="bc2" onclick="ballColor='#50c850';updateBC(2)" style="width:26px;height:26px;border-radius:50%;background:#50c850;border:3px solid transparent;cursor:pointer;outline:none;" title="Green"></button>
+    <button id="bc3" onclick="ballColor='#c030c0';updateBC(3)" style="width:26px;height:26px;border-radius:50%;background:#c030c0;border:3px solid transparent;cursor:pointer;outline:none;" title="Purple"></button>
+    <button id="bc4" onclick="ballColor='#e0c020';updateBC(4)" style="width:26px;height:26px;border-radius:50%;background:#e0c020;border:3px solid transparent;cursor:pointer;outline:none;" title="Yellow"></button>
+  </div>
   <div class="hint">Click &amp; drag to aim — release to shoot!</div>
 </div>
 
 <script>
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
+      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over'||name==='hit') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
+// ── BALL COLOR ──
+let ballColor = '#e87030';
+function updateBC(idx) {
+  document.querySelectorAll('[id^="bc"]').forEach((b,i) => {
+    b.style.border = i === idx ? '3px solid #fff' : '3px solid transparent';
+  });
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
+
+function shadeColor(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const r = Math.max(0, Math.min(255, (n>>16) + amt));
+  const g = Math.max(0, Math.min(255, ((n>>8)&0xff) + amt));
+  const b = Math.max(0, Math.min(255, (n&0xff) + amt));
+  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
 
 let score = 0, shotsLeft = 10, streak = 0, bestStreak = 0;
 let running = false, animId;
@@ -103,6 +165,7 @@ function startGame() {
   hoop = { x: W/2, y: 100, w: 60, rimR: 5, dir: 1, speed: 1.2 };
   scored = false; missedMsg = false;
   running = true;
+  sfx.play('start');
   document.getElementById('startBtn').textContent = '↺ Restart';
   updateHUD();
   cancelAnimationFrame(animId);
@@ -155,6 +218,7 @@ function update() {
     score += pts;
     streak++;
     if (streak > bestStreak) bestStreak = streak;
+    sfx.play('score');
     scored = true; scoredTimer = 60;
     ball.flying = false;
     ball.x = W/2; ball.y = H-60; ball.vx = 0; ball.vy = 0;
@@ -168,6 +232,7 @@ function update() {
   // Ball out of bounds (missed)
   if (ball.y > H + 40) {
     streak = 0;
+    sfx.play('die');
     missedMsg = true; missedTimer = 50;
     ball.flying = false;
     ball.x = W/2; ball.y = H-60; ball.vx = 0; ball.vy = 0;
@@ -259,9 +324,9 @@ function draw() {
 
   // Ball
   const ballGrad = ctx.createRadialGradient(ball.x - 5, ball.y - 5, 2, ball.x, ball.y, ball.r);
-  ballGrad.addColorStop(0, '#ff9933');
-  ballGrad.addColorStop(0.6, '#e85510');
-  ballGrad.addColorStop(1, '#7a2000');
+  ballGrad.addColorStop(0, ballColor);
+  ballGrad.addColorStop(0.6, shadeColor(ballColor, -20));
+  ballGrad.addColorStop(1, shadeColor(ballColor, -60));
   ctx.fillStyle = ballGrad;
   ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
   // Lines on ball

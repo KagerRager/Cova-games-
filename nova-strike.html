@@ -46,11 +46,53 @@
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#00e5ff;text-shadow:0 0 20px rgba(0,229,255,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#5a5a7a;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#1a1a2e;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#00e5ff;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 <div id="wrap">
   <a href="index.html" style="position:fixed;top:8px;left:8px;z-index:100;font-family:Cinzel,serif;font-weight:900;font-size:0.7rem;color:#e8a020;text-decoration:none;text-shadow:0 0 8px rgba(232,160,32,0.4);padding:3px 8px;background:rgba(0,0,0,0.7);border:1px solid #4a3820;border-radius:3px;letter-spacing:0.08em;">🪨 GAMECAVE</a>
   <canvas id="c"></canvas>
 </div>
 <script>
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
+      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+      else if (name==='shoot') { o.type='square'; o.frequency.setValueAtTime(880,t); o.frequency.linearRampToValueAtTime(440,t+0.08); g.gain.setValueAtTime(0.15,t); g.gain.linearRampToValueAtTime(0,t+0.1); o.start(t); o.stop(t+0.1); }
+      else if (name==='explode') { o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.linearRampToValueAtTime(50,t+0.25); g.gain.setValueAtTime(0.35,t); g.gain.linearRampToValueAtTime(0,t+0.3); o.start(t); o.stop(t+0.3); }
+      else if (name==='powerup') { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(1320,t+0.2); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.25); o.start(t); o.stop(t+0.25); }
+      else if (name==='win') { [440,550,660,880].forEach((f,i)=>{ const o2=c.createOscillator(); o2.connect(g); o2.frequency.value=f; o2.start(t+i*0.1); o2.stop(t+i*0.1+0.15); }); g.gain.setValueAtTime(0.22,t); g.gain.linearRampToValueAtTime(0,t+0.55); o.disconnect(); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 canvas.width = 480;
@@ -213,6 +255,7 @@ function buildDivePath(e){
 }
 
 function resetGame(){
+  sfx.play('start');
   score=0; lives=3; wave=1; level=1; levelBanner=0; boss=null; bossWarning=0;
   player=makePlayer();
   bullets=[]; eBullets=[]; particles=[]; powerups=[]; trails=[]; divers=[];
@@ -708,6 +751,7 @@ function update(){
   player.shootTimer++;
   if(player.shootTimer>=rate&&(keys[' ']||touchActive)){
     player.shootTimer=0;
+    sfx.play('shoot');
     bullets.push({x:player.x,y:player.y-18,speed:12});
     if(player.rapidFire>0){
       bullets.push({x:player.x-11,y:player.y-10,speed:12,dx:-0.6});
@@ -835,6 +879,7 @@ function update(){
           powerups.push({x:boss.x+rand(-30,30),y:boss.y,type:t,vy:1.5,t:0});
         }
         score+=2000+Math.floor(wave/5)*500;
+        sfx.play('explode');
         shake(16,30);
         boss=null;
         const oldLevel=Math.ceil(wave/3);
@@ -857,6 +902,7 @@ function update(){
         if(e.hp<=0){
           const pts=e.type==='tank'?150:e.type==='bomber'?100:e.type==='sniper'?120:e.type==='fast'?75:50;
           score+=pts;
+          sfx.play('explode');
           burst(e.x,e.y,hitCol,18);
           if(Math.random()<0.12){
             const t=['life','rapid','shield'][randInt(0,2)];
@@ -902,6 +948,7 @@ function update(){
       else if(p.type==='rapid') player.rapidFire=300;
       else player.shield=400;
       burst(p.x,p.y,'#ffff00',12);
+      sfx.play('powerup');
       powerups.splice(i,1);
     } else if(p.y>H+20) powerups.splice(i,1);
   }
@@ -920,6 +967,7 @@ function update(){
 
   // Next wave — advance when all enemies AND boss are gone
   if(enemies.length===0&&!boss){
+    sfx.play('win');
     const oldLevel=Math.ceil(wave/3);
     wave++;
     const newLevel=Math.ceil(wave/3);
@@ -937,6 +985,7 @@ function hitPlayer(){
   if(lives<=0){
     hiScore=Math.max(score,hiScore);
     localStorage.setItem('ns2_hi',hiScore);
+    sfx.play('die');
     state='gameover';
     gtag('event','game_over',{game:'Nova Strike',score:score,wave:wave});
   }

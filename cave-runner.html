@@ -52,6 +52,24 @@
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:9999;background:#0d0a07;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;font-weight:900;color:#e8a020;text-shadow:0 0 20px rgba(232,160,32,0.6);letter-spacing:0.1em;">🪨 GAMECAVE</div>
+  <div style="margin-top:1rem;font-family:'Nunito',sans-serif;font-size:1rem;color:#9a8870;letter-spacing:0.15em;text-transform:uppercase;">Loading…</div>
+  <div style="margin-top:1.5rem;width:120px;height:4px;background:#211a12;border-radius:2px;overflow:hidden;">
+    <div id="loadBar" style="height:100%;background:#e8a020;width:0%;transition:width 0.7s ease;border-radius:2px;"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('loadBar').style.width = '100%';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loadingScreen');
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }, 400);
+  });
+</script>
 
 <div class="topbar">
   <a class="logo" href="index.html">🪨 GAME<span>CAVE</span></a>
@@ -72,9 +90,47 @@
     <button class="jump-btn" id="jumpBtn">↑</button>
     <span class="hint">Space / Tap to jump</span>
   </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:0.2rem;">
+    <span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Explorer:</span>
+    <button id="pc0" onclick="playerColor='#c87832';updatePC(0)" style="width:26px;height:26px;border-radius:50%;background:#c87832;border:3px solid #fff;cursor:pointer;outline:none;" title="Brown"></button>
+    <button id="pc1" onclick="playerColor='#3a8050';updatePC(1)" style="width:26px;height:26px;border-radius:50%;background:#3a8050;border:3px solid transparent;cursor:pointer;outline:none;" title="Green"></button>
+    <button id="pc2" onclick="playerColor='#6040a0';updatePC(2)" style="width:26px;height:26px;border-radius:50%;background:#6040a0;border:3px solid transparent;cursor:pointer;outline:none;" title="Purple"></button>
+    <button id="pc3" onclick="playerColor='#c03030';updatePC(3)" style="width:26px;height:26px;border-radius:50%;background:#c03030;border:3px solid transparent;cursor:pointer;outline:none;" title="Red"></button>
+    <button id="pc4" onclick="playerColor='#208080';updatePC(4)" style="width:26px;height:26px;border-radius:50%;background:#208080;border:3px solid transparent;cursor:pointer;outline:none;" title="Teal"></button>
+  </div>
 </div>
 
 <script>
+// ── SOUND ENGINE ──
+const sfx = (() => {
+  let ctx;
+  function ensure() { if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function play(name) {
+    try {
+      const c = ensure();
+      const g = c.createGain();
+      g.connect(c.destination);
+      const o = c.createOscillator();
+      o.connect(g);
+      const t = c.currentTime;
+      if (name==='start')  { o.frequency.setValueAtTime(440,t); o.frequency.linearRampToValueAtTime(880,t+0.15); g.gain.setValueAtTime(0.25,t); g.gain.linearRampToValueAtTime(0,t+0.2); o.start(t); o.stop(t+0.2); }
+      else if (name==='score'||name==='point') { o.frequency.setValueAtTime(660,t); o.frequency.linearRampToValueAtTime(880,t+0.08); g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='die'||name==='over'||name==='hit') { o.type='sawtooth'; o.frequency.setValueAtTime(330,t); o.frequency.linearRampToValueAtTime(110,t+0.3); g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+0.35); o.start(t); o.stop(t+0.35); }
+      else if (name==='jump') { o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(600,t+0.1); g.gain.setValueAtTime(0.18,t); g.gain.linearRampToValueAtTime(0,t+0.12); o.start(t); o.stop(t+0.12); }
+      else if (name==='click') { o.frequency.setValueAtTime(800,t); g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.05); o.start(t); o.stop(t+0.05); }
+    } catch(e) {}
+  }
+  return { play };
+})();
+
+// ── PLAYER COLOR ──
+let playerColor = '#c87832';
+function updatePC(idx) {
+  document.querySelectorAll('[id^="pc"]').forEach((b,i) => {
+    b.style.border = i === idx ? '3px solid #fff' : '3px solid transparent';
+  });
+}
+
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
@@ -193,7 +249,7 @@ function drawPlayer() {
   ctx.fill();
 
   // Body — little cave explorer torch-lit
-  ctx.fillStyle = '#c87832';
+  ctx.fillStyle = playerColor;
   ctx.fillRect(px + 6, py + 8, 20, 22); // torso
 
   // Head
@@ -355,6 +411,7 @@ function loop() {
     if (!ob.scored && ob.x + ob.w < PLAYER_X) {
       ob.scored = true;
       score++;
+      sfx.play('score');
       document.getElementById('scoreVal').textContent = score;
       if (score > hi) {
         hi = score;
@@ -401,6 +458,7 @@ function loop() {
 function jump() {
   if (!running) { startGame(); return; }
   if (player.jumpCount < 2) {
+    sfx.play('jump');
     player.vy       = JUMP_FORCE + (player.jumpCount * 2);
     player.onGround = false;
     player.jumpCount++;
@@ -412,6 +470,7 @@ function startGame() {
   cancelAnimationFrame(animId);
   initState();
   running = true;
+  sfx.play('start');
   gtag('event','game_start',{game:'Cave Runner'});
   document.getElementById('startBtn').textContent = '↺ Restart';
   loop();
@@ -420,6 +479,7 @@ function startGame() {
 function endGame() {
   running = false;
   cancelAnimationFrame(animId);
+  sfx.play('die');
   gtag('event','game_over',{game:'Cave Runner',score:score});
   drawGameOver();
   document.getElementById('startBtn').textContent = '▶ Start';
